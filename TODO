@@ -3,6 +3,10 @@ TODO
 
 My wishlist, in probably no specific priority order:
 
+- Stabilize on the XML of def files, the current one has many
+  deficiencies in it. Once this is finished, I'll release it as
+  version 1.0. At the same time, write a DTD for it.
+
 - Support  more  keyboard types, please e-mail me on this if you have a
   keyboard that's not yet supported.
 
@@ -29,6 +33,15 @@ My wishlist, in probably no specific priority order:
 - Documentation, should be done after the code is stabilized.
 
 - Separate into a library:
+
+- New tags suggested by Jean-Philippe (bug #146029):
+
+    Vendor                  (for the HP key)
+    Photo    or Camera      (for My Photo Centre)
+    Sports
+    Finance
+    Music    or MediaPlayer
+
 
 Interface (suggestions welcome)
 ---------
