@@ -229,38 +229,58 @@ readDefFile(const char* filename)
 
     /* Start parsing the XML file */
 
-    /* Get the model name */
-    tc = xmlGetProp( cur, "model" );
-    if ( tc == NULL )
+    if ( (cur = cur->xmlChildrenNode) == NULL )
     {
-        uInfo("Model name missing in %s, skipping it...\n", filename);
-        xmlFreeDoc(doc);
-        return False;
+        parseError(filename);
+    }
+
+    /* search till 'config' is found */
+    while ( ! MatchName( cur, "config" ) )
+    {
+        cur = cur->next;
+        if ( cur == NULL )
+            parseError(filename);
+    }
+
+    if ( MatchName( cur, "config" ) )
+    {
+        /* Get the model name */
+        tc = xmlGetProp( cur, "model" );
+        if ( tc == NULL )
+        {
+            uInfo("Model name missing in %s, skipping it...\n", filename);
+            xmlFreeDoc(doc);
+            return False;
+        }
+        else
+        {
+            kbd.longName = xstrdup(tc);
+        }
+
+        cur = cur->xmlChildrenNode;
+        while ( cur != NULL )
+        {
+            if ( MatchName( cur, "comment" ) )
+            {
+                cur = cur->next;
+                continue;   /* A comment! Continue to the next one */
+            }
+            else if ( MatchName( cur, "userdef" ) )
+            {
+                parseUserDef( doc, cur, curKeySym );
+                curKeySym++;
+            }
+            else if ( ! MatchName( cur, "text" ) )
+            {
+                parseStd( doc, cur );
+            }
+
+            cur = cur->next;
+        }
     }
     else
     {
-        kbd.longName = xstrdup(tc);
-    }
-
-    cur = cur->xmlChildrenNode;
-    while ( cur != NULL )
-    {
-        if ( MatchName( cur, "comment" ) )
-        {
-            cur = cur->next;
-            continue;   /* A comment! Continue to the next one */
-        }
-        else if ( MatchName( cur, "userdef" ) )
-        {
-            parseUserDef( doc, cur, curKeySym );
-            curKeySym++;
-        }
-        else if ( ! MatchName( cur, "text" ) )
-        {
-            parseStd( doc, cur );
-        }
-
-        cur = cur->next;
+        parseError(filename);
     }
 
     xmlFreeDoc(doc);
