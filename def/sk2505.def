@@ -1,32 +1,42 @@
 <?xml version="1.0"?>
-<CONFIG model="SK-2505 Keyboard">
 
-  <Eject        keycode="152"/>
-  <PrevTrack    keycode="144"/>
-  <NextTrack    keycode="153"/>
-  <Play         keycode="162"/>
-  <Stop         keycode="164"/>
+<definition>
 
-  <VolUp        keycode="176" adj="2"/>
-  <VolDown      keycode="174" adj="2"/>
-  <Mute         keycode="160"/>
+  <config model="SK-2505 Keyboard">
+  
+    <Eject        keycode="152"/>
+    <PrevTrack    keycode="144"/>
+    <NextTrack    keycode="153"/>
+    <Play         keycode="162"/>
+    <Stop         keycode="164"/>
+  
+    <VolUp        keycode="176" adj="2"/>
+    <VolDown      keycode="174" adj="2"/>
+    <Mute         keycode="160"/>
+  
+    <Suspend      keycode="165"/>
+  
+    <WebBrowser   keycode="178"/>
+    <Email        keycode="158"/>
+  
+    <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
+  
+    <!-- Phone, actual functionality to be implemented -->
+    <userdef keycode="146" command="ohphone">OhPhone</userdef>
+    <!-- Infomation, actual functionality to be implemented -->
+    <userdef keycode="166" command="xman">xman</userdef>
+    <!-- Shortcut 1 -->
+    <userdef keycode="151" command="xterm -rv">Xterm</userdef>
+    <!-- Shortcut 2 -->
+    <userdef keycode="232" command="xterm -rv">Xterm</userdef>
+    <!-- Shortcut 3 -->
+    <userdef keycode="250" command="xterm -rv">Xterm</userdef>
+  
+  </config>
+  
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <Suspend      keycode="165"/>
-
-  <WebBrowser   keycode="178"/>
-  <Email        keycode="158"/>
-
-  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
-
-  <!-- Phone, actual functionality to be implemented -->
-  <userdef keycode="146" command="ohphone">OhPhone</userdef>
-  <!-- Infomation, actual functionality to be implemented -->
-  <userdef keycode="166" command="xman">xman</userdef>
-  <!-- Shortcut 1 -->
-  <userdef keycode="151" command="xterm -rv">Xterm</userdef>
-  <!-- Shortcut 2 -->
-  <userdef keycode="232" command="xterm -rv">Xterm</userdef>
-  <!-- Shortcut 3 -->
-  <userdef keycode="250" command="xterm -rv">Xterm</userdef>
-
-</CONFIG>
+</definition>

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<definition>
+
+  <config model="IBM Rapid Access II Keyboard">
+
+    <!-- Based on german version of the keyboard - Model: KB-9930 -->
+  
+    <VolUp        keycode="163"/>
+    <VolDown      keycode="161"/>
+    <Mute         keycode="158"/>
+  
+    <PrevTrack    keycode="164"/>
+    <NextTrack    keycode="146"/>
+    <Play         keycode="162"/>
+    <Stop         keycode="160"/>
+  
+    <!-- Green key -->
+    <userdef keycode="165" command="xterm -rv">Xterm</userdef>
+  
+    <!-- Blue key -->
+    <userdef keycode="166" command="mozilla">Mozilla</userdef>
+  
+    <!-- Yellow key -->
+    <userdef keycode="178" command="xchat">XChat</userdef>
+  
+    <!-- Purple key -->
+    <userdef keycode="151" command="xmms -u">XMMS Pause</userdef>
+  
+    <!-- Red key -->
+    <userdef keycode="176" command="xterm -rv">XTerm</userdef>
+  
+    <!-- Light Blue key -->
+    <userdef keycode="174" command="xterm -rv">XTerm</userdef>
+  
+    <!-- White key -->
+    <userdef keycode="223" command="xterm -rv">XTerm</userdef>
+  
+  </config>
+
+  <contributor>
+    <name>Adam Lackorzynski</name>
+    <email>adam@os.inf.tu-dresden.de</email>
+  </contributor>
+
+</definition>

@@ -1,11 +1,21 @@
 <?xml version="1.0"?>
-<CONFIG model="iBook Internal Keyboard">
 
-  <VolUp      keycode="158"/>
-  <VolDown    keycode="165"/>
-  <Mute       keycode="166"/>
+<definition>
 
-  <!-- Apple PowerBook power management daemon -->
-  <userdef    keycode="222" command="/sbin/snooze">PMU sleep</userdef>  
+  <config model="iBook Internal Keyboard">
+  
+    <VolUp      keycode="158"/>
+    <VolDown    keycode="165"/>
+    <Mute       keycode="166"/>
+  
+    <!-- Apple PowerBook power management daemon -->
+    <userdef    keycode="222" command="/sbin/snooze">PMU sleep</userdef>  
+  
+  </config>
 
-</CONFIG>
+  <contributor>
+    <name>Derrik Pates</name>
+    <email>dpates@dsdk12.net</email>
+  </contributor>
+
+</definition>

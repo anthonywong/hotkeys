@@ -1,24 +1,34 @@
 <?xml version="1.0"?>
-<CONFIG model="BTC 9000">
 
-  <PrevTrack    keycode="162"/>
-  <Stop         keycode="144"/>
-  <Play         keycode="153"/>
-  <Eject        keycode="161"/>
-  <NextTrack    keycode="164"/>
+<definition>
 
-  <VolUp        keycode="158" adj="2"/>
-  <VolDown      keycode="165" adj="2"/>
-  <Mute         keycode="146"/>
-  
-  <Search       keycode="178"/>
-  <WebBrowser   keycode="176"/>
-  <MyDocuments  keycode="160"/>
-  <Favorites    keycode="166"/>
-  
-  <Help         keycode="174"/>
-  <Wakeup       keycode="227"/>
-  <Sleep        keycode="223"/>
-  <PowerDown    keycode="222"/>
+  <config model="BTC 9000">
 
-</CONFIG>
+    <PrevTrack    keycode="162"/>
+    <Stop         keycode="144"/>
+    <Play         keycode="153"/>
+    <Eject        keycode="161"/>
+    <NextTrack    keycode="164"/>
+
+    <VolUp        keycode="158" adj="2"/>
+    <VolDown      keycode="165" adj="2"/>
+    <Mute         keycode="146"/>
+    
+    <Search       keycode="178"/>
+    <WebBrowser   keycode="176"/>
+    <MyDocuments  keycode="160"/>
+    <Favorites    keycode="166"/>
+    
+    <Help         keycode="174"/>
+    <Wakeup       keycode="227"/>
+    <Sleep        keycode="223"/>
+    <PowerDown    keycode="222"/>
+
+  </config>
+
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
+
+</definition>

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<definition>
+
+  <config model="ORKTEK USB Hub/keyboard">
+  <!-- probably a ORKTEK USB, this one is labeled Justy Internet Keyboard USB. -->
+  
+    <VolDown        keycode="197" adj="2"/>
+    <VolUp      keycode="213" adj="2"/>
+    <!--Mute         keycode=""/-->
+    <PrevTrack      keycode="228"/>
+    <NextTrack      keycode="212"/>
+    <WebBrowser      keycode="216"/>
+    <Email      keycode="217"/>
+    <Stop      keycode="116"/>
+    <Play      keycode="218"/>
+    <WakeUp    keycode="227"/>
+    <Sleep    keycode="223"/>
+    <PowerDown      keycode="222"/>
+  
+    <!-- User define functions -->
+  
+    <userdef keycode="196" command="xterm -rv">Xterms</userdef>
+    <userdef keycode="202" command="emacs">Emacs</userdef>
+  
+  </config>
+  
+  <contributor>
+    <name>Junichi Uekawa</name>
+    <email>dancer@debian.org</email>
+  </contributor>
+
+</definition>

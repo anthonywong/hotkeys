@@ -1,34 +1,44 @@
 <?xml version="1.0"?>
-<CONFIG model="Microsoft Natural Keyboard Pro">
 
-  <PrevTrack  keycode="144"/>
-  <Stop       keycode="164"/>
-  <Play       keycode="162"/>
-  <NextTrack  keycode="153"/>
+<definition>
+  
+  <config model="Microsoft Natural Keyboard Pro">
+  
+    <PrevTrack  keycode="144"/>
+    <Stop       keycode="164"/>
+    <Play       keycode="162"/>
+    <NextTrack  keycode="153"/>
+  
+    <VolUp      keycode="176" adj="2"/>
+    <VolDown    keycode="174" adj="2"/>
+    <Mute       keycode="160"/>
+  
+    <WebBrowser keycode="178"/>
+    <MyComputer keycode="235"/>
+    <Email      keycode="236"/>
+    <Search     keycode="229"/>
+    <Favorites  keycode="230"/>
+  
+    <Calculator keycode="161"/>
+    <Sleep      keycode="223"/>
+  
+    <userdef    keycode="234"
+                command="gnome-moz-remote --remote=back">Back</userdef>  
+    <userdef    keycode="233"
+                command="gnome-moz-remote --remote=forward">Forward</userdef>
+    <userdef    keycode="232"
+                command="gnome-moz-remote --remote=stop">Stop</userdef> 
+  
+    <!-- Refresh button -->
+    <userdef keycode="231" command="/usr/X11R6/bin/xrefresh">Refresh</userdef>
+    <!-- Media button -->
+    <userdef keycode="237" command="/usr/bin/xmms">XMMS</userdef>
+  
+  </config>
 
-  <VolUp      keycode="176" adj="2"/>
-  <VolDown    keycode="174" adj="2"/>
-  <Mute       keycode="160"/>
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <WebBrowser keycode="178"/>
-  <MyComputer keycode="235"/>
-  <Email      keycode="236"/>
-  <Search     keycode="229"/>
-  <Favorites  keycode="230"/>
-
-  <Calculator keycode="161"/>
-  <Sleep      keycode="223"/>
-
-  <userdef    keycode="234"
-              command="gnome-moz-remote --remote=back">Back</userdef>  
-  <userdef    keycode="233"
-              command="gnome-moz-remote --remote=forward">Forward</userdef>
-  <userdef    keycode="232"
-              command="gnome-moz-remote --remote=stop">Stop</userdef> 
-
-  <!-- Refresh button -->
-  <userdef keycode="231" command="/usr/X11R6/bin/xrefresh">Refresh</userdef>
-  <!-- Media button -->
-  <userdef keycode="237" command="/usr/bin/xmms">XMMS</userdef>
-
-</CONFIG>
+</definition>

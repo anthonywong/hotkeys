@@ -1,22 +1,32 @@
 <?xml version="1.0"?>
-<CONFIG model="Silitek SK5210A Keyboard">
 
-  <VolUp        keycode="176" adj="2"/>
-  <VolDown      keycode="174" adj="2"/>
-  <Mute         keycode="160"/>
+<definition>
+  
+  <config model="Silitek SK5210A Keyboard">
+  
+    <VolUp        keycode="176" adj="2"/>
+    <VolDown      keycode="174" adj="2"/>
+    <Mute         keycode="160"/>
+  
+    <WebBrowser   keycode="178"/>
+    <Email        keycode="158"/>
+  
+    <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
+  
+    <userdef keycode="163" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="146" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="162" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="164" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="151" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="161" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="165" command="xlock">XLock</userdef>
+    <userdef keycode="166" command="xterm -rv">Xterm</userdef>
+  
+  </config>
+  
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <WebBrowser   keycode="178"/>
-  <Email        keycode="158"/>
-
-  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
-
-  <userdef keycode="163" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="146" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="162" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="164" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="151" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="161" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="165" command="xlock">XLock</userdef>
-  <userdef keycode="166" command="xterm -rv">Xterm</userdef>
-
-</CONFIG>
+</definition>

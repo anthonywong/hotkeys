@@ -1,29 +1,39 @@
 <?xml version="1.0"?>
-<CONFIG model="Chicony KBP-8993 keyboard">
-<!--
-        Contributed by Matthijs Melchior <mmelchio@xs4all.nl>
-        The extra keys need to be enabled by sending the bytes 0xea and 0x71
-        to port 0x60 using the standard keyboard protocol.
-        I do this using the kbd_cmd program available in the source package `kbd'.
--->
 
-  <PrevTrack    keycode="163"/>
-  <Play         keycode="162"/>
-  <Stop         keycode="164"/>
-  <NextTrack    keycode="161"/>
+<definition>
 
-  <VolUp        keycode="153" adj="2"/>
-  <VolDown      keycode="146" adj="2"/>
-  <Mute         keycode="160"/>
+  <config model="Chicony KBP-8993 keyboard">
+  <!--
+          Contributed by Matthijs Melchior <mmelchio@xs4all.nl>
+          The extra keys need to be enabled by sending the bytes 0xea and 0x71
+          to port 0x60 using the standard keyboard protocol.
+          I do this using the kbd_cmd program available in the source package `kbd'.
+  -->
+  
+    <PrevTrack    keycode="163"/>
+    <Play         keycode="162"/>
+    <Stop         keycode="164"/>
+    <NextTrack    keycode="161"/>
+  
+    <VolUp        keycode="153" adj="2"/>
+    <VolDown      keycode="146" adj="2"/>
+    <Mute         keycode="160"/>
+  
+    <WebBrowser   keycode="178"/>
+    <Shell        keycode="176"/>
+    <MyDocuments  keycode="151"/>
+    <Sleep        keycode="165"/>
+  
+    <userdef keycode="174" command="gnome-terminal --use-factory --start-factory-server">Close</userdef>
+    <userdef keycode="158" command="gnome-terminal --use-factory --start-factory-server">zzZ</userdef>
+    <userdef keycode="166" command="gnome-terminal --use-factory --start-factory-server">Menu</userdef>
+  
+  
+  </config>
 
-  <WebBrowser   keycode="178"/>
-  <Shell        keycode="176"/>
-  <MyDocuments  keycode="151"/>
-  <Sleep        keycode="165"/>
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <userdef keycode="174" command="gnome-terminal --use-factory --start-factory-server">Close</userdef>
-  <userdef keycode="158" command="gnome-terminal --use-factory --start-factory-server">zzZ</userdef>
-  <userdef keycode="166" command="gnome-terminal --use-factory --start-factory-server">Menu</userdef>
-
-</CONFIG>
-
+</definition>

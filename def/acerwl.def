@@ -1,24 +1,34 @@
 <?xml version="1.0"?>
-<CONFIG model="Acer Wireless Keyboard">
 
-  <PrevTrack    keycode="152"/>
-  <Play         keycode="149"/>
-  <Eject        keycode="177"/>
-  <NextTrack    keycode="147"/>
+<definition>
 
-  <VolUp        keycode="173" adj="2"/>
-  <VolDown      keycode="166" adj="2"/>
-  <Mute         keycode="153"/>
+  <config model="Acer Wireless Keyboard">
 
-  <WebBrowser   keycode="164"/>
-  <Email        keycode="150"/>
-  <Help         keycode="175"/>
-  <WakeUp       keycode="227"/>
-  <Sleep        keycode="222"/>
+    <PrevTrack    keycode="152"/>
+    <Play         keycode="149"/>
+    <Eject        keycode="177"/>
+    <NextTrack    keycode="147"/>
 
-<!--
-  <userdef keycode="175" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="150" command="balsa">Balsa Email client</userdef>
--->
+    <VolUp        keycode="173" adj="2"/>
+    <VolDown      keycode="166" adj="2"/>
+    <Mute         keycode="153"/>
 
-</CONFIG>
+    <WebBrowser   keycode="164"/>
+    <Email        keycode="150"/>
+    <Help         keycode="175"/>
+    <WakeUp       keycode="227"/>
+    <Sleep        keycode="222"/>
+
+  <!--
+    <userdef keycode="175" command="xterm -rv">Xterm</userdef>
+    <userdef keycode="150" command="balsa">Balsa Email client</userdef>
+  -->
+
+  </config>
+
+  <contributor>
+    <name>Anthony Wong</name>
+    <email>ypwong@ypwong.org</email>
+  </contributor>
+
+</definition>

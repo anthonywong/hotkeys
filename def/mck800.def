@@ -1,34 +1,44 @@
 <?xml version="1.0"?>
-<CONFIG model="Process MCK-800">
 
-  <Play         keycode="146"/>
-  <Stop         keycode="163"/>
-  <PrevTrack    keycode="151"/>
-  <NextTrack    keycode="174"/>
+<definition>
 
-  <VolUp        keycode="176" adj="2"/>
-  <VolDown      keycode="232" adj="2"/>
-  <Mute         keycode="158"/>
+  <config model="Process MCK-800">
+  
+    <Play         keycode="146"/>
+    <Stop         keycode="163"/>
+    <PrevTrack    keycode="151"/>
+    <NextTrack    keycode="174"/>
+  
+    <VolUp        keycode="176" adj="2"/>
+    <VolDown      keycode="232" adj="2"/>
+    <Mute         keycode="158"/>
+  
+    <WebBrowser   keycode="161"/>
+    <Calculator   keycode="164"/>
+    <Transfer     keycode="165"/>
+    <Email        keycode="166"/>
+  
+    <PowerDown    keycode="222"/>
+    <Sleep        keycode="223"/>
+  
+    <!-- User define functions -->
+  
+    <!-- Scroll up, actual functionality to be implemented -->
+    <userdef keycode="144" command="xterm -rv">Xterm</userdef>
+    <!-- Scroll down, actual functionality to be implemented -->
+    <userdef keycode="152" command="xterm -rv">Xterm</userdef>
+    <!-- Zoom in, actual functionality to be implemented -->
+    <userdef keycode="153" command="xmag">xmag</userdef>
+    <!-- Zoom out, actual functionality to be implemented -->
+    <userdef keycode="178" command="xterm -rv">Xterm</userdef>
+    <!-- Menu, actual functionality to be implemented -->
+    <userdef keycode="162" command="gmc">gmc</userdef>
+  
+  </config>
 
-  <WebBrowser   keycode="161"/>
-  <Calculator   keycode="164"/>
-  <Transfer     keycode="165"/>
-  <Email        keycode="166"/>
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <PowerDown    keycode="222"/>
-  <Sleep        keycode="223"/>
-
-  <!-- User define functions -->
-
-  <!-- Scroll up, actual functionality to be implemented -->
-  <userdef keycode="144" command="xterm -rv">Xterm</userdef>
-  <!-- Scroll down, actual functionality to be implemented -->
-  <userdef keycode="152" command="xterm -rv">Xterm</userdef>
-  <!-- Zoom in, actual functionality to be implemented -->
-  <userdef keycode="153" command="xmag">xmag</userdef>
-  <!-- Zoom out, actual functionality to be implemented -->
-  <userdef keycode="178" command="xterm -rv">Xterm</userdef>
-  <!-- Menu, actual functionality to be implemented -->
-  <userdef keycode="162" command="gmc">gmc</userdef>
-
-</CONFIG>
+</definition>

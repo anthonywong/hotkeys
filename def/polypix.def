@@ -1,24 +1,34 @@
 <?xml version="1.0"?>
-<CONFIG model="Polypix Keyboard">
 
-  <PrevTrack    keycode="162"/>
-  <Play         keycode="153"/>
-  <Eject        keycode="161"/>
-  <NextTrack    keycode="164"/>
-  <Stop         keycode="144"/>
+<definition>
 
-  <VolUp        keycode="158"/>
-  <VolDown      keycode="165"/>
-  <Mute         keycode="146"/>
+  <config model="Polypix Keyboard">
+  
+    <PrevTrack    keycode="162"/>
+    <Play         keycode="153"/>
+    <Eject        keycode="161"/>
+    <NextTrack    keycode="164"/>
+    <Stop         keycode="144"/>
+  
+    <VolUp        keycode="158"/>
+    <VolDown      keycode="165"/>
+    <Mute         keycode="146"/>
+  
+    <PowerDown    keycode="222"/>
+    <Sleep        keycode="223"/>
+    <WakeUp       keycode="227"/>
+  
+    <WebBrowser   keycode="176"/>
+    <Email        keycode="174"/>
+    <Search       keycode="178"/>
+    <Go           keycode="166"/>
+    <MyDocuments  keycode="160"/>
+  
+  </config>
+  
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
 
-  <PowerDown    keycode="222"/>
-  <Sleep        keycode="223"/>
-  <WakeUp       keycode="227"/>
-
-  <WebBrowser   keycode="176"/>
-  <Email        keycode="174"/>
-  <Search       keycode="178"/>
-  <Go           keycode="166"/>
-  <MyDocuments  keycode="160"/>
-
-</CONFIG>
+</definition>

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<definition>
+
+  <config model="Packerd Bell Model 5140W">
+  
+    <WebBrowser   keycode="178"/>
+    <Sleep        keycode="223"/>
+    <PowerDown    keycode="222"/>
+  
+  </config>
+
+  <contributor>
+    <name>to be added</name>
+    <email>to be added</email>
+  </contributor>
+
+</definition>

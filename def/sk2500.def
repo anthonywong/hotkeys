@@ -1,28 +1,38 @@
 <?xml version="1.0"?>
-<CONFIG model="Fujitsu/Logitech/Trust SK2500 Keyboard / Liteon-ak2500">
 
-  <Eject        keycode="152"/>
-  <PrevTrack    keycode="144"/>
-  <NextTrack    keycode="153"/>
-  <Play         keycode="162"/>
-  <Stop         keycode="164"/>
+<definition>
 
-  <VolUp        keycode="176" adj="2"/>
-  <VolDown      keycode="174" adj="2"/>
-  <Mute         keycode="160"/>
+  <config model="Fujitsu/Logitech/Trust SK2500 Keyboard / Liteon-ak2500">
+  
+    <Eject        keycode="152"/>
+    <PrevTrack    keycode="144"/>
+    <NextTrack    keycode="153"/>
+    <Play         keycode="162"/>
+    <Stop         keycode="164"/>
+    <Rewind       keycode="146"/>
+    <Record       keycode="158"/> 
+  
+    <VolUp        keycode="176" adj="2"/>
+    <VolDown      keycode="174" adj="2"/>
+    <Mute         keycode="160"/>
+  
+    <Sleep        keycode="165"/>
+    <Suspend      keycode="250"/>
+  
+    <WebBrowser   keycode="178"/>
+    <Calculator   keycode="161"/>
+    <Help         keycode="166"/>
+    <Transfer     keycode="163"/>  
+  
+    <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
+  
+    <userdef keycode="151" command="xterm -rv">Xterm</userdef>
+  
+  </config>
+  
+  <contributor>
+    <name>Beiad Ian Q. Dalton</name>
+    <email>idalton@ferret.dyndns.org</email>
+  </contributor>
 
-  <Sleep        keycode="165"/>
-  <Suspend      keycode="250"/>
-
-  <WebBrowser   keycode="178"/>
-  <Calculator   keycode="161"/>
-
-  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
-
-  <userdef keycode="151" command="xterm -rv">Xterm</userdef>
-  <userdef keycode="158" command="grecord">GNOME sound recorder</userdef>
-  <userdef keycode="146" command="grecord">GNOME sound recorder</userdef>
-  <userdef keycode="166" command="gnomecc">GNOME Control Center</userdef>
-  <userdef keycode="163" command="xterm -rv">Xterm</userdef>
-
-</CONFIG>
+</definition>
