@@ -4,11 +4,11 @@ README
 Requirements:
 ------------
  
-* libxml, version 2.3.1 or later (http://xmlsoft.org/, ftp://xmlsoft.org)
-* libdb2, the Berkeley database library, it comes with many recent
-  Linux distributions.
+* libxml, version 2.2.8 or later (http://xmlsoft.org/, ftp://xmlsoft.org)
+* libdb2, the Berkeley database library 2.7.7, it comes with many recent
+  Linux distributions, but please make sure it is 2.7.7!
 * You need the XOSD library if you want to enjoy the cool on-screen
-  display, this is optional. It can be downloaded from
-  http://www.ignavus.net/software.html
+  display, this is optional. But if you want it, please use 0.6.1 or
+  above. It can be downloaded at http://www.ignavus.net/software.html
 
 For more info, please consult the manpage.
