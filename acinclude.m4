@@ -337,29 +337,29 @@ strdup __argz_count __argz_stringify __argz_next])
 
 
 dnl-----------------------------------------------------------------------
-dnl Checks for LIBDB2
+dnl Checks for LIBDB3
 dnl-----------------------------------------------------------------------
-AC_DEFUN(AM_CHECK_DB2,
+AC_DEFUN(AM_CHECK_DB3,
 [
-    if test ! x$db2_libdir = x; then
-        LIBS="$LIBS -L$db2_libdir"
+    if test ! x$db3_libdir = x; then
+        LIBS="$LIBS -L$db3_libdir"
     fi
-    if test ! x$db2_incdir = x; then
-        CPPFLAGS="$CPPFLAGS -I$db2_incdir"
+    if test ! x$db3_incdir = x; then
+        CPPFLAGS="$CPPFLAGS -I$db3_incdir"
     fi
 
     dnl
-    dnl We need to check both libdb and libdb2
+    dnl We need to check both libdb and libdb3
     dnl
-    AC_CHECK_LIB(db2, db_open, , [ nodb=yes ])
+    AC_CHECK_LIB(db3, db_create, , [ nodb=yes ])
     if test "x$nodb" = "xyes"
     then
-        AC_CHECK_LIB(db, db_open, ,
+        AC_CHECK_LIB(db, db_create, ,
           [ AC_MSG_RESULT(no)
-            echo "*** Cannot find Berkeley DB library on your system."
-            echo "*** Version 2.7.7 or above is required."
+            echo "*** Cannot find a suitable Berkeley DB library on your system."
+            echo "*** Version 3.2.9 or above is required."
             echo "*** If you've installed it in an unusual location, please"
-            echo "*** use --with-db2-inc and --with-db2-lib to specify it."
+            echo "*** use --with-db3-inc and --with-db3-lib to specify it."
             exit 1
           ])
     fi
@@ -367,25 +367,24 @@ AC_DEFUN(AM_CHECK_DB2,
     dnl
     dnl Check its version
     dnl
-    AC_MSG_CHECKING(for version of db2)
+    AC_MSG_CHECKING(for version of db3)
     AC_TRY_RUN([
     #include <db.h>
     int main ()
     {
         int major=0, minor=0, patch=0;
         db_version(&major, &minor, &patch);
-        if ( major==2 && ((minor==7 && patch>=7) || minor>7) )
+        if ( major==3 && ((minor==2 && patch>=9) || minor>2) )
             exit(0);
         else
             exit(1);
     }
-    ],[ AC_MSG_RESULT([>= 2.7.7, ok]) ],
-      [ AC_MSG_RESULT([< 2.7.7, failed])
+    ],[ AC_MSG_RESULT([>= 3.2.9, ok]) ],
+      [ AC_MSG_RESULT([< 3.2.9, failed])
         echo "*** The version of the Berkeley DB library installed is not"
-        echo "*** 2.7.7 or above (but v3 untested), make sure the correct"
-        echo "*** version is installed."
+        echo "*** 3.2.9 or above, make sure the correct version is installed."
         echo "*** If you've installed it in an unusual location, please"
-        echo "*** use --with-db2-inc and --with-db2-lib to specify it."
+        echo "*** use --with-db3-inc and --with-db3-lib to specify it."
         exit 1
       ],
       [echo $ac_n "cross compiling; assumed OK... $ac_c"]
@@ -454,4 +453,41 @@ dnl    AC_SUBST(XML_LIBS)
       ],
       [echo $ac_n "cross compiling; assumed OK... $ac_c"]
     )
+])
+
+dnl-----------------------------------------------------------------------
+dnl Checks for LIBXOSD (>= 0.7.0)
+dnl-----------------------------------------------------------------------
+AC_DEFUN(AM_CHECK_LIBXOSD,
+[
+    if test ! x$xosd_libdir = x; then
+        LIBS="$LIBS -L$xosd_libdir"
+    fi
+    if test ! x$xosd_incdir = x; then
+        CPPFLAGS="$CPPFLAGS -I$xosd_incdir"
+    fi
+
+    if test "x$enable_xosd" = "xyes"
+    then
+        dnl
+        dnl Check its version
+        dnl
+        AC_MSG_CHECKING(for version of libxosd)
+        LIBS="-lxosd $LIBS"
+        AC_TRY_LINK([#include <xosd.h>], [
+        void test()
+        {
+            xosd* t = xosd_init("font", "colour", 0, XOSD_top, 0, 0);
+        }
+        ],[ AC_MSG_RESULT([>= 0.7.0, ok])
+            AC_DEFINE(HAVE_LIBXOSD)
+            CFLAGS="$CFLAGS -D_REENTRANT"
+            LIBS="$LIBS -lpthread" ],
+          [ AC_MSG_RESULT([< 0.7.0, failed])
+            echo "*** The version of XOSD library installed is not 0.7.0 or"
+            echo "*** above, make sure the correct version is installed."
+            exit 1
+          ]
+        )
+    fi
 ])
