@@ -90,18 +90,22 @@ getConfig(char* key)
 {
     DBT     k, data;
 
-    /* Clear the structures as per db2's documentation */
+    /* Clear the structures as per db2's documentation
+     * XXX: don't whether this is still needed in db3 */
     memset( &k, 0, sizeof(k) );
     memset( &data, 0, sizeof(data) );
 
     k.data = key;
     k.size = strlen(key) + 1;
 
-    if ( dbp->get(dbp, NULL, &k, &data, 0) == 0 ) {
+    if ( dbp->get(dbp, NULL, &k, &data, 0) == 0 )
+    {
         return data.data;
     }
     else
+    {
         return NULL;
+    }
 }
 
 int
@@ -232,13 +236,22 @@ parseConfigFile(char* filename)
 void
 readConfigFile(void)
 {
+    DB_ENV* dbenv;
+    int ret;
+
     char*   h;
     char    filename[MAXPATHLEN];
 
     /* Create the hash table */
-    if ( db_open(NULL, DB_HASH, DB_CREATE, 0664, NULL, NULL, &dbp) != 0 )
+    if ( (ret = db_create(&dbp, dbenv, 0)) != 0 )
     {
-        uError("Can't create hash table: %s", strerror(errno));
+        uError("Failed in db_create: %d", ret);
+        bailout();
+    }
+
+    if ( (ret = dbp->open(dbp, NULL, NULL, DB_HASH, DB_CREATE, 0664)) != 0 )
+    {
+        uError("Can't create hash table: %d", ret);
         bailout();
     }
 
