@@ -1,10 +1,16 @@
 HOTKEYS
 -------
+Hotkeys depends on the latest GNOME XML parser library, get it from
+ftp.gnome.org.
+
 To compile the program, just type
 
-        xmkmf && make hotkeys
+        ./configure && make
 
 You will get an executable file called 'hotkeys'.
 
--- 
-Anthony Wong
+To install, type
+
+        make install
+
+$Id$
