@@ -394,7 +394,7 @@ parseArgs(int argc, char *argv[])
 
     if ( kbdSet == False )
     {
-        uInfo("You must set the keyboard type.\n");
+        uInfo("You must set the keyboard type, use %s -t <type> to set it.\n", argv[0]);
         exit(1);
     }
 
@@ -532,7 +532,7 @@ adjust_vol(int adj)
     cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
     if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
     {
-        uError("Unable to set the volume");
+        uError("Unable to set the volume of %s", cdromDevice);
         ret = -1;
     }
 
@@ -580,28 +580,26 @@ doMute(void)
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &last_mixer_vol) == -1)
         {
             uError("Unable to un-mute the mixer");
-            ret = -1; goto LEAVE2;
-        }
+            ret = -1;
+        } else
+            muted = False;
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &last_cd_vol) == -1)
         {
             uError("Unable to un-mute the CD volume");
-            ret = -1; goto LEAVE2;
-        }
-
+            ret = -1;
+        } else
+            muted = False;
         if ( ioctl(cdrom_fd, CDROMVOLCTRL, &last_cdrom_vol) == -1 )
         {
-            uError("Unable to un-mute the CDROM volume");
-            ret = -1; goto LEAVE2;
-        }
-        else
-        {
-            /* Both the mixer and cdrom have been un-muted */
+            uError("Unable to un-mute `%s'", cdromDevice);
+            ret = -1;
+        } else
             muted = False;
-        }
     }
     else
     {
-        /* read and store the mixer volume */
+        /* Read and store the mixer volume, do not try to mute them
+         * if we cannot read any of their values. */
         if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_VOLUME, &last_mixer_vol) == -1)
         {
             uError("Unable to read the mixer volume of `%s'", MIXER_DEV);
@@ -624,13 +622,15 @@ doMute(void)
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &vol) == -1)
         {
             uError("Unable to mute mixer volume of `%s'", MIXER_DEV);
-            ret = -1; goto LEAVE2;
-        }
+            ret = -1;
+        } else
+            muted = True;
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &vol) == -1)
         {
             uError("Unable to mute CD volume of `%s'", MIXER_DEV);
-            ret = -1; goto LEAVE2;
-        }
+            ret = -1;
+        } else
+            muted = True;
 
         /* Set the volume to 0. FIXME: is this linux specific? Do
          * other platforms also have 4 channels? */
@@ -640,12 +640,8 @@ doMute(void)
         {
             uError("Unable to mute `%s'", cdromDevice);
             ret = -1;
-        }
-        else
-        {
-            /* Both mixer and cdrom are muted */
+        } else
             muted = True;
-        }
     }
 
 LEAVE2:
