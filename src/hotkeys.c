@@ -77,7 +77,7 @@ char* app_strings[NUM_APPS] = {
     "web browser",
     "email reader",
     "calculator",
-    "X term",
+    "Xterm",
     "file manager",
     "app1", "app2", "app3", "app4", "app5"
 };
@@ -162,7 +162,7 @@ showKbdList(int argc, char *argv[])
     h = getenv("HOME");
     if ( h != NULL )
     {
-        homedir = (char*) xmalloc( strlen(h) + strlen("/.hotkeys") + 1 );
+        homedir = XMALLOC( char, strlen(h) + strlen("/.hotkeys") + 1 );
         strcpy( homedir, h );
         strcat( homedir, "/.hotkeys" );
         if ( ( dir = opendir(homedir) ) != NULL )
@@ -183,6 +183,7 @@ showKbdList(int argc, char *argv[])
                 }
             }
         }
+        XFREE(homedir);
     }
     else
     {
@@ -224,10 +225,11 @@ setKbdType(const char* prog, const char* type)
     struct stat t;
     char*       defname;
     char*       h;
+    Bool        ret = True;
 
     /* Make up the complete filename, try the default SHAREDIR
      * first */
-    defname = (char*) xmalloc( strlen(SHAREDIR)+strlen(type)+6 );
+    defname = XMALLOC( char, strlen(SHAREDIR)+strlen(type)+6 );
     strcpy( defname, SHAREDIR );
     strcat( defname, "/" );
     strcat( defname, type );
@@ -243,11 +245,11 @@ setKbdType(const char* prog, const char* type)
         h = getenv("HOME");
         if ( h != NULL )
         {
-            free( defname );
+            XFREE( defname );
             /* Make up the complete filename */
-            defname = (char*) xmalloc( strlen(h) +
-                                       strlen("/.hotkeys/") +
-                                       strlen(type) + 5 );
+            defname = XMALLOC( char, strlen(h) +
+                                     strlen("/.hotkeys/") +
+                                     strlen(type) + 5 );
             strcpy( defname, h );
             strcat( defname, "/.hotkeys/" );
             strcat( defname, type );
@@ -269,8 +271,7 @@ setKbdType(const char* prog, const char* type)
                 }
                 else
                 {
-                    free( defname );
-                    return False;
+                    ret = False;
                 }
             }
         }
@@ -286,13 +287,12 @@ setKbdType(const char* prog, const char* type)
             }
             else
             {
-                free( defname );
-                return False;
+                ret = False;
             }
         }
     }
-    free( defname );
-    return True;
+    XFREE( defname );
+    return ret;
 }
 
 void
@@ -739,7 +739,7 @@ launchApp(int type)
             c = strchr( c+1, ' ' );
             noOfArgs++;
         } while ( c != NULL );
-        arg_array = (char**) malloc ( noOfArgs * sizeof(char*) );
+        arg_array = XMALLOC( char*, noOfArgs );
         /* dup needed since strtok modifies the string */
         c = (char*) xstrdup( application_args[type] );
         cc = c;         /* for free() */
@@ -756,7 +756,8 @@ launchApp(int type)
             uError("Cannot launch the %s", app_strings[type]);
         }
 
-        free(cc);
+        XFREE(cc);
+        XFREE(arg_array);
     }
 }
 
@@ -850,7 +851,7 @@ lookupUserCmd(const int keycode)
                     c = strchr( c+1, ' ' );
                     noOfArgs++;
                 } while ( c != NULL );
-                arg_array = (char**) malloc ( noOfArgs * sizeof(char*) );
+                arg_array = XMALLOC( char*, noOfArgs );
                 /* dup needed since strtok modifies the string */
                 c = (char*) xstrdup( kbd.customCmds[i].command ); 
                 cc = c;         /* cc is for free() later */
@@ -864,6 +865,9 @@ lookupUserCmd(const int keycode)
                 if ( execvp(arg_array[0], arg_array) == -1 ) {
                     uError("Cannot launch \"%s\"", kbd.customCmds[i].description);
                 }
+
+                XFREE(cc);
+                XFREE(arg_array);
             }
             break;  /* break the for loop */
         }
