@@ -79,11 +79,11 @@ extern char *getenv();
 /* Corresponding human readable strings to enum _application,
  * all strings should be user configurable (TODO) */
 char* app_strings[NUM_APPS] = {
-    "web browser",
-    "email reader",
-    "calculator",
+    "Web browser",
+    "Email reader",
+    "Calculator",
     "Xterm",
-    "file manager",
+    "File manager",
     "app1", "app2", "app3", "app4", "app5"
 };
 
@@ -122,8 +122,10 @@ char *          cdromDevice   = CDROM_DEV;
 keyboard        kbd;                    /* the keyboard the user is using */
 
 #ifdef HAVE_LIBXOSD
-#define FONT "-*-lucidatypewriter-medium-r-normal-*-*-250-*-*-*-*-*-*" 
-xosd *          osd           = 1;
+#define FONT    "-*-lucidatypewriter-bold-r-normal-*-*-250-*-*-*-*-*-*" 
+#define COLOR   "LawnGreen"
+#define TIMEOUT 3
+xosd *          osd           = (xosd*)1;
 #endif
 
 /***====================================================================***/
@@ -316,10 +318,14 @@ setCDROMDevice(char* optarg)
 {
     /* Option is --cdrom-dev or -d */
     int fd = open( optarg, O_RDONLY|O_NONBLOCK );
-    if (fd == -1) {
+    if (fd == -1)
+    {
         uInfo("Unable to open `%s', fall back to %s\n", cdromDevice, CDROM_DEV);
-    } else {
-        if ( ( cdromDevice = (char*) xstrdup(optarg) ) == NULL ) {
+    }
+    else
+    {
+        if ( ( cdromDevice = (char*) xstrdup(optarg) ) == NULL )
+        {
             uError("Insufficient memory");
             bailout();
         }
@@ -542,10 +548,10 @@ bailout(void)
 static int
 adjust_vol(int adj)
 {
-    int mixer_fd, cdrom_fd;
-    int master_vol, cd_vol;
+    int         mixer_fd, cdrom_fd;
+    int         master_vol, cd_vol;
     struct cdrom_volctrl cdrom_vol;
-    int left, right;
+    int         left, right;
 
     int ret = 0;
 
@@ -553,80 +559,88 @@ adjust_vol(int adj)
     if ( (mixer_fd = open( MIXER_DEV, O_RDWR )) == -1 )
     {
         uError("Unable to open `%s'", MIXER_DEV);
-        return -1;
     }
+    else
+    {
+        if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_VOLUME, &master_vol) == -1)
+        {
+            uError("Unable to read the volume of `%s'", MIXER_DEV);
+            ret = -1;
+        }
+        else
+        {
+            /* Set the master volume */
+            left = (master_vol & 0xFF) + adj;
+            right = ((master_vol >> 8) & 0xFF) + adj;
+            left = (left>MAXLEVEL) ? MAXLEVEL : ((left<0) ? 0 : left);
+            right = (right>MAXLEVEL) ? MAXLEVEL : ((right<0) ? 0 : right);
+            master_vol = left + (right << 8);
+
+            if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &master_vol) == -1)
+            {
+                uError("Unable to set the master volume");
+                ret = -1;
+            }
+#ifdef HAVE_LIBXOSD
+            else if (osd)
+            {
+                xosd_display(osd, 0, XOSD_string, "Volume");
+                xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
+            }
+#endif
+        }
+#if 0
+        if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_CD, &cd_vol) == -1)
+        {
+            uError("Unable to read the CD volume of `%s'", MIXER_DEV);
+            ret = -1; goto LEAVE; 
+        }
+        else
+        {
+            /* Set the CD volume */
+            left = (cd_vol & 0xFF) + adj;
+            right = ((cd_vol >> 8) & 0xFF) + adj;
+            left = (left>MAXLEVEL) ? MAXLEVEL : ((left<0) ? 0 : left);
+            right = (right>MAXLEVEL) ? MAXLEVEL : ((right<0) ? 0 : right);
+            cd_vol = left + (right << 8);
+
+            if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &cd_vol) == -1)
+            {
+                uError("Unable to set the CD volume");
+                ret = -1; goto LEAVE;
+            }
+        }
+#endif
+    }
+
     /* open the cdrom/dvdrom drive device */
     if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
     {
         uError("Unable to open `%s'", cdromDevice);
-        return -1;
     }
-
-    if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_VOLUME, &master_vol) == -1)
+    else
     {
-        uError("Unable to read the volume of `%s'", MIXER_DEV);
-        ret = -1; goto LEAVE; 
-    }
-    if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_CD, &cd_vol) == -1)
-    {
-        uError("Unable to read the CD volume of `%s'", MIXER_DEV);
-        ret = -1; goto LEAVE; 
-    }
-
-    /* read the cdrom volume */
-    if ( ioctl(cdrom_fd, CDROMVOLREAD, &cdrom_vol) == -1 )
-    {
-        uError("Unable to read the CDROM volume of `%s'", cdromDevice);
-        ret = -1; goto LEAVE; 
-    }
-
-    /* Set the master volume */
-    left = (master_vol & 0xFF) + adj;
-    right = ((master_vol >> 8) & 0xFF) + adj;
-    left = (left>MAXLEVEL) ? MAXLEVEL : ((left<0) ? 0 : left);
-    right = (right>MAXLEVEL) ? MAXLEVEL : ((right<0) ? 0 : right);
-    master_vol = left + (right << 8);
-
-    if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &master_vol) == -1)
-    {
-        uError("Unable to set the master volume");
-        ret = -1; goto LEAVE;
-    }
-#ifdef HAVE_LIBXOSD
-    else if (osd)
-    {
-        xosd_hide(osd);
-        xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
-    }
-#endif
-
-#if 0
-    /* Set the CD volume */
-    left = (cd_vol & 0xFF) + adj;
-    right = ((cd_vol >> 8) & 0xFF) + adj;
-    left = (left>MAXLEVEL) ? MAXLEVEL : ((left<0) ? 0 : left);
-    right = (right>MAXLEVEL) ? MAXLEVEL : ((right<0) ? 0 : right);
-    cd_vol = left + (right << 8);
-
-    if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &cd_vol) == -1)
-    {
-        uError("Unable to set the CD volume");
-        ret = -1; goto LEAVE;
-    }
-#endif
-
-    /* Set the CDROM volume */
-    cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
-    cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
-    if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
-    {
-        uError("Unable to set the volume of %s", cdromDevice);
-        ret = -1;
+        /* read the cdrom volume */
+        if ( ioctl(cdrom_fd, CDROMVOLREAD, &cdrom_vol) == -1 )
+        {
+            uError("Unable to read the CDROM volume of `%s'", cdromDevice);
+            ret = -1;
+        }
+        else
+        {
+            /* Set the CDROM volume */
+            cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
+            cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
+            if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
+            {
+                uError("Unable to set the volume of %s", cdromDevice);
+                ret = -1;
+            }
+        }
     }
 
-LEAVE:
-    close(mixer_fd);
-    close(cdrom_fd);
+    if (mixer_fd != -1)     close(mixer_fd);
+    if (cdrom_fd != -1)     close(cdrom_fd);
 
     return ret;
 }
@@ -639,13 +653,13 @@ LEAVE:
 static int
 doMute(void)
 {
-    static Bool muted = False;
-    static int last_mixer_vol, last_cd_vol;
+    static Bool             muted = False;
+    static int              last_mixer_vol, last_cd_vol;
     static struct cdrom_volctrl last_cdrom_vol;
 
-    int vol, cd_vol;
-    struct cdrom_volctrl cdrom_vol;
-    int mixer_fd, cdrom_fd;
+    int                     vol, cd_vol;
+    struct cdrom_volctrl    cdrom_vol;
+    int                     mixer_fd, cdrom_fd;
 
     short ret = 0;      /* return value */
 
@@ -653,30 +667,36 @@ doMute(void)
     if ( (mixer_fd = open( MIXER_DEV, O_RDWR|O_NONBLOCK )) == -1 )
     {
         uError("Unable to open `%s'", MIXER_DEV);
-        return -1;
     }
     /* open the cdrom/dvdrom drive device */
     if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
     {
         uError("Unable to open `%s'", cdromDevice);
-        return -1;
     }
 
     if ( muted )
     {
         /* Un-mute them */
-        if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &last_mixer_vol) == -1)
+        if (mixer_fd != -1)
         {
-            uError("Unable to un-mute the mixer");
-            ret = -1;
-        }
-        else
-        {
-            muted = False;
+            if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &last_mixer_vol) == -1)
+            {
+                uError("Unable to un-mute the mixer");
+                ret = -1;
+            }
+            else
+            {
+                muted = False;
 #ifdef HAVE_LIBXOSD
-            if (osd)
-                xosd_display(osd, 0, XOSD_string, "Un-Muted");
+                if (osd)
+                {
+                    int left = last_mixer_vol & 0xFF,
+                        right = (last_mixer_vol >> 8) & 0xFF;
+                    xosd_display(osd, 0, XOSD_string, "Un-Muted");
+                    xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
+                }
 #endif
+            }
         }
 #if 0
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &last_cd_vol) == -1)
@@ -686,72 +706,93 @@ doMute(void)
         } else
             muted = False;
 #endif
-        if ( ioctl(cdrom_fd, CDROMVOLCTRL, &last_cdrom_vol) == -1 )
+        if (cdrom_fd != -1)
         {
-            uError("Unable to un-mute `%s'", cdromDevice);
-            ret = -1;
-        } else
-            muted = False;
+            if ( ioctl(cdrom_fd, CDROMVOLCTRL, &last_cdrom_vol) == -1 )
+            {
+                uError("Unable to un-mute `%s'", cdromDevice);
+                ret = -1;
+            } else
+                muted = False;
+        }
     }
-    else    /* !muted */
+    else    /* ! muted */
     {
+
         /* Read and store the mixer volume, do not try to mute them
          * if we cannot read any of their values. */
-        if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_VOLUME, &last_mixer_vol) == -1)
+
+        if (mixer_fd != -1)
         {
-            uError("Unable to read the mixer volume of `%s'", MIXER_DEV);
-            ret = -1; goto LEAVE2;
+            if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_VOLUME, &last_mixer_vol) == -1)
+            {
+                uError("Unable to read the mixer volume of `%s'", MIXER_DEV);
+                ret = -1;
+            }
+            else
+            {
+                /* Mute it! */
+                vol = 0;
+                if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &vol) == -1)
+                {
+                    uError("Unable to mute mixer volume of `%s'", MIXER_DEV);
+                    ret = -1;
+                }
+                else
+                {
+                    muted = True;
+#ifdef HAVE_LIBXOSD
+                    if (osd)
+                    {
+                        xosd_display(osd, 0, XOSD_string, "Muted");
+                        xosd_display(osd, 1, XOSD_string, "");
+                    }
+#endif
+                }
+            }
         }
+#if 0
         if ( SOUND_IOCTL(mixer_fd, SOUND_MIXER_READ_CD, &last_cd_vol) == -1)
         {
             uError("Unable to read the CD volume of `%s'", MIXER_DEV);
             ret = -1; goto LEAVE2;
         }
-        /* read and store the cdrom volume */
-        if ( ioctl(cdrom_fd, CDROMVOLREAD, &last_cdrom_vol) == -1 )
-        {
-            uError("Unable to read the CDROM volume of `%s'", cdromDevice);
-            ret = -1; goto LEAVE2;
-        }
-
-        /* Mute them! */
-        vol = 0;
-        if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &vol) == -1)
-        {
-            uError("Unable to mute mixer volume of `%s'", MIXER_DEV);
-            ret = -1;
-        }
         else
         {
-            muted = True;
-#ifdef HAVE_LIBXOSD
-            if (osd)
-                xosd_display(osd, 0, XOSD_string, "Muted");
-#endif
+            if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &vol) == -1)
+            {
+                uError("Unable to mute CD volume of `%s'", MIXER_DEV);
+                ret = -1;
+            } else
+                muted = True;
         }
-#if 0
-        if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &vol) == -1)
-        {
-            uError("Unable to mute CD volume of `%s'", MIXER_DEV);
-            ret = -1;
-        } else
-            muted = True;
 #endif
-        /* Set the volume to 0. FIXME: is this linux specific? Do
-         * other platforms also have 4 channels? */
-        cdrom_vol.channel0 = cdrom_vol.channel1 = cdrom_vol.channel2 =
-            cdrom_vol.channel3 = 0;
-        if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
+        /* read and store the cdrom volume */
+        if (cdrom_fd != -1)
         {
-            uError("Unable to mute `%s'", cdromDevice);
-            ret = -1;
-        } else
-            muted = True;
+            if ( ioctl(cdrom_fd, CDROMVOLREAD, &last_cdrom_vol) == -1 )
+            {
+                uError("Unable to read the CDROM volume of `%s'", cdromDevice);
+                ret = -1;
+            }
+            else
+            {
+                /* Set the volume to 0. FIXME: is this linux specific? Do
+                 * other platforms also have 4 channels? */
+                cdrom_vol.channel0 = cdrom_vol.channel1 = cdrom_vol.channel2 =
+                    cdrom_vol.channel3 = 0;
+                if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
+                {
+                    uError("Unable to mute `%s'", cdromDevice);
+                    ret = -1;
+                } else
+                    muted = True;
+            }
+        }
     }
 
-LEAVE2:
-    close(mixer_fd);
-    close(cdrom_fd);
+    if (mixer_fd != -1)   close(mixer_fd);
+    if (cdrom_fd != -1)   close(cdrom_fd);
 
     return ret;
 }
@@ -775,7 +816,6 @@ ejectDisc(void)
         if (fd == -1)
         {
             uError("Unable to open `%s'", cdromDevice);
-            bailout();
             return -1;
         }
         if ( ioctl(fd, CDROMEJECT) == -1 )
@@ -785,6 +825,10 @@ ejectDisc(void)
             return -1;
         }
 
+#ifdef HAVE_LIBXOSD
+        xosd_display(osd, 0, XOSD_string, "Eject");
+        xosd_display(osd, 1, XOSD_string, "");
+#endif
         ejected = True;
         close(fd);
         return 0;
@@ -798,7 +842,6 @@ closeTray(void)
     if (fd == -1)
     {
         uInfo("unable to open `%s'\n", cdromDevice);
-        bailout();
         return -1;
     }
 
@@ -813,6 +856,10 @@ closeTray(void)
     }
 #endif /* CDROMCLOSETRAY */
 
+#ifdef HAVE_LIBXOSD
+    xosd_display(osd, 0, XOSD_string, "Close tray");
+    xosd_display(osd, 1, XOSD_string, "");
+#endif
     close(fd);
     return 0;
 }
@@ -855,12 +902,18 @@ launchApp(int type)
             arg_array[i] = strtok( NULL, " " );
         }
 
-        if ( execvp(applications[type], arg_array) == -1 ) {
+        if ( execvp(applications[type], arg_array) == -1 )
+        {
             uError("Cannot launch the %s", app_strings[type]);
+            XFREE(cc);
+            XFREE(arg_array);
+            exit(-1);
         }
-
-        XFREE(cc);
-        XFREE(arg_array);
+    }
+    else
+    {
+        xosd_display(osd, 0, XOSD_string, "Launching:");
+        xosd_display(osd, 1, XOSD_string, app_strings[type]);
     }
 }
 
@@ -936,11 +989,11 @@ lookupUserCmd(const int keycode)
     {
         if ( kbd.customCmds[i].keycode == keycode )
         {
-            int pid = fork();
+            int pid;
 
-            if ( pid == -1 )
+            if ( (pid=fork()) == -1 )
             {
-                uInfo("Cannot launch \"%s\"\n", kbd.customCmds[i].description);
+                uInfo("Cannot launch \"%s\"\n", kbd.customCmds[i].desc);
             }
             else if ( pid == 0 )
             {
@@ -965,14 +1018,20 @@ lookupUserCmd(const int keycode)
                     arg_array[j] = strtok( NULL, " " );
                 }
 
-                if ( execvp(arg_array[0], arg_array) == -1 ) {
-                    uError("Cannot launch \"%s\"", kbd.customCmds[i].description);
+                if ( execvp(arg_array[0], arg_array) == -1 )
+                {
+                    uError("Cannot launch \"%s\"", kbd.customCmds[i].desc);
+                    XFREE(cc);
+                    XFREE(arg_array);
+                    exit(-1);
                 }
-
-                XFREE(cc);
-                XFREE(arg_array);
             }
-            break;  /* break the for loop */
+            else
+            {
+                xosd_display(osd, 0, XOSD_string, "Launching:");
+                xosd_display(osd, 1, XOSD_string, kbd.customCmds[i].desc);
+                break;  /* break the for loop */
+            }
         }
     }
 }
@@ -1057,6 +1116,7 @@ testReadable(const char* filename)
 }
 
 /***====================================================================***/
+static int dummy() {}
 
 static void
 initializeX(char* argv[])
@@ -1088,20 +1148,15 @@ initializeX(char* argv[])
     {
         uInfo("XkbGetMap failed\n"); bailout();
     }
-
+    XSetAfterFunction(dpy,dummy);
     /* Construct the Message Action struct */
     xma.type = XkbSA_ActionMessage;
     xma.flags = XkbSA_MessageOnPress;
     strcpy(xma.message," ");
 
 #ifdef DEBUG
-    SYSLOG( LOG_DEBUG, 
-            "num_acts:%d size_acts:%d",
+    SYSLOG( LOG_DEBUG, "num_acts:%d size_acts:%d",
             xkb->server->num_acts, xkb->server->size_acts );
-    SYSLOG( LOG_DEBUG, 
-            "idx:%d has action:%d no.:%d noOfGrps:%d\n",
-            xkb->server->key_acts[152], XkbKeyHasActions(xkb,152),
-            XkbKeyNumActions(xkb,152), XkbKeyNumGroups(xkb,152) );
 #endif
 
     /* Add KeySym to the key codes, as they don't have any KeySyms before */
@@ -1161,18 +1216,18 @@ initializeX(char* argv[])
             uInfo("map set failed\n"); bailout();
         }
 
-
 #ifdef DEBUG
-        SYSLOG( LOG_DEBUG, 
-                "keycode %d\nbefore: %d",
+        SYSLOG( LOG_DEBUG, "idx:%d has action:%d no.:%d noOfGrps:%d\n",
+                xkb->server->key_acts[tcode], XkbKeyHasActions(xkb,tcode),
+                XkbKeyNumActions(xkb,tcode), XkbKeyNumGroups(xkb,tcode) );
+        SYSLOG( LOG_DEBUG, "keycode %d\nbefore: %d",
                 tcode, XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
         /* Assign the Message Action to the key code */
         (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
 
 #ifdef DEBUG
-        SYSLOG( LOG_DEBUG, 
-                "after: %d",XkbKeyActionsPtr(xkb,tcode)[0].type);
+        SYSLOG( LOG_DEBUG, "after: %d",XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
     }
 
@@ -1192,10 +1247,9 @@ initializeX(char* argv[])
 
     /* Initialize XOSD */
 #ifdef HAVE_LIBXOSD
-    if ( osd != NULL )
+    if (osd)
     {
-        osd = xosd_init (FONT, "LawnGreen", 3, XOSD_top, 0);
-        xosd_set_timeout(osd, 3);
+        osd = xosd_init(FONT, COLOR, TIMEOUT, XOSD_bottom, 25);
     }
 #endif
 }
@@ -1305,8 +1359,7 @@ main(int argc, char *argv[])
             }
             else
             {
-                /* User-defined stuffs */
-                lookupUserCmd(ev.message.keycode);
+                lookupUserCmd(ev.message.keycode);  /* User-defined stuffs */
             }
         }
     }
