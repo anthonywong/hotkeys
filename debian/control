@@ -2,18 +2,18 @@ Source: hotkeys
 Section: x11
 Priority: optional
 Maintainer: Anthony Wong <ypwong@debian.org>
-Build-Depends: debhelper, xlibs-dev, libxml2-dev
+Build-Depends: debhelper, xlibs-dev, libxml2-dev (>= 2.2.8), libxosd-dev (>= 0.6.1)
 Standards-Version: 3.2.1
 
 Package: hotkeys
 Architecture: any
 Depends: ${shlibs:Depends}
 Description: A hotkeys daemon for your Internet/multimedia keyboard in X
- This program sits at the back and listens for the "special"
- hotkeys that you won't normally use on your Internet /
- Multimedia keyboards. The buttons perform their intended
- behaviors, such as volume up and down, mute the speaker,
- launch applications, etc.
+ This program sits at the back and listens for the "special" hotkeys
+ that you won't normally use on your Internet/Multimedia keyboards.
+ The buttons perform their intended behaviors, such as volume up and
+ down, mute the speaker, launch applications, etc. It has On-screen
+ display (OSD) to show the volume, program that's being started, etc.
  .
  It features an XML-based keycode configuration file format, which
  makes it possible to define the hotkeys to launch any programs you
