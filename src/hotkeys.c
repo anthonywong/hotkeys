@@ -498,6 +498,7 @@ parseArgs(int argc, char *argv[])
     return True;
 }
 
+/* Copied from xkbevd */
 static Display *
 GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn)
 {
