@@ -12,10 +12,9 @@ My wishlist, in probably no specific priority order:
 
 - Multiple functionalities per key
 
-- configure script should detect the correct version of libxml2
-  (should have defined xmlChildrenNode)
+- Support true sleeping, suspend and power down (or logging out from WM).
 
-- Support sleeping, suspend and power down (or logging out from WM).
+- use XSetScreenSaver to support screen saver
 
 - Run xscreensaver daemon on start-up (configurable)
 
@@ -26,4 +25,77 @@ My wishlist, in probably no specific priority order:
 
 - Documentation, should be done after the code is stabilized.
 
-* Name change soon. Yes, a new name :)
+- Separate into a library:
+
+Interface (suggestions welcome)
+---------
+. int hkey_addkey(int keycode, Act action, int order) 
+
+  keycode - the keycode to be added
+  action  - the built-in action to take when the key is pressed
+  order   - the position that this action appears in the 'chain' of
+  functionalities of this keycode, starts from 0, -1 for the last
+  (that is append)
+
+FIXME: need an argument to specify the modifiers (CTRL, SHIFT, etc)
+
+  returns 0 if success, -1 if already added, -2 if keycode is probably
+  being used by another program
+
+. int hkey_addkeyc(int keycode, int (*callback)(int, int, struct timeval), int order)
+
+  callback - the function to execute when the key with keycode is
+  pressed, the keycode, the number of times this key has been pressed,
+  and the time that the key was last pressed are passed to the
+  function.
+
+  returns 0 if success, -1 if already added, -2 probably being used by
+  another program
+
+. int hkey_addkeyl(int keycode, const char * string, int order)
+
+  string - command line to execute
+
+  returns 0 if success, -1 if already added, -2 probably being used by
+  another program
+
+. int hkey_rmkey(int keycode)
+
+  returns 0 if success, -1 if keycode not added, -2 unknown error
+
+. int hkey_modkey(int keycode, Act action, int order) 
+
+  returns 0 if success, -1 if keycode not added, -2 if keycode present
+  but no such order, -3 unknown error
+
+. int hkey_modkeyc(int keycode, int (*callback)(int, int, struct timeval), int order)
+
+. int hkey_modkeyl(int keycode, const char * string, int order)
+
+. int hkey_chkkey(int keycode)
+
+  check if the keycode is being used by another program, not 100%
+  correct, but it's a very good guess.
+
+  returns 1 if it's being used, 0 otherwise.
+
+. int hkey_forceadd(int opt)
+
+  if opt is 1, then all addkey* calls will not check whether the key
+  is being used by another program, and will add it whatever. To reset
+  it set opt to 0.
+
+  This call always succeeds.
+
+. int hkey_version(int * major, int * minor, int * patch)
+
+  return the major version and minor versions and patch level.
+
+  the return value is undefined.
+
+. int hkey_clracts(int start, int end)
+
+  (undocumented) clear all action messages starting from start to end,
+  for testing and debugging.
+
+  returns 0 if success, -1 otherwise.
