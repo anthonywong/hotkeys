@@ -1,5 +1,5 @@
 .\" $TOG: xkbevd.man /main/6 1998/02/12 09:34:24 kaleb $
-.TH HOTKEYS 1 "27 January 2001" "v0.4"
+.TH HOTKEYS 1 "16 February 2001" "0.5.2"
 .SH NAME
 hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 .SH SYNOPSIS
@@ -68,9 +68,9 @@ report.
 .IP 2. 5
 .B Microsoft Internet, Internet Pro, and Natural Pro
 .IP 3. 5
-.B Memorex MX3000 keyboard
+.B Memorex MX2500 and MX3000 keyboard
 .IP 4. 5
-.B SK-2500 (partial), SK-2501a, SK-2800c, SK-7100, SK-9925 USB (partial)
+.B SK-2500, SK-2501a, SK-2800c, SK-7100, SK-9925 USB (partial)
 .IP 5. 5
 .B Logitech cordless iTouch, Internet, Cordless Desktop keyboard
 .IP 6. 5
@@ -119,10 +119,6 @@ Please inform me if some of your normal keys lose functionalities
 .B
 after running hotkeys.
 .PP
-The program will sometimes terminate with the error
-\fB"X Error of failed request:  BadValue (integer parameter out of range
-for operation)"\fR at startup. I hope it's really fixed in v0.4.
-.PP
 APM support is highly experimental. I only tested on my desktop and
 sometimes it can't go out from Suspend mode, no response from the
 keyboard, mouse, nor the suspend button on the case. Not tested on
@@ -131,6 +127,11 @@ the APM functions.
 .PP
 This is the first time I use autoconf, there are probably bugs in
 the \fIconfigure.in\fR script.
+.PP
+The error
+\fB"X Error of failed request:  BadValue (integer parameter out of range
+for operation)"\fR should have been fixed finally in version 0.5.2.
+Please report if it spits out this error on your system.
 .SH COPYRIGHT
 Copyright 2000-2001, Anthony Y P Wong <ypwong@ypwong.org>
 .PP
