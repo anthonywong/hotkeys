@@ -317,7 +317,7 @@ setCDROMDevice(char* optarg)
     }
     if ( (fd = open( optarg, O_RDONLY|O_NONBLOCK )) == -1)
     {
-        uInfo("Unable to open `%s', fall back to %s\n", cdromDevice, CDROM_DEV);
+        uInfo("Unable to open `%s', fall back to %s\n", optarg, CDROM_DEV);
     }
     else
     {
@@ -1213,7 +1213,7 @@ initializeX(char* prg)
     /* Construct the Message Action struct */
     xma.type = XkbSA_ActionMessage;
     xma.flags = XkbSA_MessageOnPress;
-    strcpy(xma.message,"");
+    strcpy(xma.message," ");
 
 #if 0
 #ifdef DEBUG
@@ -1440,6 +1440,8 @@ main(int argc, char *argv[])
 
     initializeX(argv);
     initXOSD();
+
+    printf( "%s started successfully.\n", progname );
 
     /* Process the events in a forever loop */
     while (1)
