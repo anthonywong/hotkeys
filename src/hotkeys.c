@@ -1,6 +1,6 @@
 /*
     HOTKEYS - use keys on your multimedia keyboard to control your computer
-    Copyright (C) 2000  Anthony Y P Wong <ypwong@ypwong.org>
+    Copyright (C) 2000,2001  Anthony Y P Wong <ypwong@ypwong.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -151,6 +151,7 @@ showKbdList(int argc, char *argv[])
     char*           homedir;
     char*           h;
     int             flag = 0;
+    int             len;
 
 #ifdef HAVE_GETOPT_LONG
     printf("Supported keyboards: (with corresponding options to --kbd-list or -l)\n");
@@ -159,8 +160,7 @@ showKbdList(int argc, char *argv[])
 #endif
 
     /* Read the definition files in $HOME/.hotkeys */
-    h = getenv("HOME");
-    if ( h != NULL )
+    if ( (h = getenv("HOME")) != NULL )
     {
         homedir = XMALLOC( char, strlen(h) + strlen("/.hotkeys") + 1 );
         strcpy( homedir, h );
@@ -169,12 +169,12 @@ showKbdList(int argc, char *argv[])
         {
             while ( ent = readdir(dir) )
             {
+                len = NLENGTH(ent);
                 /* Show all files that ends with ".def" */
-                if ( NLENGTH( ent ) > 4 &&
-                     strstr( ent->d_name, ".def" ) != NULL &&
-                     strlen(strstr( ent->d_name, ".def" )) == 4 ) /* XXX Not portable, but how to fix?? */
+                if ( len > 4 &&
+                     strncmp( &(ent->d_name[len-4]), ".def", 4 ) == 0 )
                 {
-                    ent->d_name[ strlen(ent->d_name)-4 ] = '\0';
+                    ent->d_name[ len-4 ] = '\0';
                     if ( setKbdType(NULL, ent->d_name) == True )
                     {
                         printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
@@ -195,12 +195,12 @@ showKbdList(int argc, char *argv[])
     {
         while ( ent = readdir(dir) )
         {
+            len = NLENGTH(ent);
             /* Show all files that ends with ".def" in SHAREDIR */
-            if ( NLENGTH( ent ) > 4 &&
-                 strstr( ent->d_name, ".def" ) != NULL &&
-                 strlen(strstr( ent->d_name, ".def" )) == 4 ) /* XXX Not portable, but how to fix?? */
+            if ( len > 4 &&
+                 strncmp( &(ent->d_name[len-4]), ".def", 4 ) == 0 )
             {
-                ent->d_name[ strlen(ent->d_name)-4 ] = '\0';
+                ent->d_name[ len-4 ] = '\0';
                 if ( setKbdType(NULL, ent->d_name) == True )
                 {
                     printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
@@ -222,7 +222,6 @@ showKbdList(int argc, char *argv[])
 static Bool
 setKbdType(const char* prog, const char* type)
 {
-    struct stat t;
     char*       defname;
     char*       h;
     Bool        ret = True;
@@ -235,15 +234,14 @@ setKbdType(const char* prog, const char* type)
     strcat( defname, type );
     strcat( defname, ".def" );
 
-    if ( stat( defname, &t ) == 0 )     /* if the file exists... */
+    if ( testReadable(defname) == True )     /* if the file exists... */
     {
-        readDefFile( defname );
+        ret = readDefFile( defname );
     }
     else
     {
         /* Now try if it exists in $HOME/.hotkeys or not */
-        h = getenv("HOME");
-        if ( h != NULL )
+        if ( (h = getenv("HOME")) != NULL )
         {
             XFREE( defname );
             /* Make up the complete filename */
@@ -254,9 +252,9 @@ setKbdType(const char* prog, const char* type)
             strcat( defname, "/.hotkeys/" );
             strcat( defname, type );
             strcat( defname, ".def" );
-            if ( stat( defname, &t ) == 0 )     /* if the file exists... */
+            if ( testReadable(defname) == True )     /* if the file exists... */
             {
-                readDefFile( defname );
+                ret = readDefFile( defname );
             }
             else
             {
@@ -929,6 +927,26 @@ uInternalError(char* s,...)
     fflush(errorFile);
     va_end(ap);
     return;
+}
+
+
+/*
+ * Test whether filename is readable or not
+ */
+Bool
+testReadable(const char* filename)
+{
+    int fd;
+ 
+    if ( (fd = open(filename, O_RDONLY)) == -1 )
+    {
+        return False;
+    }
+    else
+    {
+        close(fd);
+        return True;
+    }
 }
 
 /***====================================================================***/

@@ -1,6 +1,6 @@
 /*
     HOTKEYS - use keys on your multimedia keyboard to control your computer
-    Copyright (C) 2000  Anthony Y P Wong <ypwong@ypwong.org>
+    Copyright (C) 2000,2001  Anthony Y P Wong <ypwong@ypwong.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ static void printXkbActionMessage(FILE* file,XkbEvent* xkbev);
 void uError(char* s,...);
 void uInfo(char* s,...);
 void uInternalError(char* s,...);
-
+Bool testReadable(const char* filename);
 
 extern	Display *       dpy;
 extern	int             xkbOpcode;
