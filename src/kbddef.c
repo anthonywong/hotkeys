@@ -53,6 +53,7 @@ const defEntry defStr[] = {
     { "Suspend",                suspendKey },
     { "Rewind",                 rewindKey },
     { "Rotate",                 rotateKey },          /* ???, in MX3000 */
+    { "NewsReader",             newsReaderKey },
     { NULL,                     NUM_PREDEF_HOTKEYS }
 };
 

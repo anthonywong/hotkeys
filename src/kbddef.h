@@ -60,6 +60,7 @@ typedef enum {
     suspendKey,
     rewindKey,
     rotateKey,          /* ???, in MX3000 */
+    newsReaderKey,
     NUM_PREDEF_HOTKEYS
 } hotkey;
 
