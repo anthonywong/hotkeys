@@ -21,6 +21,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#if HAVE_GTK
+
 #include <gtk/gtk.h>
 #include <X11/X.h>
 #include <X11/Xatom.h>
@@ -146,3 +152,5 @@ splash_update (const gchar *text1,
     gtk_main_iteration ();
 }
 #endif
+
+#endif /* HAVE_GTK */
