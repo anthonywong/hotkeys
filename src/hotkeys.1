@@ -115,13 +115,14 @@ self-explanatory.
 .P
 You can create your own definition file and placed it in
 \fI$HOME/.hotkeys\fR. Just take the file \fIdef/sample.xml\fR or an
-existing definition file as an example.
+existing definition file as an example. User definition files override
+any system defaults.
 .SH "CONFIGURATION FILE"
 The configuration file is named \fIhotkeys.conf\fR. By default it is
-installed in the /usr/local/etc directory. You can also put one into
-\fI$HOME/.hotkeys/\fR, which will override the settings in the global
-file if one exists.  In other words, the order of parsing is the
-global file first and then the private one.
+installed in /usr/local/etc (or /etc on Debian). You can also put one
+into \fI$HOME/.hotkeys/\fR, which will override the settings in the
+global file if one exists.  In other words, the order of parsing is
+the global file first and then the private one.
 .P
 The syntax of the file uses the simple key=value pairs. Blank lines and lines
 starting with # are ignored. The followings are the valid keys and their
