@@ -224,7 +224,7 @@ showKbdList(int argc, char *argv[])
 }
 
 
-Bool
+static Bool
 setKbdType(const char* prog, const char* type)
 {
     char*       defname;
