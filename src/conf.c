@@ -47,16 +47,21 @@ char* conf_keys[] = {
     "Stop",            "xmms --stop",
     "Pause",           "xmms --pause",
     "NextTrack",       "xmms --fwd",
+/*    "Rewind",          "\0",
+ */
+
     "WebBrowser",      "mozilla",
     "Email",           "mozilla -mail",
     "Calculator",      "xcalc",
     "FileManager",     "gmc",
     "MyComputer",      "gmc",
     "MyDocuments",     "gmc",
-/*
-    "FTPClient",       "gftp",
-*/
+    "Favorites",       "gnome-moz-remote --remote=openBookmarks",
+    "Transfer",        "gftp", 
+    "Record",          "grecord",
+    "Shell",           "xterm -rv",
     "NewsReader",      "mozilla -news",
+    "ScreenSaver",     "xscreensaver-command -activate",
     "Communities",     "mozilla -remote 'openURL(http://slashdot.org)'",
     "Search",          "mozilla -remote 'openURL(http://google.com)'",
     "Idea",            "mozilla -remote 'openURL(http://sourceforge.net)'",
@@ -67,7 +72,8 @@ char* conf_keys[] = {
     "Screendump",      "xwd -root",
 */
     /* xosd stuffs */
-    "osd_font",        "-*-lucidatypewriter-bold-r-normal-*-*-250-*-*-*-*-*-*",
+//    "osd_font",        "-*-lucidatypewriter-bold-r-normal-*-*-250-*-*-*-*-*-*",
+    "osd_font",        "lucidasanstypewriter-bold-24",
     "osd_color",       "LawnGreen",
     "osd_timeout",     "3",
     "osd_position",    "bottom",
