@@ -1,3 +1,15 @@
+hotkeys (0.3) unstable; urgency=low
+
+  * Introduced an XML-based keyboard definition system; users can
+    create their own preference now.
+  * Now users must specify the type of keyboard, as there does not
+    exist a reasonable default.
+  * Added SK-2500, SK-2501a, SK-7100, and Logitech cordless iTouch
+    keyboard support.
+  * Migrated from Imakefile to automake+autoconf.
+
+ -- Anthony Wong <ypwong@debian.org>  Wed, 17 Jan 2001 23:51:44 +0800
+
 hotkeys (0.2) unstable; urgency=low
 
   * Added Microsoft Internet keyboard support (Thanks jas
