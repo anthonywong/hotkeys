@@ -43,7 +43,7 @@ char* conf_keys[] = {
 
     /* general actions */
     "PrevTrack",       "xmms --rew",
-    "Play",            "xmms --play",
+    "Play",            "xmms --play-pause",
     "Stop",            "xmms --stop",
     "Pause",           "xmms --pause",
     "NextTrack",       "xmms --fwd",
@@ -236,7 +236,7 @@ parseConfigFile(char* filename)
 void
 readConfigFile(void)
 {
-    DB_ENV* dbenv;
+    DB_ENV* dbenv = NULL;
     int ret;
 
     char*   h;
