@@ -8,8 +8,8 @@ Group: Applications/System
 Source: http://ypwong.org/hotkeys/%{name}_%{version}.tar.gz
 URL: http://ypwong.org/hotkeys/
 BuildRoot: %{_tmppath}/%{name}-root
-Requires: xosd, libxml >= 1.8.10
-BuildRequires: xosd, libxml-devel >= 1.8.10
+Requires: xosd, libxml
+BuildRequires: xosd, db2-devel, libxml-devel
 
 %description
 The HotKeys daemon listens for the "special" hotkeys that you won't
@@ -42,7 +42,7 @@ rm -rf %{buildroot}
 %{_mandir}/man*/*
 
 %changelog
-* Sat Feb  8 2001 Matthias Saou <matthias.saou@est.une.marmotte.net>
+* Thu Feb  8 2001 Matthias Saou <matthias.saou@est.une.marmotte.net>
 - Update to 0.5
 
 * Sat Feb  3 2001 Matthias Saou <matthias.saou@est.une.marmotte.net>
@@ -50,3 +50,4 @@ rm -rf %{buildroot}
 
 * Sat Jan 20 2001 Matthias Saou <matthias.saou@est.une.marmotte.net>
 - Initial spec file.
+
