@@ -88,6 +88,14 @@ self-explanatory.
 You can create your own definition file and placed it in
 \fI$HOME/.hotkeys\fR. Just take the file \fIdef/sample.xml\fR or an
 existing definition file as an example.
+.SH "CONFIGURATION FILE"
+The configuration file is named \fIhotkeys.conf\fR. By default it is
+installed in the /usr/local/etc directory. You can also put one into
+\fI$HOME/.hotkeys/\fR, which will totally override the global file if
+one exists, that means the global one is never read. The syntax of the
+file uses the simple key=value pairs. Blank lines and lines starting
+with # are ignored. Valid keys are written in the default file, which
+should be self-explanatory.
 .SH "NOTES"
 Do not disable the XKEYBOARD extension. For XFree86 3.x, make sure
 \fBXkbDisable\fR is not set.
