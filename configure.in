@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/hotkeys.c)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(hotkeys, 0.5.1)
+AM_INIT_AUTOMAKE(hotkeys, 0.5.2)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -129,12 +129,16 @@ if test ! x$db2_incdir = x; then
     CPPFLAGS="$CPPFLAGS -I$db2_incdir"
 fi
 
-AC_CHECK_LIB(db2, db_open, ,
-    [ AC_MSG_RESULT([You need Berkeley DB 2 to compile successfully.])
-      AC_MSG_RESULT([Please use --with-db2-incdir and --with-db2-libdir to configure.])
-      exit 1
-    ])
-
+dnl We need to check both libdb and libdb2
+AC_CHECK_LIB(db, db_open, , [ nodb=yes ])
+if test "x$nodb" = "xyes"
+then
+    AC_CHECK_LIB(db2, db_open, ,
+      [ AC_MSG_RESULT([You need Berkeley DB 2 to compile successfully.])
+        AC_MSG_RESULT([Please use --with-db2-incdir and --with-db2-libdir to configure.])
+        exit 1
+      ])
+fi
 
 dnl Checks for header files.
 AC_PATH_XTRA
@@ -142,7 +146,7 @@ if test "x$no_x" = "xyes"
 then
     AC_MSG_ERROR("You must have X installed")
 else
-    X_LIBS="$X_LIBS -lX11"
+    X_LIBS="$X_LIBS -lX11 -lXmu"
 fi
 dnl XEXT_LIBS=""
 dnl AC_CHECK_LIB(Xext, XkbOpenDisplay, [XEXT_LIBS="-lext"], , XFLAGS)
