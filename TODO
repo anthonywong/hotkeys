@@ -12,7 +12,8 @@ My wishlist, in probably no specific priority order:
 
 - Multiple functionalities per key
 
-- configure script should detect the correct version of libxml2.
+- configure script should detect the correct version of libxml2
+  (should have defined xmlChildrenNode)
 
 - Support sleeping, suspend and power down (or logging out from WM).
 
