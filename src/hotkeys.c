@@ -1,6 +1,6 @@
 /*
     HOTKEYS - use keys on your multimedia keyboard to control your computer
-    Copyright (C) 2000,2001  Anthony Y P Wong <ypwong@ypwong.org>
+    Copyright (C) 2000-2002  Anthony Y P Wong <ypwong@ypwong.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -69,6 +69,9 @@ extern char *getenv();
 #include <linux/cdrom.h>        /* FIXME: linux specific! */
 /* APM (suspend/standby) support */
 #include "apm.h"
+#if HAVE_GTK
+  #include "splash.h"
+#endif
 
 #include "hotkeys.h"
 #include "conf.h"
@@ -116,14 +119,27 @@ void
 usage(int argc, char *argv[])
 {
     char cmplStr[256] = {'\0'};
+    int  first = 1;
 
 #ifdef HAVE_LIBXOSD
     strcat(cmplStr,"XOSD");
+    first = 0;
+#endif
+#if HAVE_GTK
+    if ( first == 0 )
+    {
+        strcat(cmplStr,",GTK");
+    } 
+    else
+    {
+        strcat(cmplStr,"GTK");
+        first = 0;
+    } 
 #endif
 
     printf("HOTKEYS v" VERSION " -- use the hotkeys on your Internet/multimedia keyboard to control your computer");
     if (strlen(cmplStr))
-        printf(" (compile options: %s)", cmplStr);
+        printf(" (compile option(s): %s)", cmplStr);
     printf("\n");
     printf("Usage: %s [options...]\n", argv[0]);
     printf("Legal options:\n");
@@ -137,22 +153,28 @@ usage(int argc, char *argv[])
     printf("    -L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
     printf("    -b, --background         Run in background\n");
     printf("    -F, --fix-vmware=TIME    Use this if you use vmware at the same time\n");
+#if HAVE_GTK
     printf("    -Z, --no-splash          No splash screen\n");
+#endif
     printf("    -h, --help               Print this message\n");
 /*
     M("-cfg <file>          Specify a config file\n");
     M("-d[isplay] <dpy>     Specify the display to watch\n");
     M("-v                   Print verbose messages\n");
 */
-#else
+#else /* HAVE_GETOPT_LONG */
     printf("    -t TYPE       Specify the keyboard type (refer to -l)\n");
     printf("    -l            Show all supported keyboards\n");
     printf("    -d DEVICE     Specify the CDROM/DVDROM device, 'none' for no device\n");
+#ifdef HAVE_LIBXOSD
     printf("    -o STATE      Turn off/on on-screen display\n");
+#endif
     printf("    -L LEVEL      Set the log level in syslog [0-7]\n");
     printf("    -b            Run in background\n");
     printf("    -F TIME       Use this option if vmware is used concurrently\n");
+#if HAVE_GTK
     printf("    -Z            No splash screen\n");
+#endif
     printf("    -h            Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
 }
@@ -241,45 +263,43 @@ setKbdType(const char* prog, const char* type)
     char*       h;
     Bool        ret = True;
 
-    /* Make up the complete filename, try the default SHAREDIR
-     * first */
-    defname = XMALLOC( char, strlen(SHAREDIR)+strlen(type)+6 );
-    strcpy( defname, SHAREDIR );
-    strcat( defname, "/" );
-    strcat( defname, type );
-    strcat( defname, ".def" );
-
-    if ( testReadable(defname) )     /* if the file exists... */
+    /* Make up the complete filename, try the user's HOME first */
+    if ( (h = getenv("HOME")) != NULL )
     {
-        ret = readDefFile( defname );
-    }
-    else
-    {
-        /* Now try if it exists in $HOME/.hotkeys or not */
-        if ( (h = getenv("HOME")) != NULL )
+        /* Make up the complete filename */
+        defname = XMALLOC( char, strlen(h) +
+                                 strlen("/.hotkeys/") +
+                                 strlen(type) + 5 );
+        strcpy( defname, h );
+        strcat( defname, "/.hotkeys/" );
+        strcat( defname, type );
+        strcat( defname, ".def" );
+        if ( testReadable(defname) )     /* if the file exists... */
         {
+            ret = readDefFile( defname );
+        }
+        else
+        {
+            /* Now try if it exists in SHAREDIR or not */
             XFREE( defname );
-            /* Make up the complete filename */
-            defname = XMALLOC( char, strlen(h) +
-                                     strlen("/.hotkeys/") +
-                                     strlen(type) + 5 );
-            strcpy( defname, h );
-            strcat( defname, "/.hotkeys/" );
+            defname = XMALLOC( char, strlen(SHAREDIR)+strlen(type)+6 );
+            strcpy( defname, SHAREDIR );
+            strcat( defname, "/" );
             strcat( defname, type );
             strcat( defname, ".def" );
+
             if ( testReadable(defname) )     /* if the file exists... */
             {
                 ret = readDefFile( defname );
             }
             else
             {
-                /* No matching keyboard type found even in the user's
-                 * local directory */
+                /* No matching keyboard type */
                 if ( prog != NULL )
                 {
                     uInfo("Keyboard type `%s' is not supported.\n"
-                            "Use %s --kbd-list to list all supported keyboard\n",
-                            type, prog);
+                          "Use %s --kbd-list to list all supported keyboard\n",
+                          type, prog);
                     exit(0);
                 }
                 else
@@ -288,22 +308,8 @@ setKbdType(const char* prog, const char* type)
                 }
             }
         }
-        else
-        {
-            /* No matching keyboard type */
-            if ( prog != NULL )
-            {
-                uInfo("Keyboard type `%s' is not supported.\n"
-                        "Use %s --kbd-list to list all supported keyboard\n",
-                        type, prog);
-                exit(0);
-            }
-            else
-            {
-                ret = False;
-            }
-        }
     }
+
     XFREE( defname );
     return ret;
 }
@@ -390,9 +396,12 @@ parseArgs(int argc, char *argv[])
     int     c, i;
     int     digit_optind = 0;
 
-    const char *flags = "hbt:d:lz:vL:F:Z"
+    const char *flags = "hbt:d:lz:vL:F:"
 #ifdef HAVE_LIBXOSD
         "o:"
+#endif
+#if HAVE_GTK
+        "Z"
 #endif
     ;
 #ifdef HAVE_GETOPT_LONG
@@ -411,7 +420,9 @@ parseArgs(int argc, char *argv[])
         {"osd",             1, 0, 'o'},
 #endif
         {"fix-vmware",      2, 0, 'F'},
+#if HAVE_GTK
         {"no-splash",       0, 0, 'Z'},
+#endif
         {0, 0, 0, 0}
     };
 #endif /* HAVE_GETOPT_LONG */
@@ -475,9 +486,11 @@ parseArgs(int argc, char *argv[])
           case 'F':
               fixVMware(optarg);
               break;
+#if HAVE_GTK
           case 'Z':
               noSplash=True;
               break;
+#endif
           case 'z':
               break;
           case '?':
@@ -984,13 +997,17 @@ launchApp(int keycode)
             _exit(-1);
         }
     }
-#ifdef HAVE_LIBXOSD
-    else if ( osd )
+    else
     {
-        xosd_display(osd, 0, XOSD_string, "Launching:");
-        xosd_display(osd, 1, XOSD_string, getConfig(type));
-    }
+#ifdef HAVE_LIBXOSD
+        if ( osd )
+        {
+            xosd_display(osd, 0, XOSD_string, "Launching:");
+            xosd_display(osd, 1, XOSD_string, getConfig(type));
+        }
 #endif
+    }
+
     return 0;
 }
 
@@ -1396,7 +1413,7 @@ printf("keycode %d owns keysym %x\n", tcode,newKS);
 
         if ( dummyErrFlag ) /* dummyHandler() have set it */
         {
-            i--;            /* need need to redo this round, as the action message
+            i--;            /* need to redo this round, as the action message
                                was not assigned to this keysym */
             dummyErrFlag == False;
         }
@@ -1423,7 +1440,10 @@ initXOSD(void)
                         xstrdup(getConfig("osd_color")),
                         atoi(getConfig("osd_timeout")),
                         strncmp(getConfig("osd_position"),"top",3)?XOSD_bottom:XOSD_top,
-                        atoi(getConfig("osd_offset")), 0);
+                        atoi(getConfig("osd_offset")), 
+                        3       /* shadow offset */,
+                        3       /* number_lines */ 
+                        );
     }
 #endif
 }
@@ -1488,8 +1508,23 @@ main(int argc, char *argv[])
     if ( !parseArgs(argc,argv) )
         bailout();
 
+#if HAVE_GTK
     if ( !noSplash )
-        system("type -p splash > /dev/null && splash " SHAREDIR"/splash.xpm sleep 2 &");
+    {
+        int pid;
+
+        if ( (pid=fork2()) == -1 )
+        {
+            uInfo("Cannot spawn new process\n");
+        }
+        else if ( pid == 0 )
+        {
+            gtk_init(&argc,&argv);
+            splash_create (SPLASH_IMAGE, 2000);   /* show splash for 2 sec */
+            gtk_main();
+        }
+    }
+#endif /* HAVE_GTK */
 
     if (background)
     {
@@ -1510,7 +1545,9 @@ main(int argc, char *argv[])
     initXOSD();
 #endif
 
+#if HAVE_GTK
     if ( noSplash )
+#endif
         printf( "%s started successfully.\n", progname );
 
     /* Process the events in a forever loop */
