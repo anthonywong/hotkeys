@@ -2,7 +2,7 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/hotkeys.c)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(hotkeys, 0.5.4)
+AM_INIT_AUTOMAKE(hotkeys, 0.5.5)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -19,13 +19,17 @@ AC_ARG_ENABLE(xmltest,
     [  --disable-xmltest       Do not try to compile and run a test XML program],
     , enable_xmltest=yes)
 
-AC_ARG_WITH(db2-inc,
-    [  --with-db2-inc=DIR      Set the include directory of Berkeley DB2],
-    db2_incdir="$withval", db2_incdir="")
+AC_ARG_WITH(db3-inc,
+    [  --with-db3-inc=DIR      Set the include directory of Berkeley DB3],
+    db3_incdir="$withval", db3_incdir="")
  
-AC_ARG_WITH(db2-lib,
-    [  --with-db2-lib=DIR      Set the library directory of Berkeley DB2],
-    db2_libdir="$withval", db2_libdir="")
+AC_ARG_WITH(db3-lib,
+    [  --with-db3-lib=DIR      Set the library directory of Berkeley DB3],
+    db3_libdir="$withval", db3_libdir="")
+
+AC_ARG_ENABLE(db3test,
+    [  --disable-db3test       Do not try to test for libdb3, assume it's present],
+    , enable_db3test=yes)
 
 dnl not yet...
 dnl AC_ARG_WITH(gtk,
@@ -60,6 +64,9 @@ dnl Checks for LIBXML2
 dnl-----------------------------------------------------------------------
 if test "x$enable_xmltest" = "xyes"; then
     AM_CHECK_LIBXML2
+else
+#    AC_MSG_NOTICE([Skipping libxml2 test])
+echo
 fi
 
 dnl Checks for libraries.
@@ -77,35 +84,19 @@ dnl AC_SUBST(GLIB_LIBS)
 dnl AC_SUBST(GLIB_CFLAGS)
 
 dnl-----------------------------------------------------------------------
-dnl Checks for DB2
+dnl Checks for DB3
 dnl-----------------------------------------------------------------------
-AM_CHECK_DB2
+if test "x$enable_db3test" = "xyes"; then
+    AM_CHECK_DB3
+else
+#    AC_MSG_NOTICE([Skipping libdb3 test])
+echo
+fi
 
 dnl-----------------------------------------------------------------------
 dnl Checks for XOSD
 dnl-----------------------------------------------------------------------
-if test ! x$xosd_libdir = x; then
-    LIBS="$LIBS -L$xosd_libdir"
-fi
-if test ! x$xosd_incdir = x; then
-    CPPFLAGS="$CPPFLAGS -I$xosd_incdir"
-fi
-
-if test "x$enable_xosd" = "xyes"
-then
-    AC_CHECK_LIB(xosd, xosd_init)
-##    , [AC_DEFINE(HAVE_LIBXOSD),LIBS="$LIBS -lxosd",have_xosd=yes])
-    if test "x$ac_cv_have_libxosd" != "xyes"
-    then
-        ## Although XOSD uses pthread, we must still link with -lpthread
-        ## explicitly, otherwise strange things like "zombie thread"
-        ## will occur when exec'ing, this is explained in this email:
-        ## http://sources.redhat.com/ml/bug-glibc/2000-04/msg00023.html
-        CFLAGS="$CFLAGS -D_REENTRANT"
-        LIBS="$LIBS -lpthread"
-    fi
-fi
-
+AM_CHECK_LIBXOSD
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
