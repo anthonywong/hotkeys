@@ -1,5 +1,5 @@
 bin_PROGRAMS    = hotkeys
-hotkeys_SOURCES = hotkeys.c kbddef.c conf.c apmlib.c xmalloc.c
+hotkeys_SOURCES = hotkeys.c kbddef.c conf.c fixVMware.c apmlib.c xmalloc.c
 sysconf_DATA    = hotkeys.conf
 man_MANS        = hotkeys.1
 
