@@ -430,7 +430,7 @@ dnl    if test x$HAVE_XML_CONFIG = "xno" ; then
 dnl    AC_SUBST(XML_CFLAGS)
 dnl    AC_SUBST(XML_LIBS)
 
-    AC_CHECK_LIB(xml, xmlParseFile)
+    AC_CHECK_LIB(xml2, xmlParseFile)
 
     AC_MSG_CHECKING(for xmlChildrenNode in parser.h)
     AC_TRY_RUN([
@@ -445,7 +445,7 @@ dnl    AC_SUBST(XML_LIBS)
     }
     ],[ AC_MSG_RESULT(yes) ],
       [ AC_MSG_RESULT(no)
-        echo "*** This version of libxml has not definedl xmlChildrenNode."
+        echo "*** This version of libxml has not defined xmlChildrenNode."
         echo "*** Please upgrade it. Version 2.2.8 and above are known to"
         echo "*** to be good. If you've installed it in an unusual location,"
         echo "*** please use --with-xml-prefix to specify it."
