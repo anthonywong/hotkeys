@@ -11,8 +11,8 @@
 #include <regex.h>
 #include <errno.h>
 
-#include <libxml/xmlmemory.h>
-#include <libxml/parser.h>
+#include <xmlmemory.h>
+#include <parser.h>
 
 #include "hotkeys.h"
 #include "kbddef.h"
@@ -90,9 +90,10 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
     XFREE(t_command);
 
     tc = xmlNodeListGetString( doc, cur, 1 );
-    if ( tc[0] != '\0' )
+    if ( tc != NULL && tc[0] != '\0' )
     {
         kbd.customCmds[kbd.noOfCustomCmds].description = xstrdup(tc);
+        XFREE(tc);
     }
     else
     {
@@ -100,7 +101,6 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
         kbd.customCmds[kbd.noOfCustomCmds].description = NULL;
     }
 
-    XFREE(tc);
     kbd.noOfCustomCmds++;
 }
 
