@@ -30,11 +30,12 @@
 #include <X11/extensions/XKBbells.h>
 
 /* Function prototypes */
-static void initialize(char* argv[]);
+static void initializeX(char* argv[]);
 void usage(int argc, char* argv[]);
 void showKbdList(int argc, char *argv[]);
 static Bool setKbdType(const char* prog, const char* type);
 void setCDROMDevice(char* optarg);
+static void setLoglevel(int level);
 static Bool parseArgs(int argc, char* argv[]);
 static Display* GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn);
 void bailout(void);
@@ -53,10 +54,14 @@ Bool testReadable(const char* filename);
 extern	Display *       dpy;
 extern	int             xkbOpcode;
 extern	int             xkbEventCode;
-
 extern	XkbDescPtr      xkb;
 
 extern  keyboard        kbd;
+extern  int             loglevel;
+
+#ifdef HAVE_XOSD
+extern  xosd*           osd;
+#endif
 
 #ifdef DUMMY_MIXER
 #define SOUND_IOCTL(a,b,c)      dummy_ioctl(a,b,c)
