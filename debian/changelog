@@ -1,11 +1,22 @@
+hotkeys (0.5.4) unstable; urgency=low
+
+  * the volume change will be greater if the vol+/- keys are
+    pressed continuously within a short interval [new]
+  * More rigorous checking of db2 and libxml2 in configure
+  * Added SK-2505 and Process MCK-800 keyboards support [new]
+  * Use debian/shlibs.local to restrict the versions of libdb2 and
+    libxml2.
+
+ -- Anthony Wong <ypwong@debian.org>  Sat, 31 Mar 2001 02:57:54 +0800
+
 hotkeys (0.5.3) unstable; urgency=low
 
-  * Corrected the configure script to be able to locate xml-config.
+  * Corrected the configure script to be able to locate xml-config [fix]
   * Include my own XF86keysym.h.
-  * With splash screen!
-  * Polypix and BTC 9000 keyboards.
-  * debian/control: added libdb2-dev to Build-Depends, and
-                    changed Standards-Version to 3.5.2.
+  * With splash screen! [new]
+  * Polypix and BTC 9000 keyboards [new]
+  * debian/control: added libdb2-dev to Build-Depends, and changed
+    Standards-Version to 3.5.2.
 
  -- Anthony Wong <ypwong@debian.org>  Fri, 16 Mar 2001 21:51:15 +0800
 
