@@ -16,6 +16,9 @@ char* conf_keys[] = {
 
     /* KEY             DEFAULT VALUE           */
 
+    /* Specify the default keyboard to use */
+    "Kbd",             "\0",
+
     /* general actions */
     "PrevTrack",       "xmms --rew",
     "Play",            "xmms --play",
