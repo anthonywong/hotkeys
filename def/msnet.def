@@ -2,12 +2,12 @@
 <CONFIG model="Microsoft Internet Keyboard">
  
   <Email        keycode="236"/>
- 
-  <Search       keycode="229"/>
   <WebBrowser   keycode="178"/>
- 
   <MyComputer   keycode="235"/>
   <Calculator   keycode="161"/>
+  <Search       keycode="229"/>
+  <Favorites    keycode="230"/>
+
   <Sleep        keycode="223"/>
 
   <userdef      keycode="234"
@@ -16,7 +16,5 @@
                 command="gnome-moz-remote --remote=forward">Forward</userdef>
   <userdef      keycode="232"
                 command="gnome-moz-remote --remote=stop">Stop</userdef> 
-  <userdef      keycode="230"
-                command="gnome-moz-remote --remote=openBookmarks">Favorites</userdef>
  
 </CONFIG>
