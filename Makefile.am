@@ -1,2 +1,2 @@
 SUBDIRS = src def
-EXTRA_DIST  = debian/
+EXTRA_DIST  = BUGS debian/
