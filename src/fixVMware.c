@@ -1,3 +1,5 @@
+/* $Id$ */
+
 #include <signal.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -9,7 +11,6 @@ unsigned int interval;
 static void
 fixIt(int sig)
 {
-    printf("hahaha\n");
     initializeX("fix vmware");
     XFlush(dpy);
 }
@@ -32,7 +33,6 @@ startFixVMwareThread(void)
 
     while (1)
     {
-printf("%d\n",interval);
         alarm(interval);
         pause();
     }
