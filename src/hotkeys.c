@@ -87,7 +87,7 @@ XkbDescPtr  xkb               = NULL;
 
 unsigned long   eventMask     = 0;
 
-Bool            synch         = True;
+Bool            synch         = False;
 int	            verbose       = 0;
 int	            loglevel      = 0;
 Bool            background    = False;
@@ -1143,7 +1143,37 @@ testReadable(const char* filename)
 }
 
 /***====================================================================***/
-static int dummy() {}
+
+void
+commitXKBChanges(int tcode)
+{
+    XkbMapChangesRec    mapChangeRec;
+
+    /* Commit the change back to the server */
+    bzero(&mapChangeRec, sizeof(mapChangeRec));
+    mapChangeRec.changed = XkbKeySymsMask | XkbKeyTypesMask;
+    mapChangeRec.first_key_sym = tcode;
+    mapChangeRec.num_key_syms = 1;
+    //        mapChangeRec.first_key_act = tcode;
+    //        mapChangeRec.num_key_acts = 1;
+    mapChangeRec.first_type = 0;
+    mapChangeRec.num_types = xkb->map->num_types;
+    if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
+    {
+#ifdef DEBUG
+        printf("map changed done\n");
+#endif
+    }
+    else
+    {
+        uError("map changed failed\n"); bailout();
+    }
+    xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
+    if (!xkb)
+    {
+        uInfo("XkbGetMap failed\n"); bailout();
+    }
+}
 
 void
 initializeX(char* prg)
@@ -1166,16 +1196,6 @@ initializeX(char* prg)
         uInfo("Couldn't select desired XKB events\n");
         bailout();
     }
-#if 0
-    xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
-    xkb= XkbGetKeyboard(dpy,XkbAllComponentsMask,XkbUseCoreKbd);
-#endif
-    xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
-    if (!xkb)
-    {
-        uInfo("XkbGetMap failed\n"); bailout();
-    }
-    XSetAfterFunction(dpy,dummy);
     /* Construct the Message Action struct */
     xma.type = XkbSA_ActionMessage;
     xma.flags = XkbSA_MessageOnPress;
@@ -1199,39 +1219,51 @@ initializeX(char* prg)
         {
             tcode = kbd.customCmds[i-NUM_PREDEF_HOTKEYS].keycode;
         }
+#if 0
+        xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
+        xkb= XkbGetKeyboard(dpy,XkbAllComponentsMask,XkbUseCoreKbd);
+#endif
+        xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
+        if (!xkb)
+        {
+            uInfo("XkbGetMap failed\n"); bailout();
+        }
 
         /* Assign a group to the key code */
-/*
-        types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
-*/
         types[0] = XkbOneLevelIndex;
         if ( XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL)
                 != Success )
         {
             uError("damn it!"); bailout();
         }
+/*
+        types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
+*/
 
         /* Change their Keysyms */
         if ( XkbResizeKeySyms( xkb, tcode, 1 ) == NULL )
         {
             uInfo("resize keysym failed\n"); bailout();
         }
+        /* Assign a new keysym to the key code */
+        newKS = 0x2200+i;       /* FIXME: I just choose a keysym that's not yet assigned */
+        *XkbKeySymsPtr(xkb,tcode) = newKS;
+
         /* Add one key action to it */
         if ( XkbResizeKeyActions( xkb, tcode, 1 ) == NULL )
         {
             uInfo("resize key action failed\n"); bailout();
         }
 
-        /* Assign a new keysym to the key code */
-        newKS = 0x2200+i;       /* FIXME: I just choose a keysym that's not yet assigned */
-/*
-        newKS = 0xFFE0;
-*/
-        *XkbKeySymsPtr(xkb,tcode) = newKS;
+        commitXKBChanges(tcode);
+        commitXKBChanges(tcode);    /* YES, we need to call it twice! */
 
+        /* Assign the Message Action to the key code */
+        (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
         /* Send the change back to the server */
         /* XkbKeyActionsMask must be here, just XkbKeySymsMask|XkbKeyTypesMask
          * is not sufficient */
+#if 0
         if ( XkbSetMap(dpy, XkbKeySymsMask|XkbKeyActionsMask|XkbKeyTypesMask, xkb) )
         {
 #ifdef DEBUG
@@ -1242,7 +1274,24 @@ initializeX(char* prg)
         {
             uInfo("map set failed\n"); bailout();
         }
+#endif
 
+        /* Commit the change back to the server */
+        bzero(&mapChangeRec, sizeof(mapChangeRec));
+        mapChangeRec.changed = XkbKeyActionsMask;
+        mapChangeRec.first_key_act = tcode;
+        mapChangeRec.num_key_acts = 1;
+        if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
+        {
+#ifdef DEBUG
+            printf("map changed done\n");
+#endif
+        }
+        else
+        {
+            uError("map changed failed\n"); bailout();
+        }
+#if 0
 #ifdef DEBUG
         SYSLOG( LOG_DEBUG, "idx:%d has action:%d no.:%d noOfGrps:%d\n",
                 xkb->server->key_acts[tcode], XkbKeyHasActions(xkb,tcode),
@@ -1250,17 +1299,18 @@ initializeX(char* prg)
         SYSLOG( LOG_DEBUG, "keycode %d\nbefore: %d",
                 tcode, XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
-        /* Assign the Message Action to the key code */
-        (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
 
+//    xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
 #ifdef DEBUG
         SYSLOG( LOG_DEBUG, "after: %d",XkbKeyActionsPtr(xkb,tcode)[0].type);
+#endif
 #endif
     }
 
     /***************************************************************/
 
     /* Commit the change back to the server. This is necessary! */
+/*
     if ( XkbSetMap(dpy, XkbKeyActionsMask, xkb) )
     {
 #ifdef DEBUG
@@ -1271,6 +1321,7 @@ initializeX(char* prg)
     {
         uInfo("map set failed\n"); bailout();
     }
+*/
 }
 
 /* Initialize XOSD */
@@ -1331,7 +1382,6 @@ fork2(void)
 
     return -1;
 }
-
 
 int
 main(int argc, char *argv[])
