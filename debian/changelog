@@ -7,8 +7,10 @@ hotkeys (0.5.1) unstable; urgency=low
   * Turns on the X synchronize mode, shouldn't have any performance
     issue as there's no GUI, but this can suppress the BadValue X
     protocol error.
+  * Parsing of configuration file is changed: the global one will be
+    parsed first and then the private one.
 
- -- Anthony Wong <ypwong@debian.org>  Fri,  9 Feb 2001 04:27:39 +0800
+ -- Anthony Wong <ypwong@debian.org>  Sat, 10 Feb 2001 04:48:35 +0800
 
 hotkeys (0.5) unstable; urgency=low
 
