@@ -1,9 +1,28 @@
+hotkeys (0.4) unstable; urgency=low
+
+  * Logging through syslog, specify log level using -L/--loglevel
+    [new]
+  * On-screen display (uses libxosd) [new]
+  * Added SK-9925, SK-2800C, MS Natural Pro, Logitech Internet and
+    Chicony KBP-8993 supprt. [new]
+  * Inclusion of RPM spec. [new]
+  * Unreadable definition files are processed correctly. [bug]
+  * No more "zombie" processes left behind after launched applications
+    quit. [bug]
+  * Semantics of handling muting and volume changing is corrected
+    such that failing to set one sound device won't affect the
+    other. [bug]
+  * Hope the BadValue X error is fixed... [bug] (Closes: #83064)
+  * CDROM volume adjusting is now corrected [bug]
+
+ -- Anthony Wong <ypwong@debian.org>  Sat, 27 Jan 2001 17:53:24 +0800
+
 hotkeys (0.3.2) unstable; urgency=low
 
   * Removed hardcoded paths of libxml from two #include, build
     on hosts that don't put header files in /usr/include/libxml
     should be correct now.
-  * Added the `correct' URL on where to get libxml.
+  * Added the `correct' URL on where to get libxml2.
   * The 'msnet' keyboard is actually the MS Internet Pro keyboard,
     renamed, and added the real MS Internet keyboard support.
 
