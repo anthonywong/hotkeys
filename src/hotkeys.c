@@ -941,6 +941,7 @@ initialize(char* argv[])
     XkbMapChangesRec    mapChangeRec;
     int                 types[1];
     int                 i;
+    int                 tcode;
 
     dpy = GetDisplay(argv[0], dpyName, &xkbOpcode, &xkbEventCode);
     if (!dpy)
@@ -972,24 +973,31 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 #endif
 
     /* Add KeySym to the key codes, as they don't have any KeySyms before */
-    for ( i = 0; i < NUM_PREDEF_HOTKEYS; i++ )
+    for ( i = 0; i < NUM_PREDEF_HOTKEYS + kbd.noOfCustomCmds; i++ )
     {
-        int code = (kbd.keycodes)[i];
-        if ( code == 0 )
-            continue;
+        if ( i < NUM_PREDEF_HOTKEYS )
+        {
+            tcode = (kbd.keycodes)[i];
+            if ( tcode == 0 )
+                continue;
+        }
+        else
+        {
+            tcode = kbd.customCmds[i-NUM_PREDEF_HOTKEYS].keycode;
+        }
 
         /* Assign a group to the key code */
 //        types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
         types[0] = XkbOneLevelIndex;
-        XkbChangeTypesOfKey(xkb, code, 1, XkbGroup1Mask, types, NULL);
+        XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL);
 
         /* Change their Keysyms */
-        if ( XkbResizeKeySyms( xkb, code, 1) == NULL )
+        if ( XkbResizeKeySyms( xkb, tcode, 1) == NULL )
         {
             uInfo("resize keysym failed\n"); bailout();
         }
         /* Add one key action to it */
-        if ( XkbResizeKeyActions( xkb, code, 1) == NULL )
+        if ( XkbResizeKeyActions( xkb, tcode, 1) == NULL )
         {
             uInfo("resize key action failed\n"); bailout();
         }
@@ -997,7 +1005,7 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
         /* Assign a new keysym to the key code */
         newKS = 0x2200+i;       /* FIXME: I just choose a keysym that's not yet assigned */
 //        newKS = 0xFFE0;
-        *XkbKeySymsPtr(xkb,code) = newKS;
+        *XkbKeySymsPtr(xkb,tcode) = newKS;
 
         /* Send the change back to the server */
         /* XkbKeyActionsMask must be here, just XkbKeySymsMask|XkbKeyTypesMask
@@ -1015,13 +1023,13 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 
 
 #ifdef DEBUG
-        printf("%d: before: %d\n",code, XkbKeyActionsPtr(xkb,code)[0].type);
+        printf("%d: before: %d\n",tcode, XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
         /* Assign the Message Action to the key code */
-        (&(xkb->server->acts[ xkb->server->key_acts[code] ]))[0] = (XkbAction) xma;
+        (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
 
 #ifdef DEBUG
-        printf("after: %d\n",XkbKeyActionsPtr(xkb,code)[0].type);
+        printf("after: %d\n",XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
     }
 
@@ -1184,9 +1192,12 @@ main(int argc, char *argv[])
             } else
             if ( ev.message.keycode == (kbd.keycodes)[powerDownKey] ) {
                 sleepState(SUSPEND);
-            } else
+            }
+            else
+            {
                 /* User-defined stuffs */
                 lookupUserCmd(ev.message.keycode);
+            }
         }
     }
 
