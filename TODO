@@ -1,0 +1,19 @@
+TODO
+----
+
+- user configuration file
+
+- Support  more  keyboard types, please e-mail me on this if you have a
+  keyboard that's not yet supported.
+
+- Support launching of applications  and  sleeping,  power down, etc.
+
+- The cool OSD (on-screen display), I love eye candy :P
+
+- A GUI for configuration, probably a GTK one, with Gnome integration.
+  Later I may do for KDE too.
+
+- Internationalization, gettextize it!
+
+- RPM spec file, any one could give me a helping hand on this?
+

@@ -1,0 +1,19 @@
+Source: hotkeys
+Section: x11
+Priority: optional
+Maintainer: Anthony Wong <ypwong@debian.org>
+Build-Depends: debhelper, xutils, xlibs-dev
+Standards-Version: 3.1.1
+
+Package: hotkeys
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A hotkeys daemon for your Internet/multimedia keyboard in X
+ This program sits at the back and listens for the "special"
+ hotkeys that you won't normally use on your Internet /
+ Multimedia keyboards. The buttons perform their intended
+ behaviors, such as volume up and down, mute the speaker,
+ launch applications, etc. Theoretically, the functions they
+ perform are programmable, but not yet at the moment.
+ .
+ Currently only the Acer wireless keyboard is supported.

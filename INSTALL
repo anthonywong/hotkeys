@@ -1,0 +1,10 @@
+HOTKEYS
+-------
+To compile the program, just type
+
+        xmkmf && make hotkeys
+
+You will get an executable file called 'hotkeys'.
+
+-- 
+Anthony Wong

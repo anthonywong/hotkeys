@@ -1,0 +1,27 @@
+hotkeys (0.2) unstable; urgency=low
+
+  * Added Microsoft Internet keyboard support (Thanks jas
+    <atropa@picklepop.darktech.org>)
+  * Added Memorex MX3000 keyboard support (Thanks Jeffrey Panczyk
+    <jpanczyk@is2.dal.ca>)
+  * Added the -d option to specify the cdrom device.
+  * Added the -t option to specify the keyboard type.
+  * Volume adjustment and mute affects the CDROM drive's volume too.
+  * Added initial support for launching browser and mailer (defaults
+    to mozilla).
+  * Changed the description in the Debian package a bit.
+  * New TODO and INSTALL files.
+  * APM suspend and standby mode (with the help from apmd). Highly
+    EXPERIMENTAL, not recommended for normal use!
+
+ -- Anthony Wong <ypwong@debian.org>  Tue,  9 Jan 2001 01:50:59 +0800
+
+hotkeys (0.1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Anthony Wong <ypwong@debian.org>  Fri, 29 Dec 2000 21:25:58 +0800
+
+Local variables:
+mode: debian-changelog
+End:

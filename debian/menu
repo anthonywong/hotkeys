@@ -1,0 +1,2 @@
+?package(hotkeys):needs=X11 section=Apps/Tools\
+  title="hotkeys" command="/usr/bin/hotkeys --background"

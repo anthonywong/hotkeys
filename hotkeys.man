@@ -1,0 +1,77 @@
+.\" $TOG: xkbevd.man /main/6 1998/02/12 09:34:24 kaleb $
+.TH HOTKEYS 1 "9 January 2001" "v0.2"
+.SH NAME
+hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
+.SH SYNOPSIS
+.B hotkeys
+[\fIoptions\fR]
+.SH DESCRIPTION
+.PP
+This program sits at the back and listens for the hotkeys on your
+keyboard. The buttons perform their intended behaviors, such as volume
+up and down, mute the speaker, launch applications, etc.
+Theoretically, the functions they perform are programmable, but not
+yet at the moment.
+.SH OPTIONS
+.TP 8
+.B \-h, \-\-help
+Prints a usage message.
+.TP 8
+.B \-b, \-\-background, \-\-bg 
+Tells \fIhotkeys\fP to fork itself (and run in the background).
+.TP 8
+.B \-t, \-\-type
+Specify the keyboard type.
+.TP 8
+.B \-l, \-\-kbd\-list
+Show all supported keyboards, and the code needed for the \-t option.
+.TP 8
+.B \-d, \-\-cdrom\-dev
+Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
+.\" .TP 8
+.\" .B \-v
+.\" Print more information, including debugging messages.   Multiple 
+.\" specifications of \fI-v\fP cause more output, to a point.
+.SH "SUPPORTED KEYBOARDS"
+.TP 8
+.I Acer Airkey III Wireless keyboard
+The \fBvolume up\fR and \fBdown\fR works by changing the master volume of the
+mixer (\fI/dev/mixer\fR).
+
+The \fBmute\fR button sets the volume to 0 when pressed once, and restores the
+previous volume when pressed again.
+
+The \fBeject\fR button can eject and close the tray. The \fBplay\fR
+button can be used to close the tray too.
+.PP
+.I Microsoft Internet keyboard
+.PP
+.I Memorex MX300 keyboard
+
+.\" .PP
+.\" For details please consult the file \fIkeyboard.list\fR.
+.PP
+As I have only the Acer wireless keyboard, you can help
+me to support other keyboards by sending me the list of keycodes of
+the hotkeys on your keyboard. You can do this by using \fBxev\fR.
+Contact me for the details.
+.SH "TODO"
+Please consult the TODO file.
+.SH "BUGS"
+The program will sometimes terminate with the error
+\fI"X Error of failed request:  BadValue (integer parameter out of range
+for operation)"\fR at startup. I'm wondering why...
+.PP
+APM support is highly experimental. I only tested on my desktop and
+sometimes it can't go out from Suspend mode, no response from the
+keyboard, mouse, nor the suspend button on the case. Not tested on
+notebook (I don't have one). Note that you need root priviledge to use
+the APM functions.
+.SH COPYRIGHT
+Copyright 2000, Anthony Y P Wong <ypwong@ypwong.org>
+.PP
+Licensed under GNU GPL version 2 or later.  This  is  free software;
+see the source for copying conditions. There is NO warranty; not even
+for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+.SH AUTHOR
+Anthony Y P Wong, Debian GNU/Linux
