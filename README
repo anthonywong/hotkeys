@@ -1,6 +1,10 @@
 README
 ======
 
+NOTE: XML syntax of keyboard definition files has been changed in
+version 0.5.6. Please consult sample.xml. Beware that there will be
+at least one more XML syntax change in the future.
+
 Requirements:
 ------------
  
