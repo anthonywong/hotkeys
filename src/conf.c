@@ -96,7 +96,7 @@ getConfig(char* key)
 
     k.data = key;
     k.size = strlen(key) + 1;
-    ;
+
     if ( dbp->get(dbp, NULL, &k, &data, 0) == 0 ) {
         return data.data;
     }
