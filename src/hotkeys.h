@@ -58,6 +58,8 @@ extern	XkbDescPtr      xkb;
 
 extern  keyboard        kbd;
 extern  int             loglevel;
+extern  int             volUpAdj;
+extern  int             volDownAdj;
 
 #ifdef HAVE_XOSD
 extern  xosd*           osd;

@@ -104,6 +104,9 @@ keyboard        kbd;                    /* the keyboard the user is using */
 xosd *          osd           = (xosd*)1;
 #endif
 
+int             volUpAdj      = 2;
+int             volDownAdj    = -2;
+
 /***====================================================================***/
 
 void
@@ -1397,10 +1400,10 @@ main(int argc, char *argv[])
                 pthread_create (&tp, &attr, ejectDisc, NULL);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[volUpKey] ) {
-                adjustVol(2);
+                adjustVol(volUpAdj);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[volDownKey] ) {
-                adjustVol(-2);
+                adjustVol(volDownAdj);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[muteKey] ) {
                 doMute();
