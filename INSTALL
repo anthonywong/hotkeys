@@ -7,6 +7,8 @@ its homepage at http://xmlsoft.org/ .
 You also need the XOSD library if you want to enjoy the cool on-screen
 display. It can be downloaded from http://www.ignavus.net/software.html
 
+You also need libdb2, the Berkeley database library, but this is much
+more common and most probably is already present in your system.
 
 To compile the program, just type
 
