@@ -1,5 +1,7 @@
 bin_PROGRAMS    = hotkeys
 hotkeys_SOURCES = hotkeys.c kbddef.c conf.c apmlib.c xmalloc.c
+sysconf_DATA    = hotkeys.conf
+man_MANS        = hotkeys.1
 
 CFLAGS      = @CFLAGS@ @XML_CFLAGS@ @X_CFLAGS@ -I.. -DDEBUG 
 LIBS        = @LIBS@ @XML_LIBS@ @X_LIBS@
@@ -20,5 +22,3 @@ EXTRA_DIST  = $(man_MANS)
 ##info_TEXINFOS = hotkeys.texinfo
 ##hotkeys_TEXINFOS = gpl.texinfo
 
-##  install the man pages
-man_MANS       = hotkeys.1
