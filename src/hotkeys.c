@@ -38,9 +38,11 @@ extern char *getenv();
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
 #endif /* HAVE_GETOPT_LONG */
+#include <signal.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 /* Mixer related */
 #include <fcntl.h>
@@ -130,9 +132,11 @@ usage(int argc, char *argv[])
     printf("\t-b, --background         Run in background\n");
     printf("\t-l, --kbd-list           Show all supported keyboards\n");
     printf("\t-h, --help               Print this message\n");
-//    M("-cfg <file>          Specify a config file\n");
-//    M("-d[isplay] <dpy>     Specify the display to watch\n");
-//    M("-v                   Print verbose messages\n");
+/*
+    M("-cfg <file>          Specify a config file\n");
+    M("-d[isplay] <dpy>     Specify the display to watch\n");
+    M("-v                   Print verbose messages\n");
+*/
 #else
     printf("\t-t   Specify the keyboard type (refer to -l)\n");
     printf("\t-d   Specify the CDROM/DVDROM device\n");
@@ -451,7 +455,6 @@ GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn)
 void
 bailout(void)
 {
-//    uAction("Exiting\n");
     if ( dpy != NULL )
 	XCloseDisplay(dpy);
     uInfo("Bailing out...\n");
@@ -748,8 +751,6 @@ launchApp(int type)
             arg_array[i] = strtok( NULL, " " );
         }
 
-//        char* args[] = BROWSER_ARGS;
-//        if ( execvp(applications[type], application_args[type]) == -1 ) {
         if ( execvp(applications[type], arg_array) == -1 ) {
             uError("Cannot launch the %s", app_strings[type]);
         }
@@ -874,6 +875,7 @@ lookupUserCmd(const int keycode)
 
 /***====================================================================***/
 
+#ifdef DEBUG
 static void
 printXkbActionMessage(FILE* file,XkbEvent* xkbev)
 {
@@ -887,6 +889,7 @@ printXkbActionMessage(FILE* file,XkbEvent* xkbev)
                                      (msg->key_event_follows?"yes":"no"));
     return;
 }
+#endif
 
 
 void
@@ -931,7 +934,7 @@ uInternalError(char* s,...)
 
 
 /*
- * Test whether filename is readable or not
+ * Test whether filename is readable
  */
 Bool
 testReadable(const char* filename)
@@ -972,8 +975,10 @@ initialize(char* argv[])
         uInfo("Couldn't select desired XKB events\n");
         bailout();
     }
-//    xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
-//    xkb= XkbGetKeyboard(dpy,XkbAllComponentsMask,XkbUseCoreKbd);
+#if 0
+    xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
+    xkb= XkbGetKeyboard(dpy,XkbAllComponentsMask,XkbUseCoreKbd);
+#endif
     xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
     if (!xkb)
     {
@@ -1005,7 +1010,9 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
         }
 
         /* Assign a group to the key code */
-//        types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
+/*
+        types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
+*/
         types[0] = XkbOneLevelIndex;
         XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL);
 
@@ -1022,7 +1029,9 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 
         /* Assign a new keysym to the key code */
         newKS = 0x2200+i;       /* FIXME: I just choose a keysym that's not yet assigned */
-//        newKS = 0xFFE0;
+/*
+        newKS = 0xFFE0;
+*/
         *XkbKeySymsPtr(xkb,tcode) = newKS;
 
         /* Send the change back to the server */
@@ -1053,41 +1062,6 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 
     /***************************************************************/
 
-#if 0
-    /* Send the change back to the server */
-    if ( XkbSetMap(dpy, XkbAllMapComponentsMask, xkb) )
-    {
-#ifdef DEBUG
-        printf("map set done\n");
-#endif
-    }
-    else
-    {
-        uError("map set failed\n"); bailout();
-    }
-#endif
-#if 0
-    /* Commit the change back to the server */
-    bzero(&mapChangeRec, sizeof(mapChangeRec));
-    mapChangeRec.changed = XkbKeySymsMask | XkbKeyTypesMask;
-    mapChangeRec.first_key_sym = xkb->min_key_code; /* FIXME, the value is from experimentation */
-    mapChangeRec.num_key_syms = XkbNumKeys(xkb);  /* FIXME, the value is from experimentation  */
-    mapChangeRec.first_key_act = xkb->min_key_code; /* FIXME, the value is from experimentation */
-    mapChangeRec.num_key_acts = XkbNumKeys(xkb);  /* FIXME, the value is from experimentation  */
-    mapChangeRec.first_type = 0;
-    mapChangeRec.num_types = xkb->map->num_types;
-    if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
-    {
-#ifdef DEBUG
-        printf("map changed done\n");
-#endif
-    }
-    else
-    {
-        uError("map changed failed\n"); bailout();
-    }
-#endif
-
     /* Commit the change back to the server. This is necessary! */
     if ( XkbSetMap(dpy, XkbKeyActionsMask, xkb) )
     {
@@ -1099,50 +1073,39 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
     {
         uInfo("map set failed\n"); bailout();
     }
-#if 0
-    /* Commit the change back to the server */
-    bzero(&mapChangeRec, sizeof(mapChangeRec));
-    mapChangeRec.changed = XkbKeyActionsMask;
-    mapChangeRec.first_key_act = 140; /* FIXME, the value is from experimentation */
-    mapChangeRec.num_key_acts = 100;  /* FIXME, the value is from experimentation  */
-    if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
-    {
-#ifdef DEBUG
-        printf("map changed done\n");
-#endif
-    }
-    else
-    {
-        uError("map changed failed\n"); bailout();
-    }
-#endif
-
-#if 0
-/* _test_ */
-if ( xkb=XkbGetMap(dpy,XkbAllMapComponentsMask,XkbUseCoreKbd) )
-    printf("map get done\n");
-else {
-    printf("map get failed\n"); exit(0);
 }
 
-printf("after: %d\n",XkbKeyActionsPtr(xkb,152)[0].type);
-printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[38], XkbKeyHasActions(xkb,38), XkbKeyNumActions(xkb,38), XkbKeyNumGroups(xkb,38));
-printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], XkbKeyHasActions(xkb,152), XkbKeyNumActions(xkb,152), XkbKeyNumGroups(xkb,152));
+static void
+removeCorpse(int s)
+{
+    int     status;
+    pid_t   pid;
 
-printf("num_acts:%d size_acts:%d\n", xkb->server->num_acts, xkb->server->size_acts);
-/*
-XkbSelectEvents(dpy,XkbUseCoreKbd,XkbAllEventsMask,XkbAllEventsMask);
-*/
+    pid = wait(&status);
+#ifdef DEBUG
+    uInfo("Child %d exited\n", pid);
 #endif
+}
+
+
+static void
+installSigHandler(void)
+{
+    struct sigaction s;
+
+    bzero(&s, sizeof(s));
+    s.sa_handler = removeCorpse;
+    s.sa_flags = SA_NOCLDSTOP;
+
+    sigaction( SIGCHLD, &s, NULL);
 }
 
 
 int
 main(int argc, char *argv[])
 {
-    XkbEvent	        ev;
-
-    int                 i, k;
+    XkbEvent    ev;
+    int         i, k;
 
     errorFile = stderr;
 
@@ -1164,10 +1127,12 @@ main(int argc, char *argv[])
     }
 
     initialize(argv);
+    installSigHandler();
 
-    /* Process the events in an forever loop */
-    while (1) {
-	XNextEvent( dpy, &ev.core );
+    /* Process the events in a forever loop */
+    while (1)
+    {
+        XNextEvent( dpy, &ev.core );
 #ifdef DEBUG
         printXkbActionMessage( stdout, &ev );
 #endif
