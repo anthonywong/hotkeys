@@ -55,18 +55,17 @@ binary-indep: build install
 
 # Build architecture-dependent files here.
 binary-arch: build install
-#	dh_testversion
 	dh_testdir
 	dh_testroot
 #	dh_installdebconf	
 	dh_installdocs
 	dh_installexamples
 ##	dh_installmenu
-	dh_installcron
-	dh_installmanpages
-	dh_installinfo
+#	dh_installcron
+#	dh_installmanpages
+#	dh_installinfo
 	dh_installchangelogs 
-	dh_link
+#	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
