@@ -51,32 +51,42 @@ then
     if test x$xml_config_exec_prefix != x
     then
         xml_config_args="$xml_config_args --exec-prefix=$xml_config_exec_prefix"
-        if test x${XML_CONFIG+set} != xset
-        then
-            XML_CONFIG=$xml_config_exec_prefix/bin/xml-config
-        fi
+dnl        if test x${XML_CONFIG+set} != xset
+dnl        then
+dnl            XML_CONFIG=$xml_config_exec_prefix/bin/xml-config
+dnl        fi
+        xml_search_path="$PATH:$xml_config_exec_prefix"
+    else
+        xml_search_path="$PATH"
     fi
     if test x$xml_config_prefix != x
     then
         xml_config_args="$xml_config_args --prefix=$xml_config_prefix"
-        if test x${XML_CONFIG+set} != xset
-        then
-            XML_CONFIG=$xml_config_prefix/bin/xml-config
-        fi
+dnl        if test x${XML_CONFIG+set} != xset
+dnl        then
+dnl            XML_CONFIG=$xml_config_prefix/bin/xml-config
+dnl        fi
     fi
 
-    AC_PATH_PROG( XML_CONFIG, xml-config, no )
+    dnl
+    dnl Search for both xml-config and xml2-config
+    dnl
+    AC_PATH_PROG( XML_CONFIG, xml2-config, no, $xml_search_path )
     if test "$XML_CONFIG" = "no"
     then
+        AC_PATH_PROG( XML_CONFIG, xml-config, no, $xml_search_path )
+        if test "$XML_CONFIG" = "no"
+        then
+
 dnl    AC_CHECK_PROG( HAVE_XML_CONFIG, xml-config, "yes", "no" )
 dnl    if test x$HAVE_XML_CONFIG = "xno" ; then
-        AC_MSG_ERROR(xml-config not found. It's essential, please install it)
-    else
-        XML_CFLAGS=`$XML_CONFIG $xml_config_args --cflags`
-        XML_LIBS=`$XML_CONFIG $xml_config_args --libs`
-        AC_SUBST(XML_CFLAGS)
-        AC_SUBST(XML_LIBS)
+            AC_MSG_ERROR(xml-config not found. It's essential, please install it)
+        fi
     fi
+    XML_CFLAGS=`$XML_CONFIG $xml_config_args --cflags`
+    XML_LIBS=`$XML_CONFIG $xml_config_args --libs`
+    AC_SUBST(XML_CFLAGS)
+    AC_SUBST(XML_LIBS)
 fi
 
 dnl Checks for libraries.
