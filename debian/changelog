@@ -1,3 +1,115 @@
+hotkeys (0.5.6) unstable; urgency=low
+
+  * The "one-version-merges-them-all", aka "maintainer-is-now-back", release
+
+  * These account for NMU patches that I've merged:
+    - acinclude.m4: check for libxml2 instead of libxml (Closes: #127987)
+    - src/Makefile.am: added more SOURCES, put hotkeys.conf and splash.xpm
+                       to EXTRA_DIST, use LIBXOSD variables in build
+    - src/conf.c: initialize dbenv to NULL (Closes: #127987)
+    - src/conf.c: changed action of Play from 'xmms --play' to 'xmms
+                  --play-pause' (Closes: #162398, #136326)
+    - src/hotkeys.c: modified function setKbdType such that user's definition
+                     file is preferred over the global one (Closes: #135440)
+    - configure.in: added AM_MAINTAINER_MODE, use AM_PATH_LIBXOSD (provided
+                    by libxosd-dev) instead of my own AM_CHECK_LIBXOSD,
+                    so disable configure arguments --with-xosd-inc and
+                    --with-xosd-lib, check for libpthread
+    - debian/control: Build-Depends: libxosd-dev (>= 1.0.3-1),
+                      Conflicts: xmms (< 1.2.6-1)
+    - debian/rules: in clean target, remove debian/debian and and make
+                    distclean instead of make clean, should be more policy
+                    compliant now
+    - def/Makefile.am: add *.def to EXTRA_DIST
+    - New key defs: hp5181 (Closes: #146029),
+                    logitech-cfo (renamed from logitec-cho) (Closes: #149124),
+                    kb9930 (Closes: #163212), orktekusb.def
+    - Updated sk2500.def, leave keycode 151 untouched (Closes: #126334)
+    - src/hotkeys.1 updated/corrected
+    - src/hotkeys.conf: changed 'xmms --play' to 'xmms --play-pause'
+    - Fixed all XOSD related bugs
+      (Closes: #109007, #116820, #144659, #145041, #158843)
+    - Thanks Junichi Uekawa (Closes: #162274, #164821), Bastian Blank, Michael
+      Beattie and all bug reporters and "patchers" for your help and support =) 
+
+  * These are my changes and additions:
+    - debian/control: autoconf (>= 2.56)
+    - New gtk+ code for the splash screen, modified Makefile.am and
+      configure.in accordingly. (As gnome-utils in Gnome2 no longer contain
+      the splash program, Closes: #145028)
+    - Added <contributor> node in all *.def, modified src/kbddef.c
+      accordingly.
+    - New key defs: ibook, pb5140w
+
+ -- Anthony Wong <ypwong@debian.org>  Thu, 21 Nov 2002 23:27:29 +0800
+
+hotkeys (0.5.5.4-0.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Add deffiles for keyboard mappings. (closes: #163212)
+  thanks: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+  * Use "xmms --play-pause" which is a newish feature in xmms for play, instead 
+  of "--play". (closes: #162398)
+   this also addresses problem with keyboards with no pause button. (closes: #136326)
+  thanks: PUYDT Julien <julien.puydt@club-internet.fr>
+  * Update sk2500.def (closes: #126334)
+  thanks: Beiad Ian Q. Dalton <idalton@ferret.dyndns.org>
+
+ -- Junichi Uekawa <dancer@debian.org>  Tue, 15 Oct 2002 20:06:57 +0900
+
+hotkeys (0.5.5.3-0.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Add deffiles for keyboard mappings. logitec-cho.def and hp5181.def
+  (closes: #149124, #146029)
+
+ -- Junichi Uekawa <dancer@debian.org>  Wed, 25 Sep 2002 20:31:14 +0900
+
+hotkeys (0.5.5.2-0.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Fix it to compile again
+    - configure.in: AM_MAINTAINER_MODE
+    - autoconf, aclocal etc. invocation
+    - configure.in: use AM_PATH_LIBXOSD
+    - configure.in: add check for libpthread in configure.in
+    - src/Makefile.am: use LIBXOSD variables in build
+    - use libxosd-provided m4 files.
+  * Add my keyboard to the list
+    - def/orktekusb.def
+  * Bump up upstream version for the sake of it
+    - automake: 0.5.5.2
+    - orig.tar.gz: make dist, and mv.
+  * Make automake dist rules to be fixed
+    - src/Makefile.am: add header files to SOURCES
+    - def/Makefile.am: add dist_
+    - Makefile.am: add specs
+  * Link with latest libxosd-dev, 1.0.3-1 (closes: #158843)
+
+ -- Junichi Uekawa <dancer@debian.org>  Thu, 12 Sep 2002 15:59:51 +0900
+
+hotkeys (0.5.5.1-0.2) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Added call to xstrdup() for font string. (Closes: Bug#145041)
+  * Compiled against libxosd 0.7.0 (Closes: Bug#116820)
+  * Previous NMU Closes: Bug#109007 too.
+  * Prefers User definition file over global (Closes: Bug#135440)
+  * Removed Bashism when calling system() (Closes: Bug#145028)
+
+ -- Michael Beattie <mjb@debian.org>  Sat, 22 Jun 2002 23:09:43 +1200
+
+hotkeys (0.5.5.1-0.1) unstable; urgency=high
+
+  * Non-maintainer upload
+  * check if osd is activated (closes: #144659)
+  * check for libxml2 (closes: #127987), also need to rebuild all
+    autoconf/automake files
+  * use make distclean
+  * bump upstream version number
+
+ -- Bastian Blank <waldi@debian.org>  Sun, 28 Apr 2002 00:05:57 +0200
+
 hotkeys (0.5.5) unstable; urgency=low
 
   * Upgraded to work with libxosd 0.7.0, earlier versions are not
