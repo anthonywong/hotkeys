@@ -13,7 +13,7 @@
   <WebBrowser   keycode="164"/>
   <Email        keycode="150"/>
   <Help         keycode="175"/>
-  <Wakeup       keycode="227"/>
+  <WakeUp       keycode="227"/>
   <Sleep        keycode="222"/>
 
 <!--
