@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<CONFIG model="Memorex MX2500 Keyboard">
+
+  <PrevTrack    keycode="144"/>
+  <Stop         keycode="164"/>
+  <NextTrack    keycode="153"/>
+  <Eject        keycode="158"/>
+  <Play         keycode="162"/>
+
+  <VolUp        keycode="176" adj="2"/>
+  <VolDown      keycode="174" adj="2"/>
+  <Mute         keycode="160"/>
+
+  <WebBrowser   keycode="178"/>
+  <Email        keycode="236"/>
+  <NewsReader   keycode="166"/>
+  <Calculator   keycode="161"/>
+  <MyDocuments  keycode="159"/>
+  <MyComputer   keycode="237"/>
+  <DOS          keycode="148"/>
+  <Transfer     keycode="152"/>
+
+  <Sleep        keycode="223"/>
+  <WakeUp       keycode="235"/>
+  <PowerDown    keycode="222"/>
+
+  <userdef keycode="147" command="gaim">Gaim</userdef>
+  <userdef keycode="151" command="xterm -rv">Close</userdef>
+  <userdef keycode="146" command="xterm -rv">Clear</userdef>
+
+</CONFIG>
