@@ -2,8 +2,7 @@
 .SH NAME
 hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 .SH SYNOPSIS
-.B hotkeys \-t \fIkeyboard_type\fR
-[\fIoptions...\fR]
+.B hotkeys [\fIoptions...\fR]
 .SH DESCRIPTION
 .PP
 This program sits at the back and listens for the "special" hotkeys
@@ -44,7 +43,7 @@ If you give 'none', CDROM related functions will all be disabled.
 You probably need to define it if you are using devfs.
 .TP 8
 .B \-b, \-\-background
-Tells \fIhotkeys\fP to fork itself (and run in the background).
+Tells \fIhotkeys\fP to fork itself and run in the background.
 .TP 8
 .B \-F, \-\-fix\-vmware=TIME
 This option is mainly for users who run both hotkeys and VMware at the
@@ -89,6 +88,10 @@ gnome to display the splash screen... no big deal...)
 .B Chicony KBP-8993
 .IP 7. 5
 .B Compaq KB-9963
+.IP 8. 5
+.B Polypix
+.IP 9. 5
+.B BTC 9000
 .\" .PP
 .\" For details please consult the file \fIkeyboard.list\fR.
 .P
