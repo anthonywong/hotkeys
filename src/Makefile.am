@@ -3,8 +3,8 @@ hotkeys_SOURCES = hotkeys.c kbddef.c conf.c fixVMware.c apmlib.c xmalloc.c
 sysconf_DATA    = hotkeys.conf
 man_MANS        = hotkeys.1
 
-CFLAGS      = @CFLAGS@ @XML_CFLAGS@ @X_CFLAGS@ -I.. # -DDEBUG 
-LIBS        = @LIBS@ @XML_LIBS@ @X_LIBS@
+CFLAGS      = @CFLAGS@ @X_CFLAGS@ -I.. # -DDEBUG 
+LIBS        = @LIBS@ @X_LIBS@
 DEFS        = @DEFS@ -DSHAREDIR=\"@datadir@/@PACKAGE@\" \
               -DCONFDIR=\"@sysconfdir@\" -DCONFIG_NAME=\"@PACKAGE@.conf\"
 
