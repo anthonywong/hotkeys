@@ -1,4 +1,23 @@
-/* $Id$ */
+/*
+    HOTKEYS - use keys on your multimedia keyboard to control your computer
+    Copyright (C) 2000,2001  Anthony Y P Wong <ypwong@ypwong.org>
+ 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+ 
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    $Id$
+*/
 
 #if HAVE_CONFIG_H
 #  include <config.h>
@@ -11,6 +30,8 @@
 #include <regex.h>
 #include <errno.h>
 
+#include <X11/XF86keysym.h>
+
 #include <xmlmemory.h>
 #include <parser.h>
 
@@ -21,43 +42,43 @@
 
 /***====================================================================***/
 
-/* Make sure the order of the entries are the same as the hotkey enum,
-   to make life easier... */
+/* Make sure the order of the entries are the same as the hotkey enum
+ * in kbddef.h, to make life easier... */
 const defEntry defStr[] = {
-    { "PrevTrack",              prevTrackKey },
-    { "Play",                   playKey },
-    { "Stop",                   stopKey },
-    { "Pause",                  pauseKey },
-    { "NextTrack",              nextTrackKey },
-    { "WebBrowser",             browserKey },
-    { "Email",                  emailKey },
-    { "Help",                   helpKey },
-    { "Communities",            communitiesKey },     /* ???, in MS kbd */
-    { "Search",                 searchKey },
-    { "Idea",                   ideasKey },           /* ???, in MS kbd */
-    { "Shopping",               shoppingKey },
-    { "Print",                  printKey },
-    { "Go",                     goKey },
-    { "Record",                 recordKey },
-    { "DOS",                    DOSKey },
-    { "Transfer",               transferKey },        /* ???, in MX3000 */
-    { "MyDocuments",            myDocumentsKey },
-    { "MyComputer",             myComputerKey },
-    { "Calculator",             calculatorKey },
-    { "NewsReader",             newsReaderKey },
-    { "iNews",                  iNewsKey },
-    { "Rewind",                 rewindKey },
-    { "Rotate",                 rotateKey },          /* ???, in MX3000 */
-    { "DUMMY_TYPE_LAUNCH",      TYPE_LAUNCH },
-    { "Eject",                  ejectKey },
-    { "VolUp",                  volUpKey },
-    { "VolDown",                volDownKey },
-    { "Mute",                   muteKey },
-    { "WakeUp",                 wakeupKey },
-    { "PowerDown",              powerDownKey },
-    { "Sleep",                  sleepKey },
-    { "Suspend",                suspendKey },
-    { NULL,                     NUM_PREDEF_HOTKEYS }
+    { "PrevTrack",              prevTrackKey,       XF86XK_AudioPrev },
+    { "Play",                   playKey,            XF86XK_AudioPlay },
+    { "Stop",                   stopKey,            XF86XK_AudioStop },
+    { "Pause",                  pauseKey,           XF86XK_AudioPause },
+    { "NextTrack",              nextTrackKey,       XF86XK_AudioNext },
+    { "WebBrowser",             browserKey,         XF86XK_HomePage },
+    { "Email",                  emailKey,           XF86XK_Mail },
+    { "Help",                   helpKey,            0 },
+    { "Communities",            communitiesKey,     0 },     /* ???, in MS kbd */
+    { "Search",                 searchKey,          XF86XK_Search },
+    { "Idea",                   ideasKey,           XF86XK_LightBulb },     /* ???, in MS kbd */
+    { "Shopping",               shoppingKey,        XF86XK_Shop },
+    { "Print",                  printKey,           0 },
+    { "Go",                     goKey,              0 },     /* ??? */
+    { "Record",                 recordKey,          XF86XK_AudioRecord },
+    { "DOS",                    DOSKey,             0 },
+    { "Transfer",               transferKey,        0 },     /* ???, in MX3000 */
+    { "MyDocuments",            myDocumentsKey,     0 },
+    { "MyComputer",             myComputerKey,      XF86XK_MyComputer },
+    { "Calculator",             calculatorKey,      XF86XK_Calculator },
+    { "NewsReader",             newsReaderKey,      0 },
+    { "iNews",                  iNewsKey,           0 },
+    { "Rewind",                 rewindKey,          0 },
+    { "Rotate",                 rotateKey,          0 },     /* ???, in MX3000 */
+    { "DUMMY_TYPE_LAUNCH",      TYPE_LAUNCH,        0xFFFFFFFF },
+    { "Eject",                  ejectKey,           0 },
+    { "VolUp",                  volUpKey,           XF86XK_AudioRaiseVolume },
+    { "VolDown",                volDownKey,         XF86XK_AudioLowerVolume },
+    { "Mute",                   muteKey,            XF86XK_AudioMute },
+    { "WakeUp",                 wakeupKey,          XF86XK_WakeUp },
+    { "PowerDown",              powerDownKey,       XF86XK_PowerOff },
+    { "Sleep",                  sleepKey,           XF86XK_Standby },   /* either this is the Standby key or the next one... */
+    { "Suspend",                suspendKey,         0 },
+    { NULL,                     NUM_PREDEF_HOTKEYS, 0xFFFFFFFF }
 };
 
 int keytypes[255];  /* to note whether a keycode is used to launch an
@@ -66,7 +87,7 @@ int keytypes[255];  /* to note whether a keycode is used to launch an
 /***====================================================================***/
 
 static void
-parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
+parseUserDef(xmlDocPtr doc, xmlNodePtr cur, KeySym curKeySym)
 {
     hotkeyCmd*  t;
     char*       t_keycode;
@@ -91,11 +112,12 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
 
     kbd.customCmds = t;
 
-    /* Assign it */
+    /* Assign the keycode and command to it */
     kbd.customCmds[kbd.noOfCustomCmds].keycode = atoi(t_keycode);
     XFREE(t_keycode);
     kbd.customCmds[kbd.noOfCustomCmds].command = xstrdup(t_command);
     XFREE(t_command);
+    kbd.customCmds[kbd.noOfCustomCmds].keysym = curKeySym;
 
     tc = xmlNodeListGetString( doc, cur->xmlChildrenNode, 1 );
     if ( tc != NULL && tc[0] != '\0' )
@@ -154,7 +176,8 @@ parseStd(xmlDocPtr doc, xmlNodePtr cur)
             }
             else
             {
-                kbd.keycodes[defStr[i].key] = atoi(tc);
+                kbd.defCmds[defStr[i].key].key = atoi(tc);
+                kbd.defCmds[defStr[i].key].keysym = defStr[i].keysym;
                 keytypes[atoi(tc)] = ( defStr[i].key < TYPE_LAUNCH ? 1 : 0 );
                 XFREE(tc);
 
@@ -182,6 +205,10 @@ readDefFile(const char* filename)
     xmlNsPtr    ns;
     xmlNodePtr  cur;
     char*       tc;
+    KeySym      curKeySym = 0x1008FFA0; /* The keysym assigned to custom commands.
+                                           According to XF86keysym.h, keysyms from
+                                           0x1008FFA) is not yet assigned (at
+                                           2000/3/14) */
 
     if ( (doc = xmlParseFile(filename)) == NULL )
         return False;
@@ -218,7 +245,8 @@ readDefFile(const char* filename)
         }
         else if ( MatchName( cur, "userdef" ) )
         {
-            parseUserDef( doc, cur );
+            parseUserDef( doc, cur, curKeySym );
+            curKeySym++;
         }
         else if ( ! MatchName( cur, "text" ) )
         {

@@ -1,4 +1,23 @@
-/* $Id$ */
+/*
+    HOTKEYS - use keys on your multimedia keyboard to control your computer
+    Copyright (C) 2000,2001  Anthony Y P Wong <ypwong@ypwong.org>
+ 
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+ 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+ 
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+    $Id$
+*/
 
 #ifndef __KBDDEF_H
 #define	__KBDDEF_H
@@ -53,9 +72,11 @@ typedef enum {
     NUM_PREDEF_HOTKEYS
 } hotkey;
 
+/* A struct for const data */
 typedef struct {
     char*       name;   /* literal string of a hotkey functionality in definition file */
     hotkey      key;    /* numerical index of the functionality */
+    KeySym      keysym; /* the corresponding keysym defined in XF86keysym.h */
 } defEntry;
 
 extern  const defEntry    defStr[];
@@ -64,13 +85,15 @@ typedef struct {
     int         keycode;
     char*       command;
     char*       desc;
+    KeySym      keysym;
 } hotkeyCmd;
 
 typedef struct {
     char*       shortName;
     char*       longName;
     int         noOfKeys;
-    hotkey*     keycodes;
+//    hotkey*     keycodes;
+    defEntry*   defCmds;
     int         noOfCustomCmds;
     hotkeyCmd*  customCmds;
 } keyboard;
