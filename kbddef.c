@@ -149,6 +149,7 @@ readDefFile(const char* filename)
     xmlDocPtr   doc;
     xmlNsPtr    ns;
     xmlNodePtr  cur;
+    char*       tc;
 
     doc = xmlParseFile(filename);
     if ( doc == NULL )
@@ -163,18 +164,22 @@ readDefFile(const char* filename)
     }
 
     /* Start parsing the XML file */
+
+    /* Get the model name */
+    tc = xmlGetProp( cur, "model" );
+    if ( tc == NULL )
+    {
+        uInfo("Model name missing\n");   bailout();
+    }
+    else
+    {
+        kbd.longName = strdup(tc);
+    }
+
     cur = cur->xmlChildrenNode;
     while ( cur != NULL )
     {
-        if ( MatchName( cur, "Model" ) )
-        {
-            unsigned char* t;
-            
-            t = xmlNodeListGetString( doc, cur->xmlChildrenNode, 1 );
-            kbd.longName = strdup(t);
-            free(t);
-        }
-        else if ( MatchName( cur, "userdef" ) )
+        if ( MatchName( cur, "userdef" ) )
         {
             parseUserDef( doc, cur );
         }
