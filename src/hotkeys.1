@@ -7,10 +7,18 @@ hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 [\fIoptions...\fR]
 .SH DESCRIPTION
 .PP
-This program sits at the back and listens for the hotkeys on your
-keyboard. The buttons perform their intended behaviors, such as volume
-up and down, mute the speaker, launch applications, etc.
-The functions they perform are totally programmable.
+This program sits at the back and listens for the "special" hotkeys
+that you won't normally use on your Internet/Multimedia keyboards.
+The buttons perform their intended behaviors, such as volume up and
+down, mute the speaker, launch applications, etc.
+The functions are completely programmable.
+
+It has On-screen display (OSD) to show the volume, program that's
+being started, etc. Most importantly it looks cool.
+
+It features an XML-based keycode configuration file format, which
+makes it possible to define the hotkeys to launch any programs you
+want.
 .SH OPTIONS
 .TP 8
 .B \-h, \-\-help
@@ -69,7 +77,7 @@ to replace it.)
 .IP 2. 5
 .B Microsoft Internet, Internet Pro, and Natural Pro
 .IP 3. 5
-.B Memorex MX2500 and MX3000 keyboard
+.B Memorex MX1998, MX2500 and MX3000 keyboard
 .IP 4. 5
 .B SK-2500, SK-2501a, SK-2800c, SK-7100, SK-9925 USB (partial)
 .IP 5. 5
