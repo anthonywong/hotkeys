@@ -1,23 +1,14 @@
 HOTKEYS
 -------
-Hotkeys depends on the latest GNOME XML parser library version 2
-(libxml2), get it from ftp://rpmfind.net/pub/libxml/ . More info on
-its homepage at http://xmlsoft.org/ .
-
-You also need the XOSD library if you want to enjoy the cool on-screen
-display. It can be downloaded from http://www.ignavus.net/software.html
-
-You also need libdb2, the Berkeley database library, but this is much
-more common and most probably is already present in your system.
 
 To compile the program, just type
 
         ./configure && make
 
-You will get an executable file called 'hotkeys'.
+You will get an executable file called 'hotkeys'. For compilation
+options, please use ./configure --help
 
 To install, type
 
         make install
 
-$Id$
