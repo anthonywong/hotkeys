@@ -1,3 +1,16 @@
+hotkeys (0.5.2) unstable; urgency=low
+
+  * The BadValue X protocol error is fixed, it's real! (Hence turned
+    off the X synchronize mode, it's not needed any more) [major bug
+    fix] (Closes: #85689)
+  * Now you can specify the amount of volume increment and decrement
+    in the keyboard definition file (1-100). [new]
+  * Memorex MX2500 support. [new]
+  * Check for both xml2-config and xml-config in configure.in
+    (Closes: #87460)
+
+ -- Anthony Wong <ypwong@debian.org>  Fri, 15 Mar 2001 01:28:01 +0800
+
 hotkeys (0.5.1) unstable; urgency=low
 
   * #include db.h instead of db2.h [minor bug]
