@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<CONFIG model="Memorex MX1998 Keyboard">
+
+  <PrevTrack    keycode="144"/>
+  <NextTrack    keycode="155"/>
+  <Eject        keycode="151"/>
+  <Play         keycode="162"/>
+  <Stop         keycode="164"/>
+  <Rewind       keycode="146"/>
+  <Record       keycode="158"/>
+
+  <VolUp        keycode="176" adj="2"/>
+  <VolDown      keycode="174" adj="2"/>
+  <Mute         keycode="160"/>
+
+  <WebBrowser   keycode="178"/>
+  <Calculator   keycode="165"/>
+  <Transfer     keycode="152"/>
+  <Shell        keycode="177"/>
+  <MyDocuments  keycode="161"/>
+
+  <Sleep        keycode="223"/>
+  <WakeUp       keycode="215"/>
+  <PowerDown    keycode="222"/>
+
+
+  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
+
+  <!-- Coffee cup (is this for screensaver?) -->
+  <userdef keycode="250" command="xscreensaver">screen saver</userdef>
+  <!-- Menu (what is this?) -->
+  <userdef keycode="166" command="gmc">gmc</userdef>
+  <!-- Joystick/Game -->
+  <userdef keycode="163" command="xbill">Xbill</userdef>
+
+</CONFIG>
