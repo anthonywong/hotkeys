@@ -61,7 +61,7 @@ binary-arch: build install
 #	dh_installdebconf	
 	dh_installdocs
 	dh_installexamples
-	dh_installmenu
+##	dh_installmenu
 	dh_installcron
 	dh_installmanpages
 	dh_installinfo
