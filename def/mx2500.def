@@ -17,7 +17,7 @@
   <Calculator   keycode="161"/>
   <MyDocuments  keycode="159"/>
   <MyComputer   keycode="237"/>
-  <DOS          keycode="148"/>
+  <Shell        keycode="148"/>
   <Transfer     keycode="152"/>
 
   <Sleep        keycode="223"/>

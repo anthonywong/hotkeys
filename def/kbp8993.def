@@ -17,7 +17,7 @@
   <Mute         keycode="160"/>
 
   <WebBrowser   keycode="178"/>
-  <DOS          keycode="176"/>
+  <Shell        keycode="176"/>
   <MyDocuments  keycode="151"/>
   <Sleep        keycode="165"/>
 
