@@ -1494,7 +1494,7 @@ main(int argc, char *argv[])
         }
     }
 
-    initializeX(argv);
+    initializeX(argv[0]);
 #ifdef HAVE_LIBXOSD
     initXOSD();
 #endif
