@@ -69,11 +69,13 @@ const defEntry defStr[] = {
     { "Transfer",               transferKey,        0 },     /* ???, in MX3000 */
     { "MyDocuments",            myDocumentsKey,     0 },
     { "MyComputer",             myComputerKey,      XF86XK_MyComputer },
+    { "Favorites",              favoritesKey,       XF86XK_Favorites },
     { "Calculator",             calculatorKey,      XF86XK_Calculator },
     { "NewsReader",             newsReaderKey,      0 },
     { "iNews",                  iNewsKey,           0 },
     { "Rewind",                 rewindKey,          0 },
     { "Rotate",                 rotateKey,          0 },     /* ???, in MX3000 */
+    { "ScreenSaver",            screensaverKey,     0 },
     { "DUMMY_TYPE_LAUNCH",      TYPE_LAUNCH,        0xFFFFFFFF },
     { "Eject",                  ejectKey,           0 },
     { "VolUp",                  volUpKey,           XF86XK_AudioRaiseVolume },

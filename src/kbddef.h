@@ -53,11 +53,13 @@ typedef enum {
     transferKey,        /* ???, in MX3000 */
     myDocumentsKey,
     myComputerKey,
+    favoritesKey,
     calculatorKey,
     newsReaderKey,
     iNewsKey,
     rewindKey,
     rotateKey,          /* Rotate windows???, in MX3000 */
+    screensaverKey,
     TYPE_LAUNCH,        /*** Before this point, all these keys will launch
                              applications. After this point, the functions
                              are built into the program. ***/
