@@ -8,9 +8,7 @@
 
   <VolUp        keycode="173"/>
   <VolDown      keycode="166"/>
-<!--
   <Mute         keycode="153"/>
--->
 
   <WebBrowser   keycode="164"/>
   <Email        keycode="150"/>
@@ -19,8 +17,8 @@
   <Sleep        keycode="222"/>
 
 <!--
-  <userdef keycode="152" command="xterm -rv">Xterms</userdef>
-  <userdef keycode="149" command="mozilla -mail">Mozilla Mail</userdef>
+  <userdef keycode="175" command="xterm -rv">Xterm</userdef>
+  <userdef keycode="150" command="balsa">Balsa Email client</userdef>
 -->
 
 </CONFIG>
