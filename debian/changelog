@@ -1,6 +1,18 @@
+hotkeys (0.5.5) unstable; urgency=low
+
+  * Upgraded to work with libxosd 0.7.0, earlier versions are not
+    supported (Closes: #92279).
+  * Upgraded to work with libdb 3.2.x, libdb 2.x not supported any
+    more.
+  * Added an option to the configure script to skip libdb3 testing.
+  * Parameter passed to initializeX is correct now, thanks to John
+    Daily (Closes: #105693).
+
+ -- Anthony Wong <ypwong@debian.org>  Mon, 29 Oct 2001 16:55:36 +0800
+
 hotkeys (0.5.4) unstable; urgency=low
 
-  * the volume change will be greater if the vol+/- keys are
+  * The volume change will be greater if the vol+/- keys are
     pressed continuously within a short interval [new]
   * More rigorous checking of db2 and libxml2 in configure
   * Added SK-2505 and Process MCK-800 keyboards support [new]
