@@ -17,6 +17,9 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
     $Id$
+
+    Reference:
+    http://www.win.tue.nl/math/dw/personalpages/aeb/linux/kbd/scancodes.html
 */
 
 #if HAVE_CONFIG_H
@@ -39,7 +42,7 @@ extern char *getenv();
 #include <getopt.h>
 #endif /* HAVE_GETOPT_LONG */
 #include <signal.h>
-
+#include <syslog.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -101,14 +104,14 @@ Display *   dpy               = NULL;
 char *      cfgFileName       = NULL;
 int     	xkbOpcode         = 0;
 int     	xkbEventCode      = 0;
+XkbDescPtr  xkb               = NULL;
 
 unsigned long   eventMask     = 0;
 
-Bool            synch         = False;
+Bool            synch         = True;
 int	            verbose       = 0;
+int	            loglevel      = 0;
 Bool            background    = False;
-
-XkbDescPtr      xkb           = NULL;
 
 FILE *          errorFile     = NULL;
 
@@ -129,8 +132,9 @@ usage(int argc, char *argv[])
 #ifdef HAVE_GETOPT_LONG
     printf("\t-t, --type               Specify the keyboard type (refer to -l)\n");
     printf("\t-d, --cdrom-dev          Specify the CDROM/DVDROM device\n");
-    printf("\t-b, --background         Run in background\n");
     printf("\t-l, --kbd-list           Show all supported keyboards\n");
+    printf("\t-L, --loglevel           Set the log level in syslog [0-7]\n");
+    printf("\t-b, --background         Run in background\n");
     printf("\t-h, --help               Print this message\n");
 /*
     M("-cfg <file>          Specify a config file\n");
@@ -141,6 +145,7 @@ usage(int argc, char *argv[])
     printf("\t-t   Specify the keyboard type (refer to -l)\n");
     printf("\t-d   Specify the CDROM/DVDROM device\n");
     printf("\t-l   Show all supported keyboards\n");
+    printf("\t-L   Set the log level in syslog [0-7]\n");
     printf("\t-b   Run in background\n");
     printf("\t-h   Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
@@ -313,6 +318,25 @@ setCDROMDevice(char* optarg)
     close (fd);
 }
 
+
+static void
+setLoglevel(int level)
+{
+    /* Map the supplied level to the one defined in syslog.h */
+    switch (level)
+    {
+        case 0:     loglevel = LOG_EMERG;       break;
+        case 1:     loglevel = LOG_ALERT;       break;
+        case 2:     loglevel = LOG_CRIT;        break;
+        case 3:     loglevel = LOG_ERR;         break;
+        case 4:     loglevel = LOG_WARNING;     break;
+        case 5:     loglevel = LOG_NOTICE;      break;
+        case 6:     loglevel = LOG_INFO;        break;
+        case 7:     loglevel = LOG_DEBUG;       break;
+        default:    loglevel = LOG_ERR;         break;
+    }
+}
+
 /***====================================================================***/
 
 static Bool
@@ -322,7 +346,7 @@ parseArgs(int argc, char *argv[])
     int     digit_optind = 0;
     Bool    kbdSet = False;
 
-    const char *flags = "hbt:d:lz:";
+    const char *flags = "hbt:d:lz:vL:";
 #ifdef HAVE_GETOPT_LONG
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
@@ -333,6 +357,8 @@ parseArgs(int argc, char *argv[])
         {"type",            1, 0, 't'},
         {"cdrom-dev",       1, 0, 'd'},
         {"kbd-list",        0, 0, 'l'},
+        {"verbose",         0, 0, 'v'},
+        {"loglevel",        1, 0, 'L'},
         {0, 0, 0, 0}
     };
 #endif /* HAVE_GETOPT_LONG */
@@ -386,6 +412,9 @@ parseArgs(int argc, char *argv[])
               showKbdList(argc, argv);
               exit(0);
               break;
+          case 'L':
+              setLoglevel(atoi(optarg));
+              break;
           case 'z':
               break;
           case '?':
@@ -415,32 +444,34 @@ GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn)
     int	mjr,mnr,error;
     Display	*dpy;
 
-    mjr= XkbMajorVersion;
-    mnr= XkbMinorVersion;
-    dpy= XkbOpenDisplay(dpyName,evBaseRtrn,NULL,&mjr,&mnr,&error);
-    if (dpy==NULL) {
-	switch (error) {
-	    case XkbOD_BadLibraryVersion:
-		uInfo("%s was compiled with XKB version %d.%02d\n",
-				program,XkbMajorVersion,XkbMinorVersion);
-		uInfo("X library supports incompatible version %d.%02d\n",
-				mjr,mnr);
-		break;
-	    case XkbOD_ConnectionRefused:
-		uInfo("Cannot open display \"%s\"\n",dpyName);
-		break;
-	    case XkbOD_NonXkbServer:
-		uInfo("XKB extension not present on %s\n",dpyName);
-		break;
-	    case XkbOD_BadServerVersion:
-		uInfo("%s was compiled with XKB version %d.%02d\n",
-				program,XkbMajorVersion,XkbMinorVersion);
-		uInfo("Server %s uses incompatible version %d.%02d\n",
-				dpyName,mjr,mnr);
-		break;
-	    default:
-		uInternalError("Unknown error %d from XkbOpenDisplay\n",error);
-	}
+    mjr = XkbMajorVersion;
+    mnr = XkbMinorVersion;
+    dpy = XkbOpenDisplay(dpyName,evBaseRtrn,NULL,&mjr,&mnr,&error);
+    if (dpy == NULL)
+    {
+        switch (error)
+        {
+            case XkbOD_BadLibraryVersion:
+                uInfo("%s was compiled with XKB version %d.%02d\n",
+                        program,XkbMajorVersion,XkbMinorVersion);
+                uInfo("X library supports incompatible version %d.%02d\n",
+                        mjr,mnr);
+                break;
+            case XkbOD_ConnectionRefused:
+                uInfo("Cannot open display \"%s\"\n",dpyName);
+                break;
+            case XkbOD_NonXkbServer:
+                uInfo("XKB extension not present on %s\n",dpyName);
+                break;
+            case XkbOD_BadServerVersion:
+                uInfo("%s was compiled with XKB version %d.%02d\n",
+                        program,XkbMajorVersion,XkbMinorVersion);
+                uInfo("Server %s uses incompatible version %d.%02d\n",
+                        dpyName,mjr,mnr);
+                break;
+            default:
+                uInternalError("Unknown error %d from XkbOpenDisplay\n",error);
+        }
     }
     else
     {
@@ -880,11 +911,11 @@ static void
 printXkbActionMessage(FILE* file,XkbEvent* xkbev)
 {
     XkbActionMessageEvent *msg= &xkbev->message;
-    fprintf(file,"    message: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
+    SYSLOG( LOG_DEBUG, "message: 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n",
                                         msg->message[0],msg->message[1],
                                         msg->message[2],msg->message[3],
                                         msg->message[4],msg->message[5]);
-    fprintf(file,"    key %d, event: %s,  follows: %s\n",msg->keycode,
+    SYSLOG( LOG_DEBUG, "key %d, event: %s,  follows: %s\n",msg->keycode,
                                      (msg->press?"press":"release"),
                                      (msg->key_event_follows?"yes":"no"));
     return;
@@ -955,7 +986,7 @@ testReadable(const char* filename)
 /***====================================================================***/
 
 static void
-initialize(char* argv[])
+initializeX(char* argv[])
 {
     KeySym              newKS;
     XkbMessageAction    xma;
@@ -991,8 +1022,13 @@ initialize(char* argv[])
     strcpy(xma.message," ");
 
 #ifdef DEBUG
-printf("num_acts:%d size_acts:%d\n", xkb->server->num_acts, xkb->server->size_acts);
-printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], XkbKeyHasActions(xkb,152), XkbKeyNumActions(xkb,152), XkbKeyNumGroups(xkb,152));
+    SYSLOG( LOG_DEBUG, 
+            "num_acts:%d size_acts:%d",
+            xkb->server->num_acts, xkb->server->size_acts );
+    SYSLOG( LOG_DEBUG, 
+            "idx:%d has action:%d no.:%d noOfGrps:%d\n",
+            xkb->server->key_acts[152], XkbKeyHasActions(xkb,152),
+            XkbKeyNumActions(xkb,152), XkbKeyNumGroups(xkb,152) );
 #endif
 
     /* Add KeySym to the key codes, as they don't have any KeySyms before */
@@ -1017,12 +1053,12 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
         XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL);
 
         /* Change their Keysyms */
-        if ( XkbResizeKeySyms( xkb, tcode, 1) == NULL )
+        if ( XkbResizeKeySyms( xkb, tcode, 1 ) == NULL )
         {
             uInfo("resize keysym failed\n"); bailout();
         }
         /* Add one key action to it */
-        if ( XkbResizeKeyActions( xkb, tcode, 1) == NULL )
+        if ( XkbResizeKeyActions( xkb, tcode, 1 ) == NULL )
         {
             uInfo("resize key action failed\n"); bailout();
         }
@@ -1040,7 +1076,7 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
         if ( XkbSetMap(dpy, XkbKeySymsMask|XkbKeyActionsMask|XkbKeyTypesMask, xkb) )
         {
 #ifdef DEBUG
-            printf("map set done\n");
+            SYSLOG( LOG_DEBUG, "Map set done");
 #endif
         }
         else
@@ -1050,13 +1086,16 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 
 
 #ifdef DEBUG
-        printf("%d: before: %d\n",tcode, XkbKeyActionsPtr(xkb,tcode)[0].type);
+        SYSLOG( LOG_DEBUG, 
+                "keycode %d\nbefore: %d",
+                tcode, XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
         /* Assign the Message Action to the key code */
         (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
 
 #ifdef DEBUG
-        printf("after: %d\n",XkbKeyActionsPtr(xkb,tcode)[0].type);
+        SYSLOG( LOG_DEBUG, 
+                "after: %d",XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
     }
 
@@ -1066,7 +1105,7 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
     if ( XkbSetMap(dpy, XkbKeyActionsMask, xkb) )
     {
 #ifdef DEBUG
-        printf("map set done\n");
+        SYSLOG( LOG_DEBUG, "map set done");
 #endif
     }
     else
@@ -1083,7 +1122,7 @@ removeCorpse(int s)
 
     pid = wait(&status);
 #ifdef DEBUG
-    uInfo("Child %d exited\n", pid);
+    SYSLOG( LOG_DEBUG, "Child %d exited\n", pid);
 #endif
 }
 
@@ -1108,10 +1147,11 @@ main(int argc, char *argv[])
     int         i, k;
 
     errorFile = stderr;
+    openlog( PACKAGE, LOG_CONS | LOG_PID, LOG_USER );
 
     /* initialize the kbd variable */
     kbd.noOfCustomCmds = 0;
-    kbd.keycodes = (hotkey*) xcalloc( NUM_PREDEF_HOTKEYS, sizeof(hotkey) );
+    kbd.keycodes = XCALLOC( hotkey, NUM_PREDEF_HOTKEYS );
 
     if ( !parseArgs(argc,argv) )
         bailout();
@@ -1120,13 +1160,12 @@ main(int argc, char *argv[])
     {
         if ( fork() !=0 )
         {
-            if (verbose) 
-                uInfo("Running in the background\n");
+            SYSLOG( LOG_NOTICE, "Running in the background");
             exit(0);
         }
     }
 
-    initialize(argv);
+    initializeX(argv);
     installSigHandler();
 
     /* Process the events in a forever loop */
@@ -1139,6 +1178,8 @@ main(int argc, char *argv[])
         if ( ev.type == xkbEventCode+XkbEventCode &&
              ev.any.xkb_type == XkbActionMessage )
         {
+            SYSLOG( LOG_INFO, "Keycode %d pressed\n", ev.message.keycode );
+
             /* Sound stuffs */
             if ( ev.message.keycode == (kbd.keycodes)[playKey] ) {
                 playDisc();
@@ -1185,6 +1226,7 @@ main(int argc, char *argv[])
     }
 
     XCloseDisplay(dpy);
+    closelog();
     return 0;
 }
 
