@@ -38,6 +38,17 @@ If you give 'none', CDROM related functions will all be disabled.
 .TP 8
 .B \-b, \-\-background
 Tells \fIhotkeys\fP to fork itself (and run in the background).
+.TP 8
+.B \-F, \-\-fix\-vmware=TIME
+This option is mainly for users who run both hotkeys and VMware at the
+same time. Since VMware will delete some of the information from the
+memory of the X keyboard configuration due to reasons that I don't
+understand, a thread will be created to restore the necessary
+information regularly. The default time interval is 10 seconds. You
+can specify a time interval as you like, the value is in seconds. I
+don't think this option will have any side-effect to the operation of
+VMware, but if you find that this is not true, please file a bug
+report.
 .\" .TP 8
 .\" .B \-v
 .\" Print more information, including debugging messages.   Multiple 
@@ -61,7 +72,7 @@ Tells \fIhotkeys\fP to fork itself (and run in the background).
 .IP 4. 5
 .B SK-2500 (partial), SK-2501a, SK-2800c, SK-7100, SK-9925 USB (partial)
 .IP 5. 5
-.B Logitech cordless iTouch, Internet keyboard
+.B Logitech cordless iTouch, Internet, Cordless Desktop keyboard
 .IP 6. 5
 .B Chicony KBP-8993
 .IP 7. 5
