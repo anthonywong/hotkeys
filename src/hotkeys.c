@@ -48,6 +48,7 @@ extern char *getenv();
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 
 /* Mixer related */
 #include <fcntl.h>
@@ -571,8 +572,42 @@ adjustVol(int adj)
     int         master_vol, cd_vol;
     struct cdrom_volctrl cdrom_vol;
     int         left, right;
+    static struct timeval last_time;
+    struct timeval this_time;
+    static int  multiplier = 0;   /* if 0 then it's first time to come in this func */
+    int         ret = 0;
 
-    int ret = 0;
+    int sign = adj > 0 ? 1 : -1;
+
+    if ( adj == 0 )
+        return;
+
+    if ( multiplier == 0 )
+    {
+        gettimeofday(&last_time, NULL);
+        multiplier = sign;
+    }
+    else
+    {
+        gettimeofday(&this_time, NULL);
+        if ( (( adj > 0 && multiplier > 0 ) || ( adj < 0 && multiplier < 0 )) &&
+             ( (this_time.tv_sec - last_time.tv_sec) * 1000000 +
+             this_time.tv_usec - last_time.tv_usec < 500000 ) )
+        {
+            multiplier += sign;
+            adj *= abs(multiplier);
+            if ( adj > 10 )     /* should be a MAX value defined somewhere else FIXME */
+                adj = 10;
+            else if ( adj < -10 )
+                adj = -10;
+        }
+        else
+        {
+            multiplier = sign;
+        }
+        last_time.tv_sec = this_time.tv_sec;
+        last_time.tv_usec = this_time.tv_usec;
+    }
 
     /* open the mixer device */
     if ( (mixer_fd = open( MIXER_DEV, O_RDWR|O_NONBLOCK )) == -1 )
@@ -836,77 +871,54 @@ doMute(void)
 static int 
 ejectDisc(void)
 {
-    static Bool ejected = False;
+    int fd, status;
 
     if ( cdromDevice == NULL )
         return 0;
 
-    if ( ejected )
-    {
-        if ( closeTray() == 0 )
+    /* the idea of this code is from xine's vcd plugin, mostly linux
+       specific FIXME */
+    if ( (fd = open( cdromDevice, O_RDONLY | O_NONBLOCK)) > -1 ) {
+        status = ioctl(fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
+        switch (status)
         {
-            ejected = False;
-            return 0;
+            /* Looks like ATAPI drives doesn't return CDS_TRAY_OPEN,
+             * at least it's the case on my ASUS DVD drive... */
+            case CDS_TRAY_OPEN:
+#ifdef HAVE_LIBXOSD
+                xosd_display(osd, 0, XOSD_string, "Close tray");
+                xosd_display(osd, 1, XOSD_string, "");
+#endif
+                if ( (ioctl(fd, CDROMCLOSETRAY)) != 0 ) {
+                    SYSLOG( LOG_NOTICE, "CDROMCLOSETRAY failed: %s\n",
+                            strerror(errno) );
+                }
+                break;
+            case CDS_DISC_OK:
+            case CDS_NO_DISC:
+#ifdef HAVE_LIBXOSD
+                xosd_display(osd, 0, XOSD_string, "Eject");
+                xosd_display(osd, 1, XOSD_string, "");
+#endif
+                if ( (ioctl(fd, CDROMEJECT)) != 0 ) {
+                    SYSLOG( LOG_NOTICE, "CDROMEJECT failed: %s\n",
+                            strerror(errno) );
+                }
+                break;
+            case CDS_NO_INFO:
+            case CDS_DRIVE_NOT_READY:
+            default:
+                /* Ignore */
+                break;
         }
+        close(fd);
+        return 0;
     }
     else
     {
-        int fd;
-
-        if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
-        {
-            uError("Unable to open `%s'", cdromDevice);
-            return -1;
-        }
-#ifdef HAVE_LIBXOSD
-        xosd_display(osd, 0, XOSD_string, "Eject");
-        xosd_display(osd, 1, XOSD_string, "");
-#endif
-        if ( ioctl(fd, CDROMEJECT) == -1 )
-        {
-            uError("CD-ROM device %s eject failed", cdromDevice);
-            close(fd);
-            return -1;
-        }
-
-        ejected = True;
-        close(fd);
-        return 0;
-    }
-}
-
-static int
-closeTray(void)
-{
-    int fd;
-
-    if ( cdromDevice == NULL )
-        return 0;
-
-    if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
-    {
-        uInfo("unable to open `%s'\n", cdromDevice);
+        SYSLOG(LOG_NOTICE, "CDROM_DRIVE_STATUS failed: %s\n", strerror(errno));
         return -1;
     }
-
-#ifdef HAVE_LIBXOSD
-    xosd_display(osd, 0, XOSD_string, "Close tray");
-    xosd_display(osd, 1, XOSD_string, "");
-#endif
-
-    /* Close it in case it's already opened */
-#ifdef CDROMCLOSETRAY
-    if ( ioctl(fd, CDROMCLOSETRAY) == -1 )
-    {
-        uInfo("CD-ROM tray of device %s close command failed",
-                cdromDevice);
-        close(fd);
-        return -1;
-    }
-#endif /* CDROMCLOSETRAY */
-
-    close(fd);
-    return 0;
 }
 
 
