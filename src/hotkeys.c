@@ -37,7 +37,7 @@ extern char *getenv();
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
-#include <db2.h>
+#include <db.h>
 #include <errno.h>
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>

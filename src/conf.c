@@ -6,7 +6,7 @@
 #include "common.h"
 
 #include <stdio.h>
-#include <db2.h>
+#include <db.h>
 #include <string.h>
 #include <sys/param.h>
 
