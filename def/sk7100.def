@@ -14,8 +14,7 @@
 
   <WebBrowser   keycode="178"/>
 
-  <!-- Some nice programs need to be bound to these keys,
-       suggestion welcome -->
+  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
 
   <userdef keycode="165" command="gtcd">GNOME CD player</userdef>
   <userdef keycode="152" command="gtv">SMPEG GTK+ MPEG audio/video player</userdef>

@@ -8,8 +8,7 @@
   <WebBrowser   keycode="178"/>
   <Email        keycode="158"/>
 
-  <!-- Some nice programs need to be bound to these keys,
-       suggestion welcome -->
+  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
 
   <userdef keycode="163" command="xterm -rv">Xterm</userdef>
   <userdef keycode="146" command="xterm -rv">Xterm</userdef>

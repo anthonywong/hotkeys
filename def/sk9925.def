@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<CONFIG model="Silitek SK-9925 USB Keyboard">
+
+  <PrevTrack    keycode="164"/>
+  <Play         keycode="159"/>
+  <Stop         keycode="151"/>
+  <NextTrack    keycode="162"/>
+
+  <VolUp        keycode="158"/>
+  <VolDown      keycode="165"/>
+<!--
+  Reported this key to be problematic, it conflicts with the left arrow key
+  <Mute         keycode="100"/>
+-->
+
+  <WebBrowser   keycode="130"/>
+  <Email        keycode="236"/>
+
+  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
+
+  <userdef keycode="230" command="aterm -tr -tint Blue -fg PeachPuff">Aterm</userdef>
+  <userdef keycode="161" command="xlock">XLock</userdef>
+  
+</CONFIG>

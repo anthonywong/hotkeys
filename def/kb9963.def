@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<CONFIG model="Compaq KB-9963 keyboard">
+<!--
+Image at:
+http://www.sanwasupply.co.jp/product/syohin.asp?code=FA-DESKP&mode=main&cate=1
+-->
+
+  <Help           keycode="163"/>
+  <WebBrowser     keycode="159"/>
+  <Search         keycode="154"/>
+  <Email          keycode="158"/>
+  <NewsReader     keycode="155"/>
+
+  <!-- Feel free to customize these -->
+
+  <userdef keycode="147" command="/usr/bin/licq">LICQ</userdef>
+  <userdef keycode="148" command="/usr/bin/gnumeric">Gnumeric</userdef>
+  <userdef keycode="149" command="/usr/bin/gedit">Gedit</userdef>
+
+</CONFIG>

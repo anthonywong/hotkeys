@@ -10,8 +10,6 @@
   <Calculator   keycode="161"/>
   <Sleep        keycode="223"/>
 
-<!-- Uncomment this if you would like to control your Netscape browser
-
   <userdef      keycode="234"
                 command="gnome-moz-remote --remote=back">Back</userdef>  
   <userdef      keycode="233"
@@ -20,7 +18,5 @@
                 command="gnome-moz-remote --remote=stop">Stop</userdef> 
   <userdef      keycode="230"
                 command="gnome-moz-remote --remote=openBookmarks">Favorites</userdef>
-
--->
  
 </CONFIG>

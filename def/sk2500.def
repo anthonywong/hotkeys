@@ -17,8 +17,7 @@
   <WebBrowser   keycode="178"/>
   <Calculator   keycode="161"/>
 
-  <!-- Some nice programs need to be bound to these keys,
-       suggestion welcome -->
+  <!-- Some nice programs need to be bound to these keys, suggestion welcome -->
 
   <userdef keycode="151" command="xterm -rv">Xterm</userdef>
   <userdef keycode="158" command="grecord">GNOME sound recorder</userdef>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<CONFIG model="SK-2800C">
+
+  <!-- Reported to be used in Compaq Presario 7500 -->
+
+  <PrevTrack    keycode="144"/>
+  <Play         keycode="162"/>
+  <Eject        keycode="172"/>
+  <NextTrack    keycode="153"/>
+  <Stop         keycode="164"/>
+
+  <VolUp        keycode="176"/>
+  <VolDown      keycode="174"/>
+  <Mute         keycode="160"/>
+
+  <WebBrowser   keycode="163"/>
+  <Email        keycode="158"/>
+  <Shopping     keycode="178"/>
+  <Search       keycode="161"/>
+  <Go           keycode="148"/>
+  <Communities  keycode="147"/>
+  <Ideas        keycode="149"/>
+  <Print        keycode="232"/>
+  <Sleep        keycode="223"/>
+
+  <!-- Quick Launch button -->
+  
+  <userdef keycode="159" command="xterm -rv">Xterm</userdef>
+  
+</CONFIG>
