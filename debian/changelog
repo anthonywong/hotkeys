@@ -2,6 +2,8 @@ hotkeys (0.5.3) unstable; urgency=low
 
   * Corrected the configure script to be able to locate xml-config.
   * Include my own XF86keysym.h.
+  * With splash screen!
+  * Polypix and BTC 9000 keyboards.
   * debian/control: added libdb2-dev to Build-Depends, and
                     changed Standards-Version to 3.5.2.
 
