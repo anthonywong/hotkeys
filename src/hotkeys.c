@@ -87,7 +87,7 @@ XkbDescPtr  xkb               = NULL;
 
 unsigned long   eventMask     = 0;
 
-Bool            synch         = False;
+Bool            synch         = True;
 int	            verbose       = 0;
 int	            loglevel      = 0;
 Bool            background    = False;
@@ -130,6 +130,7 @@ usage(int argc, char *argv[])
 #endif
     printf("\t-L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
     printf("\t-b, --background         Run in background\n");
+    printf("\t-F, --fix-vmware=TIME    Use this option if vmware is used concurrently\n");
     printf("\t-h, --help               Print this message\n");
 /*
     M("-cfg <file>          Specify a config file\n");
@@ -143,6 +144,7 @@ usage(int argc, char *argv[])
     printf("\t-o STATE      Turn off/on on-screen display\n");
     printf("\t-L LEVEL      Set the log level in syslog [0-7]\n");
     printf("\t-b            Run in background\n");
+    printf("\t-F TIME       Use this option if vmware is used concurrently\n");
     printf("\t-h            Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
 }
@@ -378,7 +380,7 @@ parseArgs(int argc, char *argv[])
     int     c, i;
     int     digit_optind = 0;
 
-    const char *flags = "hbt:d:lz:vL:"
+    const char *flags = "hbt:d:lz:vL:F:"
 #ifdef HAVE_LIBXOSD
         "o:"
 #endif
@@ -398,6 +400,7 @@ parseArgs(int argc, char *argv[])
 #ifdef HAVE_LIBXOSD
         {"osd",             1, 0, 'o'},
 #endif
+        {"fix-vmware",      2, 0, 'F'},
         {0, 0, 0, 0}
     };
 #endif /* HAVE_GETOPT_LONG */
@@ -458,6 +461,9 @@ parseArgs(int argc, char *argv[])
               toggleOSD(optarg);
               break;
 #endif
+          case 'F':
+              fixVMware(optarg);
+              break;
           case 'z':
               break;
           case '?':
@@ -1136,8 +1142,8 @@ testReadable(const char* filename)
 /***====================================================================***/
 static int dummy() {}
 
-static void
-initializeX(char* argv[])
+void
+initializeX(char* prg)
 {
     KeySym              newKS;
     XkbMessageAction    xma;
@@ -1146,7 +1152,7 @@ initializeX(char* argv[])
     int                 i;
     int                 tcode;
 
-    dpy = GetDisplay(argv[0], dpyName, &xkbOpcode, &xkbEventCode);
+    dpy = GetDisplay(prg, dpyName, &xkbOpcode, &xkbEventCode);
     if (!dpy)
         bailout();
 
@@ -1262,8 +1268,12 @@ initializeX(char* argv[])
     {
         uInfo("map set failed\n"); bailout();
     }
+}
 
-    /* Initialize XOSD */
+/* Initialize XOSD */
+void
+initXOSD(void)
+{
 #ifdef HAVE_LIBXOSD
     if (osd)
     {
@@ -1353,6 +1363,7 @@ main(int argc, char *argv[])
     }
 
     initializeX(argv);
+    initXOSD();
 
     /* Process the events in a forever loop */
     while (1)
