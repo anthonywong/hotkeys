@@ -37,6 +37,7 @@ extern char *getenv();
 #include <stdio.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <db2.h>
 #include <errno.h>
 #ifdef HAVE_GETOPT_LONG
 #include <getopt.h>
@@ -69,34 +70,11 @@ extern char *getenv();
 #include "apm.h"
 
 #include "hotkeys.h"
-
+#include "conf.h"
 
 #define	lowbit(x)	((x) & (-(x)))
 #define	M(m)	fprintf(stderr,(m))
 #define	M1(m,a)	fprintf(stderr,(m),(a))
-
-/***====================================================================***/
-
-/* Corresponding human readable strings to enum _application,
- * all strings should be user configurable (TODO) */
-char* app_strings[NUM_APPS] = {
-    "Web browser",
-    "Email reader",
-    "Calculator",
-    "Xterm",
-    "File manager",
-    "app1", "app2", "app3", "app4", "app5"
-};
-
-char* applications[NUM_APPS] = {
-    BROWSER, MAILER, CALCULATOR, XTERM, FILEMANAGER,
-    NULL, NULL, NULL, NULL, NULL
-};
-
-char* application_args[NUM_APPS] = {
-    BROWSER_ARGS, MAILER_ARGS, CALCULATOR_ARGS, XTERM_ARGS, FILEMANAGER_ARGS,
-    NULL, NULL, NULL, NULL, NULL
-};
 
 /***====================================================================***/
 
@@ -123,9 +101,6 @@ char *          cdromDevice   = CDROM_DEV;
 keyboard        kbd;                    /* the keyboard the user is using */
 
 #ifdef HAVE_LIBXOSD
-#define FONT    "-*-lucidatypewriter-bold-r-normal-*-*-250-*-*-*-*-*-*" 
-#define COLOR   "LawnGreen"
-#define TIMEOUT 3
 xosd *          osd           = (xosd*)1;
 #endif
 
@@ -264,7 +239,7 @@ setKbdType(const char* prog, const char* type)
     strcat( defname, type );
     strcat( defname, ".def" );
 
-    if ( testReadable(defname) == True )     /* if the file exists... */
+    if ( testReadable(defname) )     /* if the file exists... */
     {
         ret = readDefFile( defname );
     }
@@ -282,7 +257,7 @@ setKbdType(const char* prog, const char* type)
             strcat( defname, "/.hotkeys/" );
             strcat( defname, type );
             strcat( defname, ".def" );
-            if ( testReadable(defname) == True )     /* if the file exists... */
+            if ( testReadable(defname) )     /* if the file exists... */
             {
                 ret = readDefFile( defname );
             }
@@ -564,7 +539,7 @@ bailout(void)
 
 
 /*
- * adj is a percentage
+ * adj is a percentage, can be +ve or -ve for louder and softer resp.
  */
 static int
 adjustVol(int adj)
@@ -911,26 +886,35 @@ closeTray(void)
     return 0;
 }
 
-static int
-playDisc(void)
-{
-    return closeTray();
-}
-
 
 static int
-launchApp(int type)
+launchApp(int keycode)
 {
-    int pid = fork2();
-    if ( pid == -1 )
+    int     pid;
+    char*   type = NULL;
+    int     i;
+
+    /* Given the keycode, we find the string corresponding to it */
+    for ( i = 0; i < NUM_PREDEF_HOTKEYS; i++ )
     {
-        uInfo("Cannot launch the %s\n", app_strings[type]);
+        if ( keycode == (kbd.keycodes)[i] )
+        {
+            type = defStr[i].name;
+            break;
+        }
+    }
+    if ( type == NULL )
+        return -1;  /* this keycode is not associated with any app */
+
+    if ( (pid=fork2()) == -1 )
+    {
+        uInfo("Cannot launch the %s\n", type);
     }
     else if ( pid == 0 )
     {
         /* Construct the argument arrays */
         char**  arg_array;
-        char*   c = application_args[type];
+        char*   c = getConfig(type);
         char*   cc;
         int     noOfArgs = 1;   /* including the NULL element */
         int     i = 0;
@@ -940,7 +924,7 @@ launchApp(int type)
         } while ( c != NULL );
         arg_array = XMALLOC( char*, noOfArgs );
         /* dup needed since strtok modifies the string */
-        c = (char*) xstrdup( application_args[type] );
+        c = (char*) xstrdup( getConfig(type) );
         cc = c;         /* for free() */
         arg_array[0] = strtok( c, " " );
         while ( arg_array[i] != NULL )
@@ -949,9 +933,9 @@ launchApp(int type)
             arg_array[i] = strtok( NULL, " " );
         }
 
-        if ( execvp(applications[type], arg_array) == -1 )
+        if ( execvp(arg_array[0], arg_array) == -1 )
         {
-            uError("Cannot launch the %s", app_strings[type]);
+            uError("Cannot launch %s", type);
             XFREE(cc);
             XFREE(arg_array);
             _exit(-1);
@@ -959,30 +943,13 @@ launchApp(int type)
     }
     else
     {
+#ifdef HAVE_LIBXOSD
         xosd_display(osd, 0, XOSD_string, "Launching:");
-        xosd_display(osd, 1, XOSD_string, app_strings[type]);
+        xosd_display(osd, 1, XOSD_string, getConfig(type));
+#endif
     }
+    return 0;
 }
-
-
-/*
-int
-launchMailer(void)
-{
-    int pid = fork();
-    if ( pid == -1 )
-    {
-        uError("Cannot launch the Email client: %s\n", strerror(errno));
-    }
-    else if ( pid == 0 )
-    {
-        char* args[] = MAILER_ARGS;
-        if ( execvp(MAILER, args) == -1 ) {
-            uError("Cannot launch the Email client\n");
-        }
-    }
-}
-*/
 
 
 int
@@ -1075,8 +1042,10 @@ lookupUserCmd(const int keycode)
             }
             else
             {
+#ifdef HAVE_LIBXOSD
                 xosd_display(osd, 0, XOSD_string, "Launching:");
                 xosd_display(osd, 1, XOSD_string, kbd.customCmds[i].desc);
+#endif
                 break;  /* break the for loop */
             }
         }
@@ -1146,19 +1115,19 @@ uInternalError(char* s,...)
 /*
  * Test whether filename is readable
  */
-Bool
+int
 testReadable(const char* filename)
 {
     int fd;
  
     if ( (fd = open(filename, O_RDONLY)) == -1 )
     {
-        return False;
+        return 0;
     }
     else
     {
         close(fd);
-        return True;
+        return 1;
     }
 }
 
@@ -1296,7 +1265,12 @@ initializeX(char* argv[])
 #ifdef HAVE_LIBXOSD
     if (osd)
     {
-        osd = xosd_init(FONT, COLOR, TIMEOUT, XOSD_bottom, 25);
+        osd = xosd_init(getConfig("osd_font"),
+                        /* I dunno why, but you must call strdup here... */
+                        xstrdup(getConfig("osd_color")),
+                        atoi(getConfig("osd_timeout")),
+                        strncmp(getConfig("osd_position"),"top",3)?XOSD_bottom:XOSD_top,
+                        atoi(getConfig("osd_offset")) );
     }
 #endif
 }
@@ -1344,31 +1318,6 @@ fork2(void)
 }
 
 
-#if 0
-static void
-removeCorpse(int s)
-{
-    int     status;
-    pid_t   pid;
-
-    pid = wait(&status);
-#ifdef DEBUG
-    SYSLOG( LOG_DEBUG, "Child %d exited\n", pid);
-#endif
-}
-
-static void
-installSigHandler(void)
-{
-    struct sigaction s;
-
-    bzero(&s, sizeof(s));
-    s.sa_handler = removeCorpse;
-    s.sa_flags = SA_NOCLDSTOP;
-    sigaction( SIGCHLD, &s, NULL);
-}
-#endif
-
 int
 main(int argc, char *argv[])
 {
@@ -1377,6 +1326,8 @@ main(int argc, char *argv[])
 
     errorFile = stderr;
     openlog( PACKAGE, LOG_CONS | LOG_PID, LOG_USER );
+
+    readConfigFile();
 
     /* initialize the kbd variable */
     kbd.noOfCustomCmds = 0;
@@ -1400,7 +1351,6 @@ main(int argc, char *argv[])
     }
 
     initializeX(argv);
-/*    installSigHandler(); */
 
     /* Process the events in a forever loop */
     while (1)
@@ -1416,12 +1366,14 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBXOSD
             if (osd)
-                xosd_set_timeout(osd, TIMEOUT);
+                xosd_set_timeout(osd, atoi(getConfig("osd_timeout")));
 #endif
+            if ( keytypes[ev.message.keycode] == 1 )
+            {
+                /* Apps stuffs */
+                launchApp(ev.message.keycode);
+            } else
             /* Sound stuffs */
-            if ( ev.message.keycode == (kbd.keycodes)[playKey] ) {
-                playDisc();
-            } else 
             if ( ev.message.keycode == (kbd.keycodes)[ejectKey] ) {
                 /* Use thread to improve the responsiveness */
                 pthread_t       tp;
@@ -1439,19 +1391,6 @@ main(int argc, char *argv[])
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[muteKey] ) {
                 doMute();
-            } else
-            /* Apps stuffs */
-            if ( ev.message.keycode == (kbd.keycodes)[browserKey] ) {
-                launchApp(app_browser);
-            } else
-            if ( ev.message.keycode == (kbd.keycodes)[emailKey] ) {
-                launchApp(app_mailer);
-            } else
-            if ( ev.message.keycode == (kbd.keycodes)[calculatorKey] ) {
-                launchApp(app_calculator);
-            } else
-            if ( ev.message.keycode == (kbd.keycodes)[myComputerKey] ) {
-                launchApp(app_filemanager);
             } else
             /* APM stuffs */
             if ( ev.message.keycode == (kbd.keycodes)[sleepKey] ||
