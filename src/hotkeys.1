@@ -1,10 +1,10 @@
 .\" $TOG: xkbevd.man /main/6 1998/02/12 09:34:24 kaleb $
-.TH HOTKEYS 1 "18 January 2001" "v0.3"
+.TH HOTKEYS 1 "27 January 2001" "v0.4"
 .SH NAME
 hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 .SH SYNOPSIS
 .B hotkeys \-t \fIkeyboard_type\fR
-[\fIother options...\fR]
+[\fIoptions...\fR]
 .SH DESCRIPTION
 .PP
 This program sits at the back and listens for the hotkeys on your
@@ -34,6 +34,7 @@ all messages.
 .TP 8
 .B \-d, \-\-cdrom\-dev=DEVICE
 Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
+If you give 'none', CDROM related functions will all be disabled.
 .TP 8
 .B \-b, \-\-background
 Tells \fIhotkeys\fP to fork itself (and run in the background).
@@ -54,13 +55,17 @@ Tells \fIhotkeys\fP to fork itself (and run in the background).
 .\"The \fBeject\fR button can eject and close the tray. The \fBplay\fR
 .\"button can be used to close the tray too.
 .IP 2. 5
-.B Microsoft Internet and Internet Pro keyboard
+.B Microsoft Internet, Internet Pro, and Natural Pro
 .IP 3. 5
-.B Memorex MX300 keyboard
+.B Memorex MX3000 keyboard
 .IP 4. 5
-.B SK-2500, SK-2501a, SK-7100
+.B SK-2500 (partial), SK-2501a, SK-2800c, SK-7100, SK-9925 USB (partial)
 .IP 5. 5
-.B Logitech cordless iTouch keyboard
+.B Logitech cordless iTouch, Internet keyboard
+.IP 6. 5
+.B Chicony KBP-8993
+.IP 7. 5
+.B Compaq KB-9963
 .\" .PP
 .\" For details please consult the file \fIkeyboard.list\fR.
 .P
@@ -89,9 +94,14 @@ Do not disable the XKEYBOARD extension. For XFree86 3.x, make sure
 .SH "TODO"
 Please consult the TODO file.
 .SH "BUGS"
+.B
+Please inform me if some of your normal keys lose functionalities
+.B
+after running hotkeys.
+.PP
 The program will sometimes terminate with the error
 \fB"X Error of failed request:  BadValue (integer parameter out of range
-for operation)"\fR at startup. I'm wondering why...
+for operation)"\fR at startup. I hope it's really fixed in v0.4.
 .PP
 APM support is highly experimental. I only tested on my desktop and
 sometimes it can't go out from Suspend mode, no response from the
@@ -99,8 +109,8 @@ keyboard, mouse, nor the suspend button on the case. Not tested on
 notebook (I don't have one). Note that you need root priviledge to use
 the APM functions.
 .PP
-This is the first time I use autoconf, there may probably be bugs in
-\fIconfigure.in\fR.
+This is the first time I use autoconf, there are probably bugs in
+the \fIconfigure.in\fR script.
 .SH COPYRIGHT
 Copyright 2000-2001, Anthony Y P Wong <ypwong@ypwong.org>
 .PP
