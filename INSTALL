@@ -1,7 +1,9 @@
 HOTKEYS
 -------
 Hotkeys depends on the latest GNOME XML parser library, get it from
-ftp.gnome.org.
+ftp://rpmfind.net/pub/libxml/ . More info on its homepage at
+http://xmlsoft.org/ .
+
 
 To compile the program, just type
 
