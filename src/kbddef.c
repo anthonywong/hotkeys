@@ -30,7 +30,12 @@
 #include <regex.h>
 #include <errno.h>
 
-#include <X11/XF86keysym.h>
+/* #include <X11/XF86keysym.h> */
+/* I include my only keysym table instead of using the one in X,
+ * because it's troublesome to determine which version the user is
+ * using.
+ */
+#include "XF86keysym.h"
 
 #include <xmlmemory.h>
 #include <parser.h>
