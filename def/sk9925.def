@@ -6,8 +6,8 @@
   <Stop         keycode="151"/>
   <NextTrack    keycode="162"/>
 
-  <VolUp        keycode="158"/>
-  <VolDown      keycode="165"/>
+  <VolUp        keycode="158" adj="2"/>
+  <VolDown      keycode="165" adj="2"/>
 <!--
   Reported this key to be problematic, it conflicts with the left arrow key
   <Mute         keycode="100"/>

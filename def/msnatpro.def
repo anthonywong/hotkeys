@@ -4,8 +4,8 @@
   <PrevTrack  keycode="144"/>
   <NextTrack  keycode="153"/>
   <Mute       keycode="160"/>
-  <VolDown    keycode="174"/>
-  <VolUp      keycode="176"/>
+  <VolDown    keycode="174" adj="2"/>
+  <VolUp      keycode="176" adj="2"/>
   <Stop       keycode="164"/>
   <Play       keycode="162"/>
 

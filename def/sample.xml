@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <CONFIG model="Sample keyboard">
 
-  <VolUp        keycode="173"/>
-  <VolDown      keycode="166"/>
+  <VolUp        keycode="173" adj="2"/>
+  <VolDown      keycode="166" adj="2"/>
   <Mute         keycode="153"/>
 
 <!--

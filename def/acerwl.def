@@ -6,8 +6,8 @@
   <Eject        keycode="177"/>
   <NextTrack    keycode="147"/>
 
-  <VolUp        keycode="173"/>
-  <VolDown      keycode="166"/>
+  <VolUp        keycode="173" adj="2"/>
+  <VolDown      keycode="166" adj="2"/>
   <Mute         keycode="153"/>
 
   <WebBrowser   keycode="164"/>

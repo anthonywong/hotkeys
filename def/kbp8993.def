@@ -12,8 +12,8 @@
   <Stop         keycode="164"/>
   <NextTrack    keycode="161"/>
 
-  <VolUp        keycode="153"/>
-  <VolDown      keycode="146"/>
+  <VolUp        keycode="153" adj="2"/>
+  <VolDown      keycode="146" adj="2"/>
   <Mute         keycode="160"/>
 
   <WebBrowser   keycode="178"/>

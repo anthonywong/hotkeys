@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <CONFIG model="Silitek SK5210A Keyboard">
 
-  <VolUp        keycode="176"/>
-  <VolDown      keycode="174"/>
+  <VolUp        keycode="176" adj="2"/>
+  <VolDown      keycode="174" adj="2"/>
   <Mute         keycode="160"/>
 
   <WebBrowser   keycode="178"/>
