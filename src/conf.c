@@ -38,6 +38,9 @@ char* conf_keys[] = {
     /* Specify the default keyboard to use */
     "Kbd",             "\0",
 
+    /* CDROM device */
+    "CDROM",           "/dev/cdrom",
+
     /* general actions */
     "PrevTrack",       "xmms --rew",
     "Play",            "xmms --play",

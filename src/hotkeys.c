@@ -444,7 +444,7 @@ parseArgs(int argc, char *argv[])
               setConfig( "Kbd", optarg, 0 );
               break;
           case 'd':
-              setCDROMDevice(optarg);
+              setConfig( "CDROM", optarg, 0 );
               break;
           case 'h':
               usage(argc, argv);
@@ -478,7 +478,7 @@ parseArgs(int argc, char *argv[])
 
     if ( getConfig("Kbd")[0] )
     {
-        setKbdType(argv[0], getConfig("Kbd"));
+        setKbdType( argv[0], getConfig("Kbd") );
     }
     else
     {
@@ -486,9 +486,12 @@ parseArgs(int argc, char *argv[])
         exit(1);
     }
 
+    if ( getConfig("CDROM")[0] )
+        setCDROMDevice( getConfig("CDROM") );
+
     /* check for a single additional argument */
     if ((argc - optind) > 1) {
-        fprintf(stderr, "%s: too many arguments\n", argv[0]);
+        fprintf( stderr, "%s: too many arguments\n", argv[0] );
         bailout();
     }
 
