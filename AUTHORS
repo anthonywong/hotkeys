@@ -5,6 +5,8 @@ The program is written by
 The following persons sent me keycodes of their keyboards,
 suggestions, and whatever :)
 
+    Brett Pemberton <generica@email.com> for initial xosd patch 
+    Matthias Saou <matthias@aldil.org> for RPM packaging
     jas <atropa@picklepop.darktech.org> 
     Jeffrey Panczyk <jpanczyk@is2.dal.ca>
     Phil Hagen <phil@identityvector.com>
@@ -13,5 +15,10 @@ suggestions, and whatever :)
     Roberto Piscitello <robepisc@freemail.it>
     Petter Knudsen <petterkn@bukharin.hiof.no>
     David Blackman <david@whizziwig.com>
+    Nathan Yawn <natey@hcis.net>
+    Dave Crane <dave@davecrane.com>
+    Matthijs Melchior <mmelchio@xs4all.nl>
+    Sebastien Delestaing <sebastien.delestaing@wanadoo.fr>
+    Cord Beermann <cord@debian.org>
 
-Remind me if I accidentally have left out your name :)
+Remind me if I have accidentally left out your name :)
