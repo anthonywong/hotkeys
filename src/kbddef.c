@@ -81,40 +81,26 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
 
     /* Allocate or enlarge the memory, depending on whether memory has
      * been previously allocated to kbd.customCmds. */
-    t = (hotkeyCmd*) realloc( kbd.customCmds,
-                              kbd.noOfCustomCmds * sizeof(hotkeyCmd) );
-    if ( t == NULL )
+    t = XREALLOC( hotkeyCmd, kbd.customCmds, kbd.noOfCustomCmds );
+
+    kbd.customCmds = t;
+
+    /* Assign it */
+    kbd.customCmds[kbd.noOfCustomCmds-1].keycode = atoi(t_keycode);
+    XFREE(t_keycode);
+    kbd.customCmds[kbd.noOfCustomCmds-1].command = (char*)xstrdup(t_command);
+    XFREE(t_command);
+
+    tc = xmlNodeListGetString( doc, cur, 1 );
+    if ( tc[0] != '\0' )
     {
-        uError("Insufficient Memory!");
-        if ( kbd.noOfCustomCmds != 1 )
-        {
-            free(kbd.customCmds);
-        }
-        free(t_keycode);
-        free(t_command);
-        bailout();
+        kbd.customCmds[kbd.noOfCustomCmds-1].description = (char*)xstrdup(tc);
     }
     else
     {
-        kbd.customCmds = t;
-
-        /* Assign it */
-        kbd.customCmds[kbd.noOfCustomCmds-1].keycode = atoi(t_keycode);
-        free(t_keycode);
-        kbd.customCmds[kbd.noOfCustomCmds-1].command = (char*)xstrdup(t_command);
-        free(t_command);
-
-        tc = xmlNodeListGetString( doc, cur, 1 );
-        if ( tc[0] != '\0' )
-        {
-            kbd.customCmds[kbd.noOfCustomCmds-1].description = (char*)xstrdup(tc);
-        }
-        else
-        {
-            kbd.customCmds[kbd.noOfCustomCmds-1].description = NULL;
-        }
-        free(tc);
+        kbd.customCmds[kbd.noOfCustomCmds-1].description = NULL;
     }
+    XFREE(tc);
 }
 
 static void
@@ -137,7 +123,7 @@ parseStd(xmlDocPtr doc, xmlNodePtr cur)
             else
             {
                 kbd.keycodes[defStr[i].key] = atoi(tc);
-                free(tc);
+                XFREE(tc);
                 return;     /* leave as nothing to be done */
             }       
         }
