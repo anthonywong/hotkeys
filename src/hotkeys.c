@@ -94,28 +94,25 @@ char* application_args[NUM_APPS] = {
 
 /***====================================================================***/
 
-char *		dpyName =	NULL;
-Display *	dpy =		NULL;
-char *		cfgFileName =	NULL;
-int		xkbOpcode =	0;
-int		xkbEventCode =	0;
+char *      dpyName           = NULL;
+Display *   dpy               = NULL;
+char *      cfgFileName       = NULL;
+int     	xkbOpcode         = 0;
+int     	xkbEventCode      = 0;
 
-unsigned long	eventMask =	0;
+unsigned long   eventMask     = 0;
 
-Bool		synch =		False;
-int		verbose =	0;
-Bool		background =	False;
+Bool            synch         = False;
+int	            verbose       = 0;
+Bool            background    = False;
 
-char *		soundCmd =	NULL;
-char *		soundDir =	NULL;
+XkbDescPtr      xkb           = NULL;
 
-XkbDescPtr	xkb =		NULL;
+FILE *          errorFile     = NULL;
 
-FILE *          errorFile =     NULL;
+char *          progname      = NULL;
 
-char *          progname =      NULL;
-
-char *          cdromDevice =   CDROM_DEV;
+char *          cdromDevice   = CDROM_DEV;
 
 keyboard        kbd;                    /* the keyboard the user is using */
 
@@ -178,9 +175,11 @@ showKbdList(int argc, char *argv[])
                      strlen(strstr( ent->d_name, ".def" )) == 4 ) /* XXX Not portable, but how to fix?? */
                 {
                     ent->d_name[ strlen(ent->d_name)-4 ] = '\0';
-                    setKbdType(argv[0], ent->d_name);
-                    printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
-                    flag = 1;
+                    if ( setKbdType(NULL, ent->d_name) == True )
+                    {
+                        printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
+                        flag = 1;
+                    }
                 }
             }
         }
@@ -201,9 +200,11 @@ showKbdList(int argc, char *argv[])
                  strlen(strstr( ent->d_name, ".def" )) == 4 ) /* XXX Not portable, but how to fix?? */
             {
                 ent->d_name[ strlen(ent->d_name)-4 ] = '\0';
-                setKbdType(argv[0], ent->d_name);
-                printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
-                flag = 1;
+                if ( setKbdType(NULL, ent->d_name) == True )
+                {
+                    printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
+                    flag = 1;
+                }
             }
         }
     }
@@ -216,7 +217,8 @@ showKbdList(int argc, char *argv[])
     closedir(dir);
 }
 
-static void
+
+static Bool
 setKbdType(const char* prog, const char* type)
 {
     struct stat t;
@@ -258,22 +260,39 @@ setKbdType(const char* prog, const char* type)
             {
                 /* No matching keyboard type found even in the user's
                  * local directory */
-                uInfo("Keyboard type `%s' is not supported.\n"
-                      "Use %s --kbd-list to list all supported keyboard\n",
-                      type, prog);
-                bailout();
+                if ( prog != NULL )
+                {
+                    uInfo("Keyboard type `%s' is not supported.\n"
+                            "Use %s --kbd-list to list all supported keyboard\n",
+                            type, prog);
+                    exit(0);
+                }
+                else
+                {
+                    free( defname );
+                    return False;
+                }
             }
         }
         else
         {
             /* No matching keyboard type */
-            uInfo("Keyboard type `%s' is not supported.\n"
-                    "Use %s --kbd-list to list all supported keyboard\n",
-                    type, prog);
-            bailout();
+            if ( prog != NULL )
+            {
+                uInfo("Keyboard type `%s' is not supported.\n"
+                        "Use %s --kbd-list to list all supported keyboard\n",
+                        type, prog);
+                exit(0);
+            }
+            else
+            {
+                free( defname );
+                return False;
+            }
         }
     }
     free( defname );
+    return True;
 }
 
 void
@@ -294,27 +313,12 @@ setCDROMDevice(char* optarg)
 
 /***====================================================================***/
 
-/*
-void
-initializeAppsArray(void)
-{
-    applications = (char**) malloc( NUM_APPS * sizeof(char*) );
-    if ( applications == NULL )
-    {
-        uError("Insufficient memory\n"); bailout();
-    }
-    else
-    {
-        int i;
-        for ( i = 0; i < NUM_APPS; i++ ) {
-            applications[i] = (char*) malloc
-                */
-
 static Bool
 parseArgs(int argc, char *argv[])
 {
-    int c, i;
-    int digit_optind = 0;
+    int     c, i;
+    int     digit_optind = 0;
+    Bool    kbdSet = False;
 
     const char *flags = "hbt:d:lz:";
 #ifdef HAVE_GETOPT_LONG
@@ -364,6 +368,7 @@ parseArgs(int argc, char *argv[])
 
           case 't':
               setKbdType(argv[0], optarg);
+              kbdSet = True;
               break;
           case 'd':
               setCDROMDevice(optarg);
@@ -385,6 +390,12 @@ parseArgs(int argc, char *argv[])
               break;
 
         }
+    }
+
+    if ( kbdSet == False )
+    {
+        uInfo("You must set the keyboard type.\n");
+        exit(1);
     }
 
     /* check for a single additional argument */
@@ -1111,13 +1122,9 @@ main(int argc, char *argv[])
 
     /* initialize the kbd variable */
     kbd.noOfCustomCmds = 0;
-    kbd.keycodes = (hotkey*) calloc( NUM_PREDEF_HOTKEYS, sizeof(hotkey) );
-    if ( kbd.keycodes == NULL )
-    {
-        uError("Insufficient memory");  bailout();
-    }
+    kbd.keycodes = (hotkey*) xcalloc( NUM_PREDEF_HOTKEYS, sizeof(hotkey) );
 
-    if (!parseArgs(argc,argv))
+    if ( !parseArgs(argc,argv) )
         bailout();
 
     if (background)
