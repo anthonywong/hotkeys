@@ -399,4 +399,11 @@ char *alloca ();
 
 #include "xmalloc.h"
 
+/* syslog() wrapper macro */
+#define SYSLOG(l,args...)   if (loglevel>=l) syslog(l, args)
+
+#ifdef HAVE_LIBXOSD
+# include "xosd.h"
+#endif
+
 #endif /* __COMMON_H */
