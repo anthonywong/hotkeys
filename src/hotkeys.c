@@ -95,7 +95,7 @@ Bool        dummyErrFlag      = False;
 Bool            synch         = False;
 int	            verbose       = 0;
 int	            loglevel      = 0;
-Bool            background    = False;
+Bool            background    = True;
 Bool            noSplash      = False;
 
 FILE *          errorFile     = NULL;
@@ -151,7 +151,7 @@ usage(int argc, char *argv[])
     printf("    -o, --osd=STATE          Turn off/on on-screen display\n");
 #endif
     printf("    -L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
-    printf("    -b, --background         Run in background\n");
+    printf("    -b, --no-background      Do not run in the background\n");
     printf("    -F, --fix-vmware=TIME    Use this if you use vmware at the same time\n");
 #if HAVE_GTK
     printf("    -Z, --no-splash          No splash screen\n");
@@ -170,7 +170,7 @@ usage(int argc, char *argv[])
     printf("    -o STATE      Turn off/on on-screen display\n");
 #endif
     printf("    -L LEVEL      Set the log level in syslog [0-7]\n");
-    printf("    -b            Run in background\n");
+    printf("    -b            Do not run in the background\n");
     printf("    -F TIME       Use this option if vmware is used concurrently\n");
 #if HAVE_GTK
     printf("    -Z            No splash screen\n");
@@ -469,7 +469,7 @@ parseArgs(int argc, char *argv[])
               exit(0);
               break;
           case 'b':
-              background = True;
+              background = False;
               break;
           case 'l':
               showKbdList(argc, argv);
