@@ -6,15 +6,6 @@ My wishlist, in probably no specific priority order:
 - Support  more  keyboard types, please e-mail me on this if you have a
   keyboard that's not yet supported.
 
-- A configuration file (/etc/hotkeys.conf) to store settings like
-  default keyboard, font size and colour of on-screen display, which
-  program is the web browser and email client. This config file will
-  be the usual name-value pairs:
-
-    osd_colour=#10FF10
-    osd_timeout=2
-    web_browser=/usr/bin/mozilla
-
 - Multiple functionalities per key
 
 - configure script should detect the correct version of libxml2.
