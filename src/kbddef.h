@@ -12,37 +12,17 @@ static void parseError(const char* filename);
 
 extern	Display *	dpy;
 
-#define KBD_DEF_DIR     "/usr/share/hotkeys"
-
-typedef enum {
-    app_browser,
-    app_mailer,
-    app_calculator,
-    app_xterm,
-    app_filemanager,
-    app1,
-    app2,
-    app3,
-    app4,
-    app5,
-    NUM_APPS
-} application;
+extern  int         keytypes[255];
 
 typedef enum {
     prevTrackKey,
     playKey,
-    ejectKey,
     stopKey,
     pauseKey,
     nextTrackKey,
-    volUpKey,
-    volDownKey,
-    muteKey,
     browserKey,
     emailKey,
     helpKey,
-    wakeupKey,
-    powerDownKey,
     communitiesKey,     /* ???, in MS kbd */
     searchKey,
     ideasKey,           /* ???, in MS kbd */
@@ -55,12 +35,21 @@ typedef enum {
     myDocumentsKey,
     myComputerKey,
     calculatorKey,
+    newsReaderKey,
     iNewsKey,
-    sleepKey,
-    suspendKey,
     rewindKey,
     rotateKey,          /* ???, in MX3000 */
-    newsReaderKey,
+    TYPE_LAUNCH,        /*** Before this point, all these keys will launch
+                             applications. After this point, the functions
+                             are built into the program. ***/
+    ejectKey,
+    volUpKey,
+    volDownKey,
+    muteKey,
+    wakeupKey,
+    powerDownKey,
+    sleepKey,
+    suspendKey,
     NUM_PREDEF_HOTKEYS
 } hotkey;
 
@@ -68,6 +57,8 @@ typedef struct {
     char*       name;   /* literal string of a hotkey functionality in definition file */
     hotkey      key;    /* numerical index of the functionality */
 } defEntry;
+
+extern  const defEntry    defStr[];
 
 typedef struct {
     int         keycode;
