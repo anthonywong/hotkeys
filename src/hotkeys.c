@@ -72,6 +72,8 @@ extern char *getenv();
 #include "hotkeys.h"
 #include "conf.h"
 
+#include <X11/Xmu/Error.h>
+
 #define	lowbit(x)	((x) & (-(x)))
 #define	M(m)	fprintf(stderr,(m))
 #define	M1(m,a)	fprintf(stderr,(m),(a))
@@ -84,8 +86,7 @@ char *      cfgFileName       = NULL;
 int     	xkbOpcode         = 0;
 int     	xkbEventCode      = 0;
 XkbDescPtr  xkb               = NULL;
-
-unsigned long   eventMask     = 0;
+Bool        dummyErrFlag      = False;
 
 Bool            synch         = False;
 int	            verbose       = 0;
@@ -125,30 +126,30 @@ usage(int argc, char *argv[])
     printf("Usage: %s [options...]\n", argv[0]);
     printf("Legal options:\n");
 #ifdef HAVE_GETOPT_LONG
-    printf("\t-t, --type=TYPE          Specify the keyboard type (refer to -l)\n");
-    printf("\t-l, --kbd-list           Show all supported keyboards\n");
-    printf("\t-d, --cdrom-dev=DEVICE   Specify the CDROM/DVDROM device, or 'none'\n");
+    printf("    -t, --type=TYPE          Specify the keyboard type (refer to -l)\n");
+    printf("    -l, --kbd-list           Show all supported keyboards\n");
+    printf("    -d, --cdrom-dev=DEVICE   Specify the CDROM/DVDROM device, or 'none'\n");
 #ifdef HAVE_LIBXOSD
-    printf("\t-o, --osd=STATE          Turn off/on on-screen display\n");
+    printf("    -o, --osd=STATE          Turn off/on on-screen display\n");
 #endif
-    printf("\t-L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
-    printf("\t-b, --background         Run in background\n");
-    printf("\t-F, --fix-vmware=TIME    Use this option if vmware is used concurrently\n");
-    printf("\t-h, --help               Print this message\n");
+    printf("    -L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
+    printf("    -b, --background         Run in background\n");
+    printf("    -F, --fix-vmware=TIME    Use this option if vmware is used concurrently\n");
+    printf("    -h, --help               Print this message\n");
 /*
     M("-cfg <file>          Specify a config file\n");
     M("-d[isplay] <dpy>     Specify the display to watch\n");
     M("-v                   Print verbose messages\n");
 */
 #else
-    printf("\t-t TYPE       Specify the keyboard type (refer to -l)\n");
-    printf("\t-l            Show all supported keyboards\n");
-    printf("\t-d DEVICE     Specify the CDROM/DVDROM device, 'none' for no device\n");
-    printf("\t-o STATE      Turn off/on on-screen display\n");
-    printf("\t-L LEVEL      Set the log level in syslog [0-7]\n");
-    printf("\t-b            Run in background\n");
-    printf("\t-F TIME       Use this option if vmware is used concurrently\n");
-    printf("\t-h            Print this message\n");
+    printf("    -t TYPE       Specify the keyboard type (refer to -l)\n");
+    printf("    -l            Show all supported keyboards\n");
+    printf("    -d DEVICE     Specify the CDROM/DVDROM device, 'none' for no device\n");
+    printf("    -o STATE      Turn off/on on-screen display\n");
+    printf("    -L LEVEL      Set the log level in syslog [0-7]\n");
+    printf("    -b            Run in background\n");
+    printf("    -F TIME       Use this option if vmware is used concurrently\n");
+    printf("    -h            Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
 }
 
@@ -187,7 +188,7 @@ showKbdList(int argc, char *argv[])
                     ent->d_name[ len-4 ] = '\0';
                     if ( setKbdType(NULL, ent->d_name) == True )
                     {
-                        printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
+                        printf( "    %s\t- %s\n", ent->d_name, kbd.longName );
                         flag = 1;
                     }
                 }
@@ -213,7 +214,7 @@ showKbdList(int argc, char *argv[])
                 ent->d_name[ len-4 ] = '\0';
                 if ( setKbdType(NULL, ent->d_name) == True )
                 {
-                    printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
+                    printf( "    %s\t- %s\n", ent->d_name, kbd.longName );
                     flag = 1;
                 }
             }
@@ -908,7 +909,7 @@ launchApp(int keycode)
     /* Given the keycode, we find the string corresponding to it */
     for ( i = 0; i < NUM_PREDEF_HOTKEYS; i++ )
     {
-        if ( keycode == (kbd.keycodes)[i] )
+        if ( keycode == (kbd.defCmds)[i].key )
         {
             type = defStr[i].name;
             break;
@@ -1143,8 +1144,26 @@ testReadable(const char* filename)
 }
 
 /***====================================================================***/
+static int dummy() { /* grin */ }
 
-void
+static int
+dummyHandler(Display* d, XErrorEvent* ev) 
+{
+    if ( !(d == dpy && ev->error_code == BadValue &&
+           ev->request_code == 149 /* XKEYBOARD */ &&
+           ev->minor_code == 9 /* XkbSetMap */) )
+    {
+        XmuPrintDefaultErrorMessage(d, ev, stderr);
+    }
+    else
+    {
+        dummyErrFlag = True;
+        SYSLOG( LOG_INFO, "X BadValue Error" );
+    }
+    return 0;
+}
+
+static void
 commitXKBChanges(int tcode)
 {
     XkbMapChangesRec    mapChangeRec;
@@ -1161,17 +1180,12 @@ commitXKBChanges(int tcode)
     if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
     {
 #ifdef DEBUG
-        printf("map changed done\n");
+        printf("map changed done: %d\n",tcode);
 #endif
     }
     else
     {
         uError("map changed failed\n"); bailout();
-    }
-    xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
-    if (!xkb)
-    {
-        uInfo("XkbGetMap failed\n"); bailout();
     }
 }
 
@@ -1188,22 +1202,21 @@ initializeX(char* prg)
     dpy = GetDisplay(prg, dpyName, &xkbOpcode, &xkbEventCode);
     if (!dpy)
         bailout();
+    /* This function is NECESSARY to prevent the X BadValue error
+     * when running in Synchronize mode */
+    XSetAfterFunction(dpy, dummy);
+    XSetErrorHandler(dummyHandler);
 
-    /* Select the ActionMessage event */
-    if ( !XkbSelectEvents( dpy, XkbUseCoreKbd, XkbActionMessageMask,
-                           XkbActionMessageMask ))
-    {
-        uInfo("Couldn't select desired XKB events\n");
-        bailout();
-    }
     /* Construct the Message Action struct */
     xma.type = XkbSA_ActionMessage;
     xma.flags = XkbSA_MessageOnPress;
-    strcpy(xma.message," ");
+    strcpy(xma.message,"");
 
+#if 0
 #ifdef DEBUG
     SYSLOG( LOG_DEBUG, "num_acts:%d size_acts:%d",
             xkb->server->num_acts, xkb->server->size_acts );
+#endif
 #endif
 
     /* Add KeySym to the key codes, as they don't have any KeySyms before */
@@ -1211,13 +1224,15 @@ initializeX(char* prg)
     {
         if ( i < NUM_PREDEF_HOTKEYS )
         {
-            tcode = (kbd.keycodes)[i];
+            tcode = (kbd.defCmds)[i].key;
+            newKS = (kbd.defCmds)[i].keysym;
             if ( tcode == 0 )
                 continue;
         }
         else
         {
             tcode = kbd.customCmds[i-NUM_PREDEF_HOTKEYS].keycode;
+            newKS = kbd.customCmds[i-NUM_PREDEF_HOTKEYS].keysym;
         }
 #if 0
         xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
@@ -1226,7 +1241,14 @@ initializeX(char* prg)
         xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
         if (!xkb)
         {
-            uInfo("XkbGetMap failed\n"); bailout();
+            uError("XkbGetMap failed\n"); bailout();
+        }
+
+        /* Check the keycode range */
+        if ( ! XkbKeycodeInRange(xkb, tcode) )
+        {
+            uInfo("The keycode %d cannot be used, as it's not between the min(%d) and max(%d) keycode of your keyboard is %d",tcode, xkb-> min_key_code, xkb->max_key_code);
+            continue;
         }
 
         /* Assign a group to the key code */
@@ -1234,7 +1256,7 @@ initializeX(char* prg)
         if ( XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL)
                 != Success )
         {
-            uError("damn it!"); bailout();
+            uError("XkbChangeTypesOfKey failed"); bailout();
         }
 /*
         types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
@@ -1245,9 +1267,19 @@ initializeX(char* prg)
         {
             uInfo("resize keysym failed\n"); bailout();
         }
-        /* Assign a new keysym to the key code */
-        newKS = 0x2200+i;       /* FIXME: I just choose a keysym that's not yet assigned */
+        /* Assign a new keysym to the key code.  According to
+         * XF86keysym.h, the vendor specific XFree86 keysym range is
+         * 0x1008FF01 to 0x1008FFFF. So I just assign keysyms to the
+         * internet keys starting from 0x1008FF01.  I think it doesn't
+         * really matter to which one I use for the moment. For the
+         * exact keysyms, please refer to XKeysymDB, */
+//        newKS = 0x1008FF01 + tcode;       
         *XkbKeySymsPtr(xkb,tcode) = newKS;
+
+#if 0
+printf("keycode %d owns keysym %x\n", tcode,newKS);
+        XChangeKeyboardMapping(dpy, tcode, 1, &newKS, 1);
+#endif
 
         /* Add one key action to it */
         if ( XkbResizeKeyActions( xkb, tcode, 1 ) == NULL )
@@ -1260,23 +1292,12 @@ initializeX(char* prg)
 
         /* Assign the Message Action to the key code */
         (&(xkb->server->acts[ xkb->server->key_acts[tcode] ]))[0] = (XkbAction) xma;
-        /* Send the change back to the server */
-        /* XkbKeyActionsMask must be here, just XkbKeySymsMask|XkbKeyTypesMask
-         * is not sufficient */
-#if 0
-        if ( XkbSetMap(dpy, XkbKeySymsMask|XkbKeyActionsMask|XkbKeyTypesMask, xkb) )
-        {
-#ifdef DEBUG
-            SYSLOG( LOG_DEBUG, "Map set done");
-#endif
-        }
-        else
-        {
-            uInfo("map set failed\n"); bailout();
-        }
-#endif
 
-        /* Commit the change back to the server */
+        /* Commit the change back to the server. Yeah we need to do it
+         * here instead of in commit XKBChanges(). Strange, eh?  But
+         * you just can't, I wonder what the fsck X is doing.  I get
+         * this just by lots of trial-and-error and many nights of no
+         * sleeping to trace X with gdb. */
         bzero(&mapChangeRec, sizeof(mapChangeRec));
         mapChangeRec.changed = XkbKeyActionsMask;
         mapChangeRec.first_key_act = tcode;
@@ -1284,7 +1305,7 @@ initializeX(char* prg)
         if ( XkbChangeMap(dpy, xkb, &mapChangeRec) )
         {
 #ifdef DEBUG
-            printf("map changed done\n");
+            printf("map changed done: %d\n",tcode);
 #endif
         }
         else
@@ -1305,23 +1326,22 @@ initializeX(char* prg)
         SYSLOG( LOG_DEBUG, "after: %d",XkbKeyActionsPtr(xkb,tcode)[0].type);
 #endif
 #endif
+
+        if ( dummyErrFlag ) /* dummyHandler() have set it */
+        {
+            i--;            /* need need to redo this round, as the action message
+                               was not assigned to this keysym */
+            dummyErrFlag == False;
+        }
     }
 
-    /***************************************************************/
-
-    /* Commit the change back to the server. This is necessary! */
-/*
-    if ( XkbSetMap(dpy, XkbKeyActionsMask, xkb) )
+    /* Select the ActionMessage event in any circumstances */
+    if ( !XkbSelectEvents( dpy, XkbUseCoreKbd, XkbActionMessageMask,
+                           XkbActionMessageMask ))
     {
-#ifdef DEBUG
-        SYSLOG( LOG_DEBUG, "map set done");
-#endif
+        uInfo("Couldn't select desired XKB events\n");
+        bailout();
     }
-    else
-    {
-        uInfo("map set failed\n"); bailout();
-    }
-*/
 }
 
 /* Initialize XOSD */
@@ -1396,7 +1416,7 @@ main(int argc, char *argv[])
 
     /* initialize the kbd variable */
     kbd.noOfCustomCmds = 0;
-    kbd.keycodes = XCALLOC( hotkey, NUM_PREDEF_HOTKEYS );
+    kbd.defCmds = XCALLOC( defEntry, NUM_PREDEF_HOTKEYS );
 
     if ( !parseArgs(argc,argv) )
         bailout();
@@ -1440,7 +1460,8 @@ main(int argc, char *argv[])
                 launchApp(ev.message.keycode);
             } else
             /* Sound stuffs */
-            if ( ev.message.keycode == (kbd.keycodes)[ejectKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[ejectKey].key )
+            {
                 /* Use thread to improve the responsiveness */
                 pthread_t       tp;
                 pthread_attr_t  attr;
@@ -1449,21 +1470,21 @@ main(int argc, char *argv[])
                 pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
                 pthread_create (&tp, &attr, ejectDisc, NULL);
             } else 
-            if ( ev.message.keycode == (kbd.keycodes)[volUpKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[volUpKey].key ) {
                 adjustVol(volUpAdj);
             } else 
-            if ( ev.message.keycode == (kbd.keycodes)[volDownKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[volDownKey].key ) {
                 adjustVol(volDownAdj);
             } else 
-            if ( ev.message.keycode == (kbd.keycodes)[muteKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[muteKey].key ) {
                 doMute();
             } else
             /* APM stuffs */
-            if ( ev.message.keycode == (kbd.keycodes)[sleepKey] ||
-                 ev.message.keycode == (kbd.keycodes)[wakeupKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[sleepKey].key ||
+                 ev.message.keycode == (kbd.defCmds)[wakeupKey].key ) {
                 sleepState(STANDBY);
             } else
-            if ( ev.message.keycode == (kbd.keycodes)[powerDownKey] ) {
+            if ( ev.message.keycode == (kbd.defCmds)[powerDownKey].key ) {
                 sleepState(SUSPEND);
             }
             else
