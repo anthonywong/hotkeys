@@ -99,4 +99,4 @@ AC_FUNC_VPRINTF
 AC_FUNC_CLOSEDIR_VOID
 AC_CHECK_FUNCS(regcomp select strdup strerror strstr getopt_long)
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile src/Makefile def/Makefile)
