@@ -1,7 +1,5 @@
 <?xml version="1.0"?>
-<CONFIG>
-
-  <MODEL>Acer Wireless</MODEL>
+<CONFIG model="Acer Wireless">
 
   <VolUp        keycode="173"/>
   <VolDown      keycode="166"/>
