@@ -1,3 +1,9 @@
+hotkeys (0.5) unstable; urgency=low
+
+  * Introduction of a real configuration file [new]
+
+ -- Anthony Wong <ypwong@debian.org>  Thu,  8 Feb 2001 07:58:43 +0800
+
 hotkeys (0.4) unstable; urgency=low
 
   * Logging through syslog, specify log level using -L/--loglevel
