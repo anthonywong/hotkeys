@@ -108,7 +108,7 @@ XkbDescPtr  xkb               = NULL;
 
 unsigned long   eventMask     = 0;
 
-Bool            synch         = True;
+Bool            synch         = False;
 int	            verbose       = 0;
 int	            loglevel      = 0;
 Bool            background    = False;
@@ -121,6 +121,11 @@ char *          cdromDevice   = CDROM_DEV;
 
 keyboard        kbd;                    /* the keyboard the user is using */
 
+#ifdef HAVE_LIBXOSD
+#define FONT "-*-lucidatypewriter-medium-r-normal-*-*-250-*-*-*-*-*-*" 
+xosd *          osd           = 1;
+#endif
+
 /***====================================================================***/
 
 void
@@ -130,10 +135,13 @@ usage(int argc, char *argv[])
     printf("Usage: %s [options...]\n", argv[0]);
     printf("Legal options:\n");
 #ifdef HAVE_GETOPT_LONG
-    printf("\t-t, --type               Specify the keyboard type (refer to -l)\n");
-    printf("\t-d, --cdrom-dev          Specify the CDROM/DVDROM device\n");
+    printf("\t-t, --type=TYPE          Specify the keyboard type (refer to -l)\n");
     printf("\t-l, --kbd-list           Show all supported keyboards\n");
-    printf("\t-L, --loglevel           Set the log level in syslog [0-7]\n");
+    printf("\t-d, --cdrom-dev=DEVICE   Specify the CDROM/DVDROM device\n");
+#ifdef HAVE_LIBXOSD
+    printf("\t-o, --osd=STATE          Turn off/on on-screen display\n");
+#endif
+    printf("\t-L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
     printf("\t-b, --background         Run in background\n");
     printf("\t-h, --help               Print this message\n");
 /*
@@ -142,12 +150,13 @@ usage(int argc, char *argv[])
     M("-v                   Print verbose messages\n");
 */
 #else
-    printf("\t-t   Specify the keyboard type (refer to -l)\n");
-    printf("\t-d   Specify the CDROM/DVDROM device\n");
-    printf("\t-l   Show all supported keyboards\n");
-    printf("\t-L   Set the log level in syslog [0-7]\n");
-    printf("\t-b   Run in background\n");
-    printf("\t-h   Print this message\n");
+    printf("\t-t TYPE       Specify the keyboard type (refer to -l)\n");
+    printf("\t-l            Show all supported keyboards\n");
+    printf("\t-d DEVICE     Specify the CDROM/DVDROM device\n");
+    printf("\t-o STATE      Turn off/on on-screen display\n");
+    printf("\t-L LEVEL      Set the log level in syslog [0-7]\n");
+    printf("\t-b            Run in background\n");
+    printf("\t-h            Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
 }
 
@@ -337,6 +346,32 @@ setLoglevel(int level)
     }
 }
 
+#ifdef HAVE_LIBXOSD
+static void
+toggleOSD(char* optarg)
+{
+    int arg = 0;
+
+    if ( strncasecmp( optarg, "on",  2 ) == 0 ||
+         strncasecmp( optarg, "1",   1 ) == 0 ||
+         strncasecmp( optarg, "yes", 3 ) == 0 )
+    {
+        arg = 1;
+    }
+    else
+    if ( strncasecmp( optarg, "off", 3 ) != 0 &&
+         strncasecmp( optarg, "0",   1 ) != 0 &&
+         strncasecmp( optarg, "no",  2 ) != 0 )
+    {
+        uInfo("Unknown argument: %s, assuming on\n", optarg);
+        arg = 1;
+    }
+
+    if ( !arg )
+        osd = NULL;
+}
+#endif /* HAVE_LIBXOSD */
+
 /***====================================================================***/
 
 static Bool
@@ -346,7 +381,11 @@ parseArgs(int argc, char *argv[])
     int     digit_optind = 0;
     Bool    kbdSet = False;
 
-    const char *flags = "hbt:d:lz:vL:";
+    const char *flags = "hbt:d:lz:vL:"
+#ifdef HAVE_LIBXOSD
+        "o:"
+#endif
+    ;
 #ifdef HAVE_GETOPT_LONG
     int this_option_optind = optind ? optind : 1;
     int option_index = 0;
@@ -359,6 +398,9 @@ parseArgs(int argc, char *argv[])
         {"kbd-list",        0, 0, 'l'},
         {"verbose",         0, 0, 'v'},
         {"loglevel",        1, 0, 'L'},
+#ifdef HAVE_LIBXOSD
+        {"osd",             1, 0, 'o'},
+#endif
         {0, 0, 0, 0}
     };
 #endif /* HAVE_GETOPT_LONG */
@@ -415,6 +457,11 @@ parseArgs(int argc, char *argv[])
           case 'L':
               setLoglevel(atoi(optarg));
               break;
+#ifdef HAVE_LIBXOSD
+          case 'o':
+              toggleOSD(optarg);
+              break;
+#endif
           case 'z':
               break;
           case '?':
@@ -545,7 +592,15 @@ adjust_vol(int adj)
         uError("Unable to set the master volume");
         ret = -1; goto LEAVE;
     }
+#ifdef HAVE_LIBXOSD
+    else if (osd)
+    {
+        xosd_hide(osd);
+        xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
+    }
+#endif
 
+#if 0
     /* Set the CD volume */
     left = (cd_vol & 0xFF) + adj;
     right = ((cd_vol >> 8) & 0xFF) + adj;
@@ -558,6 +613,7 @@ adjust_vol(int adj)
         uError("Unable to set the CD volume");
         ret = -1; goto LEAVE;
     }
+#endif
 
     /* Set the CDROM volume */
     cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
@@ -606,21 +662,30 @@ doMute(void)
         return -1;
     }
 
-    if ( muted == True )
+    if ( muted )
     {
         /* Un-mute them */
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_VOLUME, &last_mixer_vol) == -1)
         {
             uError("Unable to un-mute the mixer");
             ret = -1;
-        } else
+        }
+        else
+        {
             muted = False;
+#ifdef HAVE_LIBXOSD
+            if (osd)
+                xosd_display(osd, 0, XOSD_string, "Un-Muted");
+#endif
+        }
+#if 0
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &last_cd_vol) == -1)
         {
             uError("Unable to un-mute the CD volume");
             ret = -1;
         } else
             muted = False;
+#endif
         if ( ioctl(cdrom_fd, CDROMVOLCTRL, &last_cdrom_vol) == -1 )
         {
             uError("Unable to un-mute `%s'", cdromDevice);
@@ -628,7 +693,7 @@ doMute(void)
         } else
             muted = False;
     }
-    else
+    else    /* !muted */
     {
         /* Read and store the mixer volume, do not try to mute them
          * if we cannot read any of their values. */
@@ -655,15 +720,23 @@ doMute(void)
         {
             uError("Unable to mute mixer volume of `%s'", MIXER_DEV);
             ret = -1;
-        } else
+        }
+        else
+        {
             muted = True;
+#ifdef HAVE_LIBXOSD
+            if (osd)
+                xosd_display(osd, 0, XOSD_string, "Muted");
+#endif
+        }
+#if 0
         if (SOUND_IOCTL(mixer_fd, SOUND_MIXER_WRITE_CD, &vol) == -1)
         {
             uError("Unable to mute CD volume of `%s'", MIXER_DEV);
             ret = -1;
         } else
             muted = True;
-
+#endif
         /* Set the volume to 0. FIXME: is this linux specific? Do
          * other platforms also have 4 channels? */
         cdrom_vol.channel0 = cdrom_vol.channel1 = cdrom_vol.channel2 =
@@ -1050,7 +1123,11 @@ initializeX(char* argv[])
         types[XkbGroup1Index] = XkbKeyTypeIndex( xkb, code, XkbGroup1Index );
 */
         types[0] = XkbOneLevelIndex;
-        XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL);
+        if ( XkbChangeTypesOfKey(xkb, tcode, 1, XkbGroup1Mask, types, NULL)
+                != Success )
+        {
+            uError("damn it!"); bailout();
+        }
 
         /* Change their Keysyms */
         if ( XkbResizeKeySyms( xkb, tcode, 1 ) == NULL )
@@ -1112,6 +1189,15 @@ initializeX(char* argv[])
     {
         uInfo("map set failed\n"); bailout();
     }
+
+    /* Initialize XOSD */
+#ifdef HAVE_LIBXOSD
+    if ( osd != NULL )
+    {
+        osd = xosd_init (FONT, "LawnGreen", 3, XOSD_top, 0);
+        xosd_set_timeout(osd, 3);
+    }
+#endif
 }
 
 static void
@@ -1225,6 +1311,10 @@ main(int argc, char *argv[])
         }
     }
 
+#ifdef HAVE_LIBXOSD
+    if (osd)
+        xosd_uninit(osd);
+#endif
     XCloseDisplay(dpy);
     closelog();
     return 0;
