@@ -1,4 +1,8 @@
+README
+======
+
 Requirements:
+------------
  
 * libxml, version 2.3.1 or later (http://xmlsoft.org/, ftp://xmlsoft.org)
 * libdb2, the Berkeley database library, it comes with many recent
