@@ -33,7 +33,7 @@
 static void initialize(char* argv[]);
 void usage(int argc, char* argv[]);
 void showKbdList(int argc, char *argv[]);
-static void setKbdType(const char* prog, const char* type);
+static Bool setKbdType(const char* prog, const char* type);
 void setCDROMDevice(char* optarg);
 static Bool parseArgs(int argc, char* argv[]);
 static Display* GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn);
