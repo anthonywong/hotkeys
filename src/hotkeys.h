@@ -43,13 +43,12 @@ static int adjust_vol(int adj);
 static int doMute(void);
 static int ejectDisc(void);
 static int closeTray(void);
-static int playDisc(void);
-static int launchApp(int type);
+static int launchApp(int keycode);
 static void printXkbActionMessage(FILE* file,XkbEvent* xkbev);
 void uError(char* s,...);
 void uInfo(char* s,...);
 void uInternalError(char* s,...);
-Bool testReadable(const char* filename);
+int testReadable(const char* filename);
 
 extern	Display *       dpy;
 extern	int             xkbOpcode;
@@ -76,16 +75,5 @@ extern  xosd*           osd;
 #define MIXER_DEV       "/dev/mixer"
 #define CDROM_DEV       "/dev/cdrom"
 #define MAXLEVEL        100     /* highest level permitted by OSS drivers */
-
-#define BROWSER         "mozilla"
-#define BROWSER_ARGS    "mozilla"             /* 1st arg is the program name */
-#define MAILER          "mozilla"
-#define MAILER_ARGS     "mozilla -mail"    /* 1st arg is the program name */
-#define CALCULATOR      "xcalc"
-#define CALCULATOR_ARGS  "xcalc"
-#define XTERM           "xterm"
-#define XTERM_ARGS      "xterm"
-#define FILEMANAGER     "gmc"
-#define FILEMANAGER_ARGS "gmc"
 
 #endif /* __HOTKEYS_H */
