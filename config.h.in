@@ -1,4 +1,4 @@
-/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+/* config.h.in.  Generated automatically from configure.in by autoheader 2.13.  */
 
 /* Define if the closedir function returns void instead of int.  */
 #undef CLOSEDIR_VOID
@@ -35,6 +35,8 @@
 
 /* Define if the X Window System is missing or not being used.  */
 #undef X_DISPLAY_MISSING
+
+#undef HAVE_LIBXOSD
 
 /* Define if you have the getopt_long function.  */
 #undef HAVE_GETOPT_LONG
@@ -87,14 +89,11 @@
 /* Define if you have the db library (-ldb).  */
 #undef HAVE_LIBDB
 
-/* Define if you have the db2 library (-ldb2).  */
-#undef HAVE_LIBDB2
+/* Define if you have the db3 library (-ldb3).  */
+#undef HAVE_LIBDB3
 
 /* Define if you have the xml library (-lxml).  */
 #undef HAVE_LIBXML
-
-/* Define if you have the xosd library (-lxosd).  */
-#undef HAVE_LIBXOSD
 
 /* Name of package */
 #undef PACKAGE
