@@ -835,20 +835,20 @@ doMute(void)
     return ret;
 }
 
-static void
+static int 
 ejectDisc(void)
 {
     static Bool ejected = False;
 
     if ( cdromDevice == NULL )
-        pthread_exit(0);
+        return 0;
 
     if ( ejected )
     {
         if ( closeTray() == 0 )
         {
             ejected = False;
-            pthread_exit(0);
+            return 0;
         }
     }
     else
@@ -858,7 +858,7 @@ ejectDisc(void)
         if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
         {
             uError("Unable to open `%s'", cdromDevice);
-            pthread_exit(-1);
+            return -1;
         }
 #ifdef HAVE_LIBXOSD
         xosd_display(osd, 0, XOSD_string, "Eject");
@@ -868,12 +868,12 @@ ejectDisc(void)
         {
             uError("CD-ROM device %s eject failed", cdromDevice);
             close(fd);
-            pthread_exit(-1);
+            return -1;
         }
 
         ejected = True;
         close(fd);
-        pthread_exit(0);
+        return 0;
     }
 }
 
