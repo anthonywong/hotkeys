@@ -18,6 +18,9 @@ My wishlist, in probably no specific priority order:
 
 - Run xscreensaver daemon on start-up (configurable)
 
+- A cleaner fix for the VMware problem: listen for notification and
+  act accordingly.
+
 - A GUI for configuration, probably a GTK one, with Gnome integration.
   Later I may do for KDE too.
 
