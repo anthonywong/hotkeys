@@ -197,7 +197,6 @@ parseConfigFile(char* filename)
         }
 
         fclose(fp);
-        fillDefaults();
     }
 }
 
@@ -215,6 +214,15 @@ readConfigFile(void)
         bailout();
     }
 
+    fillDefaults();
+
+    /* parse the global config first */
+    strncpy( filename, CONFDIR, MAXPATHLEN-strlen(CONFIG_NAME)-2 );
+    strcat( filename, "/" );
+    strcat( filename, CONFIG_NAME );
+    if ( testReadable(filename) )
+        parseConfigFile(filename);
+
     /* See whether the user has his own config file */
     if ( (h = getenv("HOME")) != NULL )
     {
@@ -222,20 +230,6 @@ readConfigFile(void)
         strcat( filename, "/." PACKAGE "/" );
         strcat( filename, CONFIG_NAME );
         if ( testReadable(filename) )
-        {
             parseConfigFile(filename);
-            return;
-        }
     }
-
-    strncpy( filename, CONFDIR, MAXPATHLEN-strlen(CONFIG_NAME)-2 );
-    strcat( filename, "/" );
-    strcat( filename, CONFIG_NAME );
-    if ( testReadable(filename) )
-    {
-        parseConfigFile(filename);
-        return;
-    }
-    else
-        fillDefaults();
 }
