@@ -1,3 +1,6 @@
 For any known bugs, please refer to the BUGS section in the man page.
 
-Please send any bug report and suggestions to hotkeys@ypwong.org
+Please send any bug report and suggestions to hotkeys@ypwong.org .
+Remember to mention the version number of hotkeys, the versions of
+all related libraries, an output of running ldd on hotkeys and
+strace/ltrace/core file if it segfaults.
