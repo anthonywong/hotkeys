@@ -5,7 +5,7 @@ hotkeys (0.5.2) unstable; urgency=low
     fix] (Closes: #85689)
   * Now you can specify the amount of volume increment and decrement
     in the keyboard definition file (1-100). [new]
-  * Memorex MX2500 support. [new]
+  * Memorex MX1998 and MX2500 support. [new]
   * Check for both xml2-config and xml-config in configure.in
     (Closes: #87460)
 
