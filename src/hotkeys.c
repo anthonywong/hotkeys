@@ -1152,16 +1152,16 @@ static int dummy() { /* grin */ }
 static int
 dummyHandler(Display* d, XErrorEvent* ev) 
 {
-    if ( !(d == dpy && ev->error_code == BadValue &&
-           ev->request_code == 149 /* XKEYBOARD */ &&
-           ev->minor_code == 9 /* XkbSetMap */) )
-    {
-        XmuPrintDefaultErrorMessage(d, ev, stderr);
-    }
-    else
+    if ( d == dpy && ev->error_code == BadValue &&
+         ev->request_code == 149 /* XKEYBOARD */ &&
+         ev->minor_code == 9 /* XkbSetMap */ )
     {
         dummyErrFlag = True;
         SYSLOG( LOG_INFO, "X BadValue Error" );
+    }
+    else
+    {
+        XmuPrintDefaultErrorMessage(d, ev, stderr);
     }
     return 0;
 }
@@ -1250,7 +1250,9 @@ initializeX(char* prg)
         /* Check the keycode range */
         if ( ! XkbKeycodeInRange(xkb, tcode) )
         {
-            uInfo("The keycode %d cannot be used, as it's not between the min(%d) and max(%d) keycode of your keyboard is %d",tcode, xkb-> min_key_code, xkb->max_key_code);
+            uInfo("The keycode %d cannot be used, as it's not between the min(%d) and max(%d) keycode of your keyboard.\n"
+                  "Please increase the 'maximum' value in /usr/X11R6/lib/X11/xkb/keycodes/xfree86, then restart X.",
+                  tcode, xkb-> min_key_code, xkb->max_key_code);
             continue;
         }
 
