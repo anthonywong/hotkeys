@@ -184,7 +184,12 @@ readDefFile(const char* filename)
     cur = cur->xmlChildrenNode;
     while ( cur != NULL )
     {
-        if ( MatchName( cur, "userdef" ) )
+        if ( MatchName( cur, "comment" ) )
+        {
+            cur = cur->next;
+            continue;   /* A comment! Continue to the next one */
+        }
+        else if ( MatchName( cur, "userdef" ) )
         {
             parseUserDef( doc, cur );
         }
