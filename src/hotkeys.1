@@ -42,8 +42,10 @@ Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
 If you give 'none', CDROM related functions will all be disabled.
 You probably need to define it if you are using devfs.
 .TP 8
-.B \-b, \-\-background
-Tells \fIhotkeys\fP to fork itself and run in the background.
+.B \-b, \-\-no\-background
+Tells \fIhotkeys\fP NOT to fork itself and run in the background.
+The short option \-b is not backward compatible to version 0.5.6 or
+before, \-b in these versions means run in the background.
 .TP 8
 .B \-F, \-\-fix\-vmware=TIME
 This option is mainly for users who run both hotkeys and VMware at the
@@ -93,6 +95,8 @@ Do not display the splash screen.
 .B BTC 9000
 .IP 10. 5
 .B Process MCK-800
+.IP
+.B And more...
 .\" .PP
 .\" For details please consult the file \fIkeyboard.list\fR.
 .P
