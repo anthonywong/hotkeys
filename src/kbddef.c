@@ -89,7 +89,7 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
     kbd.customCmds[kbd.noOfCustomCmds].command = xstrdup(t_command);
     XFREE(t_command);
 
-    tc = xmlNodeListGetString( doc, cur, 1 );
+    tc = xmlNodeListGetString( doc, cur->xmlChildrenNode, 1 );
     if ( tc != NULL && tc[0] != '\0' )
     {
         kbd.customCmds[kbd.noOfCustomCmds].description = xstrdup(tc);
@@ -144,12 +144,10 @@ readDefFile(const char* filename)
     xmlNodePtr  cur;
     char*       tc;
 
-    doc = xmlParseFile(filename);
-    if ( doc == NULL )
+    if ( (doc = xmlParseFile(filename)) == NULL )
         return False;
 
-    cur = xmlDocGetRootElement(doc);
-    if ( cur == NULL )
+    if ( (cur = xmlDocGetRootElement(doc)) == NULL )
     {
         uInfo("File %s is empty, skipping it...\n", filename);
         xmlFreeDoc(doc);
