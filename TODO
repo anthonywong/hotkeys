@@ -6,16 +6,26 @@ My wishlist, in probably no specific priority order:
 - Support  more  keyboard types, please e-mail me on this if you have a
   keyboard that's not yet supported.
 
-- Support launching of applications  and  sleeping,  power down, etc.
+- A configuration file (/etc/hotkeys.conf) to store settings like
+  default keyboard, font size and colour of on-screen display, which
+  program is the web browser and email client. This config file will
+  be the usual name-value pairs:
 
-- The cool OSD (on-screen display), I love eye candy :P
-  [Update: There is a library called XOSD which can be used, thanks
-  Jeffrey Panczyk for telling me!]
+    osd_colour=#10FF10
+    osd_timeout=2
+    web_browser=/usr/bin/mozilla
+
+- Multiple functionalities per key
+
+- configure script should detect the correct version of libxml2.
+
+- Support sleeping, suspend and power down (or logging out from WM).
 
 - A GUI for configuration, probably a GTK one, with Gnome integration.
   Later I may do for KDE too.
 
 - Internationalization, gettextize it!
 
-- RPM spec file, any one could give me a helping hand on this?
+- Documentation, should be done after the code is stabilized.
 
+* Name change soon. Yes, a new name :)
