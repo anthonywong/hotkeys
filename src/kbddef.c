@@ -26,6 +26,7 @@ const defEntry defStr[] = {
     { "Play",                   playKey },
     { "Eject",                  ejectKey },
     { "Stop",                   stopKey },
+    { "Pause",                  pauseKey },
     { "NextTrack",              nextTrackKey },
     { "VolUp",                  volUpKey },
     { "VolDown",                volDownKey },
@@ -163,7 +164,7 @@ readDefFile(const char* filename)
     cur = xmlDocGetRootElement(doc);
     if ( cur == NULL )
     {
-        uError("Definition file is empty");
+        uInfo("File %s is empty, skipping it...\n", filename);
         xmlFreeDoc(doc);
         return False;
     }
@@ -174,7 +175,9 @@ readDefFile(const char* filename)
     tc = xmlGetProp( cur, "model" );
     if ( tc == NULL )
     {
-        uInfo("Model name missing\n");   bailout();
+        uInfo("Model name missing in %s, skipping it...\n", filename);
+        xmlFreeDoc(doc);
+        return False;
     }
     else
     {
@@ -200,6 +203,9 @@ readDefFile(const char* filename)
 
         cur = cur->next;
     }
+
+    xmlFreeDoc(doc);
+    return True;
 
 /*
     FILE*   fp;
