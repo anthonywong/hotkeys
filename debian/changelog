@@ -1,3 +1,15 @@
+hotkeys (0.5.1) unstable; urgency=low
+
+  * #include db.h instead of db2.h [minor bug]
+  * Added a --fix-vmware/-F option for using with VMware. Somehow
+    VMware removes the action messages that I installed, so a thread
+    is created to re-install it at a regular interval. A dirty hack...
+  * Turns on the X synchronize mode, shouldn't have any performance
+    issue as there's no GUI, but this can suppress the BadValue X
+    protocol error.
+
+ -- Anthony Wong <ypwong@debian.org>  Fri,  9 Feb 2001 04:27:39 +0800
+
 hotkeys (0.5) unstable; urgency=low
 
   * Introduction of a real configuration file [new]
