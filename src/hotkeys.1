@@ -57,6 +57,9 @@ don't think this option will have any side-effect to the operation of
 VMware, but if you find that this is not true, please file a bug
 report. (This option is just a hack, I will implement a nicer method
 to replace it.)
+.TP 8
+.B \-Z, \-\-no\-splash\-screen
+Do not display the splash screen.
 .\" .TP 8
 .\" .B \-v
 .\" Print more information, including debugging messages.   Multiple 
@@ -112,10 +115,58 @@ The configuration file is named \fIhotkeys.conf\fR. By default it is
 installed in the /usr/local/etc directory. You can also put one into
 \fI$HOME/.hotkeys/\fR, which will override the settings in the global
 file if one exists.  In other words, the order of parsing is the
-global file first and then the private one.  The syntax of the file
-uses the simple key=value pairs. Blank lines and lines starting with #
-are ignored. Valid keys are written in the default file, which should
-be self-explanatory.
+global file first and then the private one.
+.P
+The syntax of the file uses the simple key=value pairs. Blank lines and lines
+starting with # are ignored. The followings are the valid keys and their
+default values (they are subjected to be changed without prior notice =):
+.P
+.nf
+.br
+.ta 3.4i
+  Key             Default
+  --------------- ------------------------------------------------
+  Kbd             (no default)
+
+  # CDROM device
+  CDROM           /dev/cdrom
+
+  # audio actions
+  PrevTrack       xmms --rew
+  Play            xmms --play
+  Stop            xmms --stop
+  Pause           xmms --pause
+  NextTrack       xmms --fwd
+  Rewind          (no default yet, suggestion welcome)
+
+  # applications
+  WebBrowser      mozilla
+  Email           mozilla -mail
+  Calculator      xcalc
+  FileManager     gmc
+  MyComputer      gmc
+  MyDocuments     gmc
+  Favorites       gnome-moz-remote --remote=openBookmarks
+  Transfer        gftp
+  Record          grecord
+  Shell           xterm -rv
+  ScreenSaver     xscreensaver-command -activate
+  NewsReader      mozilla -news
+  Communities     mozilla -remote 'openURL(http://slashdot.org)'
+  Search          mozilla -remote 'openURL(http://google.com)'
+  Idea            mozilla -remote 'openURL(http://sourceforge.net)'
+  Shopping        mozilla -remote 'openURL(http://thinkgeek.com)'
+  Go              mozilla -remote 'openURL(http://linux.com)'
+  Print           lpr
+
+  # OSD stuffs
+  osd_font        lucidasanstypewriter-bold-24
+  (should be aliased to -*-lucidatypewriter-bold-r-normal-*-*-240-*-*-*-*-*-*)
+  osd_color       LawnGreen
+  osd_timeout     3
+  osd_position    bottom
+  osd_offset      25
+.fi
 .SH "NOTES"
 Do not disable the XKEYBOARD extension. For XFree86 3.x, make sure
 \fBXkbDisable\fR is not set.
