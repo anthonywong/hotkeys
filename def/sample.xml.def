@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<CONFIG>
+
+  <MODEL>Acer Wireless</MODEL>
+
+  <VolUp        keycode="173"/>
+  <VolDown      keycode="166"/>
+  <Mute         keycode="153"/>
+
+  <userdef keycode="152" command="xterm -rv">Xterms</userdef>
+  <userdef keycode="149" command="mozilla -mail">Mozilla Mail</userdef>
+
+</CONFIG>
