@@ -376,7 +376,9 @@ toggleOSD(char* optarg)
     }
 
     if ( !arg )
+    {
         osd = NULL;
+    }
 }
 #endif /* HAVE_LIBXOSD */
 
@@ -886,8 +888,11 @@ ejectDisc(void)
              * at least it's the case on my ASUS DVD drive... */
             case CDS_TRAY_OPEN:
 #ifdef HAVE_LIBXOSD
-                xosd_display(osd, 0, XOSD_string, "Close tray");
-                xosd_display(osd, 1, XOSD_string, "");
+                if ( osd )
+                {
+                    xosd_display(osd, 0, XOSD_string, "Close tray");
+                    xosd_display(osd, 1, XOSD_string, "");
+                }
 #endif
                 if ( (ioctl(fd, CDROMCLOSETRAY)) != 0 ) {
                     SYSLOG( LOG_NOTICE, "CDROMCLOSETRAY failed: %s\n",
@@ -897,8 +902,11 @@ ejectDisc(void)
             case CDS_DISC_OK:
             case CDS_NO_DISC:
 #ifdef HAVE_LIBXOSD
-                xosd_display(osd, 0, XOSD_string, "Eject");
-                xosd_display(osd, 1, XOSD_string, "");
+                if ( osd )
+                {
+                    xosd_display(osd, 0, XOSD_string, "Eject");
+                    xosd_display(osd, 1, XOSD_string, "");
+                }
 #endif
                 if ( (ioctl(fd, CDROMEJECT)) != 0 ) {
                     SYSLOG( LOG_NOTICE, "CDROMEJECT failed: %s\n",
@@ -976,13 +984,13 @@ launchApp(int keycode)
             _exit(-1);
         }
     }
-    else
-    {
 #ifdef HAVE_LIBXOSD
+    else if ( osd )
+    {
         xosd_display(osd, 0, XOSD_string, "Launching:");
         xosd_display(osd, 1, XOSD_string, getConfig(type));
-#endif
     }
+#endif
     return 0;
 }
 
@@ -1078,8 +1086,11 @@ lookupUserCmd(const int keycode)
             else
             {
 #ifdef HAVE_LIBXOSD
-                xosd_display(osd, 0, XOSD_string, "Launching:");
-                xosd_display(osd, 1, XOSD_string, kbd.customCmds[i].desc);
+                if ( osd )
+                {
+                    xosd_display(osd, 0, XOSD_string, "Launching:");
+                    xosd_display(osd, 1, XOSD_string, kbd.customCmds[i].desc);
+                }
 #endif
                 break;  /* break the for loop */
             }
@@ -1405,9 +1416,9 @@ void
 initXOSD(void)
 {
 #ifdef HAVE_LIBXOSD
-    if (osd)
+    if ( osd )
     {
-        osd = xosd_init(getConfig("osd_font"),
+        osd = xosd_init(xstrdup(getConfig("osd_font")),
                         /* I dunno why, but you must call strdup here... */
                         xstrdup(getConfig("osd_color")),
                         atoi(getConfig("osd_timeout")),
