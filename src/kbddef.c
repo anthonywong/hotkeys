@@ -22,11 +22,11 @@
 /***====================================================================***/
 
 const defEntry defStr[] = {
-    { "TrackBack",              trackBackKey },
+    { "PrevTrack",              prevTrackKey },
     { "Play",                   playKey },
     { "Eject",                  ejectKey },
     { "Stop",                   stopKey },
-    { "TrackNext",              trackNextKey },
+    { "NextTrack",              nextTrackKey },
     { "VolUp",                  volUpKey },
     { "VolDown",                volDownKey },
     { "Mute",                   muteKey },
@@ -49,6 +49,7 @@ const defEntry defStr[] = {
     { "Calculator",             calculatorKey },
     { "iNews",                  iNewsKey },
     { "Sleep",                  sleepKey },
+    { "Suspend",                suspendKey },
     { "Rewind",                 rewindKey },
     { "Rotate",                 rotateKey },          /* ???, in MX3000 */
     { NULL,                     NUM_PREDEF_HOTKEYS }

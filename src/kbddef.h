@@ -29,11 +29,11 @@ typedef enum {
 } application;
 
 typedef enum {
-    trackBackKey,
+    prevTrackKey,
     playKey,
     ejectKey,
     stopKey,
-    trackNextKey,
+    nextTrackKey,
     volUpKey,
     volDownKey,
     muteKey,
@@ -56,6 +56,7 @@ typedef enum {
     calculatorKey,
     iNewsKey,
     sleepKey,
+    suspendKey,
     rewindKey,
     rotateKey,          /* ???, in MX3000 */
     NUM_PREDEF_HOTKEYS
