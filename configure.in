@@ -1,0 +1,102 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/hotkeys.c)
+AC_CONFIG_AUX_DIR(config)
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(hotkeys, 0.3)
+
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+
+AC_ARG_WITH(xml-prefix, dnl
+[  --with-xml-prefix=PFX   Prefix where GNOME XML library is installed (optional)], xml_config_prefix="$withval", xml_config_prefix="")
+AC_ARG_WITH(xml-exec-prefix, dnl
+[  --with-xml-exec-prefix=PFX Exec prefix where GNOME XML library is installed (optional)], xml_config_exec_prefix="$withval", xml_config_exec_prefix="")
+AC_ARG_ENABLE(xmltest, dnl
+[  --disable-xmltest       Do not try to compile and run a test XML program], , enable_xmltest=yes)
+
+if test "x$enable_xmltest" = "xyes"
+then
+    if test x$xml_config_exec_prefix != x
+    then
+        xml_config_args="$xml_config_args --exec-prefix=$xml_config_exec_prefix"
+        if test x${XML_CONFIG+set} != xset
+        then
+            XML_CONFIG=$xml_config_exec_prefix/bin/xml-config
+        fi
+    fi
+    if test x$xml_config_prefix != x
+    then
+        xml_config_args="$xml_config_args --prefix=$xml_config_prefix"
+        if test x${XML_CONFIG+set} != xset
+        then
+            XML_CONFIG=$xml_config_prefix/bin/xml-config
+        fi
+    fi
+
+    AC_PATH_PROG( XML_CONFIG, xml-config, no )
+    if test "$XML_CONFIG" = "no"
+    then
+dnl    AC_CHECK_PROG( HAVE_XML_CONFIG, xml-config, "yes", "no" )
+dnl    if test x$HAVE_XML_CONFIG = "xno" ; then
+        AC_MSG_ERROR(xml-config not found. It's essential, please install it)
+    else
+        XML_CFLAGS=`$XML_CONFIG $xml_config_args --cflags`
+        XML_LIBS=`$XML_CONFIG $xml_config_args --libs`
+        AC_SUBST(XML_CFLAGS)
+        AC_SUBST(XML_LIBS)
+    fi
+fi
+
+dnl Checks for libraries.
+dnl Replace `main' with a function in -lX11:
+dnl AC_CHECK_LIB(X11, XNextEvent)
+dnl Replace `main' with a function in -lXext:
+dnl Replace `main' with a function in -lXfont:
+dnl AC_CHECK_LIB(Xfont, main)
+dnl Replace `main' with a function in -lxkbfile:
+dnl AC_CHECK_LIB(xkbfile, main)
+dnl Replace `main' with a function in -lxkbui:
+dnl AC_CHECK_LIB(xkbui, main)
+dnl Replace `main' with a function in -lxml:
+AC_CHECK_LIB(xml, xmlParseFile)
+dnl Replace `main' with a function in -lz:
+dnl AC_CHECK_LIB(z, main)
+
+dnl Checks for header files.
+AC_PATH_XTRA
+if test "x$no_x" = "xyes"
+then
+    AC_MSG_ERROR("You must have X installed")
+else
+    X_LIBS="$X_LIBS -lX11"
+fi
+dnl XEXT_LIBS=""
+dnl AC_CHECK_LIB(Xext, XkbOpenDisplay, [XEXT_LIBS="-lext"], , XFLAGS)
+dnl if test x$XEXT_LIBS = "x-lext"
+dnl then
+dnl      AC_DEFINE(HAVE_LIBX11)
+dnl      AC_DEFINE(HAVE_LIBXext)
+dnl else
+dnl     AC_MSG_ERROR("Unable to find the Xext library.")
+dnl fi
+
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h string.h strings.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_HEADER_TIME
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+AC_HEADER_MAJOR
+AC_FUNC_VPRINTF
+AC_FUNC_CLOSEDIR_VOID
+AC_CHECK_FUNCS(regcomp select strdup strerror strstr getopt_long)
+
+AC_OUTPUT(Makefile src/Makefile)
