@@ -120,7 +120,7 @@ then
 fi
 
 dnl-----------------------------------------------------------------------
-dnl Checks for Berkeley DB2 libraries. (Mainly from xcin)
+dnl Checks for Berkeley DB2 libraries. (Mainly from libtabe)
 dnl-----------------------------------------------------------------------
 if test ! x$db2_libdir = x; then
     LIBS="$LIBS -L$db2_libdir"
@@ -134,10 +134,6 @@ AC_CHECK_LIB(db2, db_open, ,
       AC_MSG_RESULT([Please use --with-db2-incdir and --with-db2-libdir to configure.])
       exit 1
     ])
-
-dnl db_library="$db_library -l$mytarget"
-dnl AC_SUBST(db_include)
-dnl AC_SUBST(db_library)
 
 
 dnl Checks for header files.
