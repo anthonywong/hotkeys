@@ -34,7 +34,6 @@ Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
 .\" specifications of \fI-v\fP cause more output, to a point.
 .SH "SUPPORTED KEYBOARDS"
 .\".TP 8
-.nf
 .IP 1. 5
 .B Acer Airkey III Wireless keyboard
 .\"The \fBvolume up\fR and \fBdown\fR works by changing the master volume of the
@@ -49,9 +48,13 @@ Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
 .B Microsoft Internet keyboard
 .IP 3. 5
 .B Memorex MX300 keyboard
+.IP 4. 5
+.B SK-2500, SK-2501a, SK-7100
+.IP 5. 5
+.B Logitech cordless iTouch keyboard
 .\" .PP
 .\" For details please consult the file \fIkeyboard.list\fR.
-.PP
+.P
 As I have only the Acer wireless keyboard, you can help
 me to support other keyboards by sending me the list of keycodes of
 the hotkeys on your keyboard. You can do this by using \fBxev\fR.
@@ -69,7 +72,8 @@ Keyboard definition files are in XML format, which should be
 self-explanatory.
 .P
 You can create your own definition file and placed it in
-\fI$HOME/.hotkeys\fR. Just take an existing definition as an example.
+\fI$HOME/.hotkeys\fR. Just take the file \fIdef/sample.xml\fR or an
+existing definition file as an example.
 .SH "TODO"
 Please consult the TODO file.
 .SH "BUGS"
