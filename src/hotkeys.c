@@ -1412,7 +1412,7 @@ initXOSD(void)
                         xstrdup(getConfig("osd_color")),
                         atoi(getConfig("osd_timeout")),
                         strncmp(getConfig("osd_position"),"top",3)?XOSD_bottom:XOSD_top,
-                        atoi(getConfig("osd_offset")) );
+                        atoi(getConfig("osd_offset")), 0);
     }
 #endif
 }
