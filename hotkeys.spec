@@ -1,6 +1,6 @@
 Summary: A program to use the special keys on internet/multimedia keyboards.
 Name: hotkeys
-Version: 0.5
+Version: 0.5.2
 Release: 1
 Serial: 1
 Copyright: GPL
