@@ -19,18 +19,3 @@ My wishlist, in probably no specific priority order:
 
 - RPM spec file, any one could give me a helping hand on this?
 
-- Make the program as a centralized hotkey ``organizor'' or
-  ``dispatcher'' . What it means is best illustrated by an example.
-
-  Suppose a program, say xmms, want to use hotkeys' functionality
-  such that when the user presses the Play button, xmms will start
-  playing, etc. Hotkeys can first make a Unix domain socket, such that
-  xmms can "ask" hotkeys for "registration". Once the "registration"
-  is successful, hotkeys will tell xmms so and hotkeys will inform
-  xmms when the "registered" buttons are pressed.
-
-  There may be more than one program that want to "register" for the
-  same key, like the Eject key. In this case, resolution has to be
-  done. Either first-come-first-serve or last-come-first-serve are
-  acceptable behavior, so it's best left as a user configurable
-  option.
