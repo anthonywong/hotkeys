@@ -1,5 +1,5 @@
 .\" $TOG: xkbevd.man /main/6 1998/02/12 09:34:24 kaleb $
-.TH HOTKEYS 1 "16 February 2001" "0.5.2"
+.TH HOTKEYS 1 "15 March 2001" "0.5.2"
 .SH NAME
 hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 .SH SYNOPSIS
@@ -10,8 +10,7 @@ hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 This program sits at the back and listens for the hotkeys on your
 keyboard. The buttons perform their intended behaviors, such as volume
 up and down, mute the speaker, launch applications, etc.
-Theoretically, the functions they perform are programmable, but not
-yet at the moment.
+The functions they perform are totally programmable.
 .SH OPTIONS
 .TP 8
 .B \-h, \-\-help
@@ -23,7 +22,7 @@ Specify the keyboard type.
 .B \-l, \-\-kbd\-list
 Show all supported keyboards, and the code needed for the \-t option.
 .TP 8
-.B \-o, \-\-osd=STATE 
+.B \-o, \-\-osd=STATE
 Turn off or on the on-screen display, default is on if OSD support is
 compiled with the program. Valid values for STATE are
 off/0/no/on/1/yes.
@@ -35,6 +34,7 @@ all messages.
 .B \-d, \-\-cdrom\-dev=DEVICE
 Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
 If you give 'none', CDROM related functions will all be disabled.
+You probably need to define it if you are using devfs.
 .TP 8
 .B \-b, \-\-background
 Tells \fIhotkeys\fP to fork itself (and run in the background).
@@ -48,7 +48,8 @@ information regularly. The default time interval is 10 seconds. You
 can specify a time interval as you like, the value is in seconds. I
 don't think this option will have any side-effect to the operation of
 VMware, but if you find that this is not true, please file a bug
-report.
+report. (This option is just a hack, I will implement a nicer method
+to replace it.)
 .\" .TP 8
 .\" .B \-v
 .\" Print more information, including debugging messages.   Multiple 
@@ -125,8 +126,7 @@ keyboard, mouse, nor the suspend button on the case. Not tested on
 notebook (I don't have one). Note that you need root priviledge to use
 the APM functions.
 .PP
-This is the first time I use autoconf, there are probably bugs in
-the \fIconfigure.in\fR script.
+There are probably bugs in the \fIconfigure.in\fR script.
 .PP
 The error
 \fB"X Error of failed request:  BadValue (integer parameter out of range
