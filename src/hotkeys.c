@@ -133,13 +133,22 @@ xosd *          osd           = (xosd*)1;
 void
 usage(int argc, char *argv[])
 {
-    printf("HOTKEYS v%s -- use the hotkeys on your Internet/multimedia keyboard to control your computer\n", VERSION);
+    char cmplStr[256] = {'\0'};
+
+#ifdef HAVE_LIBXOSD
+    strcat(cmplStr,"XOSD");
+#endif
+
+    printf("HOTKEYS v" VERSION " -- use the hotkeys on your Internet/multimedia keyboard to control your computer");
+    if (strlen(cmplStr))
+        printf(" (compile options: %s)", cmplStr);
+    printf("\n");
     printf("Usage: %s [options...]\n", argv[0]);
     printf("Legal options:\n");
 #ifdef HAVE_GETOPT_LONG
     printf("\t-t, --type=TYPE          Specify the keyboard type (refer to -l)\n");
     printf("\t-l, --kbd-list           Show all supported keyboards\n");
-    printf("\t-d, --cdrom-dev=DEVICE   Specify the CDROM/DVDROM device\n");
+    printf("\t-d, --cdrom-dev=DEVICE   Specify the CDROM/DVDROM device, or 'none'\n");
 #ifdef HAVE_LIBXOSD
     printf("\t-o, --osd=STATE          Turn off/on on-screen display\n");
 #endif
@@ -154,7 +163,7 @@ usage(int argc, char *argv[])
 #else
     printf("\t-t TYPE       Specify the keyboard type (refer to -l)\n");
     printf("\t-l            Show all supported keyboards\n");
-    printf("\t-d DEVICE     Specify the CDROM/DVDROM device\n");
+    printf("\t-d DEVICE     Specify the CDROM/DVDROM device, 'none' for no device\n");
     printf("\t-o STATE      Turn off/on on-screen display\n");
     printf("\t-L LEVEL      Set the log level in syslog [0-7]\n");
     printf("\t-b            Run in background\n");
@@ -313,12 +322,18 @@ setKbdType(const char* prog, const char* type)
     return ret;
 }
 
+/* Option is --cdrom-dev or -d */
 void
 setCDROMDevice(char* optarg)
 {
-    /* Option is --cdrom-dev or -d */
-    int fd = open( optarg, O_RDONLY|O_NONBLOCK );
-    if (fd == -1)
+    int fd;
+
+    if ( strncasecmp( optarg, "none", 4 ) == 0 )
+    {
+        cdromDevice = NULL;
+        return;
+    }
+    if ( (fd = open( optarg, O_RDONLY|O_NONBLOCK )) == -1)
     {
         uInfo("Unable to open `%s', fall back to %s\n", cdromDevice, CDROM_DEV);
     }
@@ -548,7 +563,7 @@ bailout(void)
 static int
 adjust_vol(int adj)
 {
-    int         mixer_fd, cdrom_fd;
+    int         mixer_fd = -1, cdrom_fd = -1;
     int         master_vol, cd_vol;
     struct cdrom_volctrl cdrom_vol;
     int         left, right;
@@ -614,27 +629,30 @@ adjust_vol(int adj)
     }
 
     /* open the cdrom/dvdrom drive device */
-    if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
+    if ( cdromDevice != NULL )
     {
-        uError("Unable to open `%s'", cdromDevice);
-    }
-    else
-    {
-        /* read the cdrom volume */
-        if ( ioctl(cdrom_fd, CDROMVOLREAD, &cdrom_vol) == -1 )
+        if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
         {
-            uError("Unable to read the CDROM volume of `%s'", cdromDevice);
-            ret = -1;
+            uError("Unable to open `%s'", cdromDevice);
         }
         else
         {
-            /* Set the CDROM volume */
-            cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
-            cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
-            if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
+            /* read the cdrom volume */
+            if ( ioctl(cdrom_fd, CDROMVOLREAD, &cdrom_vol) == -1 )
             {
-                uError("Unable to set the volume of %s", cdromDevice);
+                uError("Unable to read the CDROM volume of `%s'", cdromDevice);
                 ret = -1;
+            }
+            else
+            {
+                /* Set the CDROM volume */
+                cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
+                cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
+                if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
+                {
+                    uError("Unable to set the volume of %s", cdromDevice);
+                    ret = -1;
+                }
             }
         }
     }
@@ -647,8 +665,7 @@ adjust_vol(int adj)
 
 
 /*
- *  Mute or un-mute the /dev/mixer master volume and CDROM drive's
- *  volume
+ *  Mute or un-mute the /dev/mixer master volume and CDROM drive's volume
  */
 static int
 doMute(void)
@@ -659,7 +676,7 @@ doMute(void)
 
     int                     vol, cd_vol;
     struct cdrom_volctrl    cdrom_vol;
-    int                     mixer_fd, cdrom_fd;
+    int                     mixer_fd = -1, cdrom_fd = -1;
 
     short ret = 0;      /* return value */
 
@@ -669,9 +686,12 @@ doMute(void)
         uError("Unable to open `%s'", MIXER_DEV);
     }
     /* open the cdrom/dvdrom drive device */
-    if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
+    if ( cdromDevice != NULL )
     {
-        uError("Unable to open `%s'", cdromDevice);
+        if ( (cdrom_fd = open( cdromDevice, O_RDONLY|O_NONBLOCK )) == -1 )
+        {
+            uError("Unable to open `%s'", cdromDevice);
+        }
     }
 
     if ( muted )
@@ -692,7 +712,7 @@ doMute(void)
                 {
                     int left = last_mixer_vol & 0xFF,
                         right = (last_mixer_vol >> 8) & 0xFF;
-                    xosd_display(osd, 0, XOSD_string, "Un-Muted");
+                    xosd_display(osd, 0, XOSD_string, "Unmute");
                     xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
                 }
 #endif
@@ -744,7 +764,7 @@ doMute(void)
 #ifdef HAVE_LIBXOSD
                     if (osd)
                     {
-                        xosd_display(osd, 0, XOSD_string, "Muted");
+                        xosd_display(osd, 0, XOSD_string, "Mute");
                         xosd_display(osd, 1, XOSD_string, "");
                     }
 #endif
@@ -802,6 +822,9 @@ ejectDisc(void)
 {
     static Bool ejected = False;
 
+    if ( cdromDevice == NULL )
+        return 0;
+
     if ( ejected )
     {
         if ( closeTray() == 0 )
@@ -812,8 +835,9 @@ ejectDisc(void)
     }
     else
     {
-        int fd = open(cdromDevice, O_RDONLY|O_NONBLOCK);
-        if (fd == -1)
+        int fd;
+
+        if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
         {
             uError("Unable to open `%s'", cdromDevice);
             return -1;
@@ -838,8 +862,12 @@ ejectDisc(void)
 static int
 closeTray(void)
 {
-    int fd = open(cdromDevice, O_RDONLY|O_NONBLOCK);
-    if (fd == -1)
+    int fd;
+
+    if ( cdromDevice == NULL )
+        return 0;
+
+    if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
     {
         uInfo("unable to open `%s'\n", cdromDevice);
         return -1;
