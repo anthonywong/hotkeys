@@ -19,6 +19,19 @@ AC_ARG_ENABLE(xmltest,
     [  --disable-xmltest       Do not try to compile and run a test XML program],
     , enable_xmltest=yes)
 
+AC_ARG_WITH(db2-inc,
+    [  --with-db2-inc=DIR      Set the include directory of Berkeley DB2],
+    db2_incdir="$withval", db2_incdir="")
+ 
+AC_ARG_WITH(db2-lib,
+    [  --with-db2-lib=DIR      Set the library directory of Berkeley DB2],
+    db2_libdir="$withval", db2_libdir="")
+
+dnl not yet...
+dnl AC_ARG_WITH(gtk,
+dnl    [  --with-gtk              Use GTK Interface],
+dnl    use_gtk=yes, )
+
 AC_ARG_ENABLE(xosd,
     [  --disable-xosd          Don't use XOSD library],
     ,enable_xosd=yes)
@@ -31,13 +44,16 @@ AC_ARG_WITH(xosd-lib,
     [  --with-xosd-lib=DIR     Set the library directory of XOSD],
     xosd_libdir="$withval", xosd_libdir="")
 
-AC_ARG_WITH(db2-inc,
-    [  --with-db2-inc=DIR      Set the include directory of Berkeley DB2],
-    db2_incdir="$withval", db2_incdir="")
- 
-AC_ARG_WITH(db2-lib,
-    [  --with-db2-lib=DIR      Set the library directory of Berkeley DB2],
-    db2_libdir="$withval", db2_libdir="")
+dnl-----------------------------------------------------------------------
+dnl Checks for X
+dnl-----------------------------------------------------------------------
+AC_PATH_XTRA
+if test "x$no_x" = "xyes"
+then
+    AC_MSG_ERROR("You must have X installed")
+else
+    X_LIBS="$X_LIBS -lX11 -lXmu"
+fi
 
 dnl-----------------------------------------------------------------------
 dnl Checks for LIBXML2
@@ -92,6 +108,34 @@ AC_CHECK_LIB(xml, xmlParseFile)
 dnl Replace `main' with a function in -lz:
 dnl AC_CHECK_LIB(z, main)
 
+
+dnl AM_PATH_GTK()
+dnl AM_PATH_GLIB(1.2.0, ,[AC_MSG_ERROR(Missing gthread module in GLib!)], gthread)
+dnl AC_SUBST(GLIB_LIBS)
+dnl AC_SUBST(GLIB_CFLAGS)
+
+
+dnl-----------------------------------------------------------------------
+dnl Checks for Berkeley DB2 libraries. (Mainly from libtabe)
+dnl-----------------------------------------------------------------------
+if test ! x$db2_libdir = x; then
+    LIBS="$LIBS -L$db2_libdir"
+fi
+if test ! x$db2_incdir = x; then
+    CPPFLAGS="$CPPFLAGS -I$db2_incdir"
+fi
+
+dnl We need to check both libdb and libdb2
+AC_CHECK_LIB(db2, db_open, , [ nodb=yes ])
+if test "x$nodb" = "xyes"
+then
+    AC_CHECK_LIB(db, db_open, ,
+      [ AC_MSG_RESULT([You need Berkeley DB 2 to compile successfully.])
+        AC_MSG_RESULT([Please use --with-db2-incdir and --with-db2-libdir to configure.])
+        exit 1
+      ])
+fi
+
 dnl-----------------------------------------------------------------------
 dnl Checks for XOSD
 dnl-----------------------------------------------------------------------
@@ -117,45 +161,8 @@ then
     fi
 fi
 
-dnl-----------------------------------------------------------------------
-dnl Checks for Berkeley DB2 libraries. (Mainly from libtabe)
-dnl-----------------------------------------------------------------------
-if test ! x$db2_libdir = x; then
-    LIBS="$LIBS -L$db2_libdir"
-fi
-if test ! x$db2_incdir = x; then
-    CPPFLAGS="$CPPFLAGS -I$db2_incdir"
-fi
-
-dnl We need to check both libdb and libdb2
-AC_CHECK_LIB(db2, db_open, , [ nodb=yes ])
-if test "x$nodb" = "xyes"
-then
-    AC_CHECK_LIB(db, db_open, ,
-      [ AC_MSG_RESULT([You need Berkeley DB 2 to compile successfully.])
-        AC_MSG_RESULT([Please use --with-db2-incdir and --with-db2-libdir to configure.])
-        exit 1
-      ])
-fi
 
 dnl Checks for header files.
-AC_PATH_XTRA
-if test "x$no_x" = "xyes"
-then
-    AC_MSG_ERROR("You must have X installed")
-else
-    X_LIBS="$X_LIBS -lX11 -lXmu"
-fi
-dnl XEXT_LIBS=""
-dnl AC_CHECK_LIB(Xext, XkbOpenDisplay, [XEXT_LIBS="-lext"], , XFLAGS)
-dnl if test x$XEXT_LIBS = "x-lext"
-dnl then
-dnl      AC_DEFINE(HAVE_LIBX11)
-dnl      AC_DEFINE(HAVE_LIBXext)
-dnl else
-dnl     AC_MSG_ERROR("Unable to find the Xext library.")
-dnl fi
-
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_HEADER_MAJOR
