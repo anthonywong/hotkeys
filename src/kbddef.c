@@ -77,30 +77,31 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
         return;
     }
 
-    kbd.noOfCustomCmds++;
-
     /* Allocate or enlarge the memory, depending on whether memory has
      * been previously allocated to kbd.customCmds. */
-    t = XREALLOC( hotkeyCmd, kbd.customCmds, kbd.noOfCustomCmds );
+    t = XREALLOC( hotkeyCmd, kbd.customCmds, kbd.noOfCustomCmds+1 );
 
     kbd.customCmds = t;
 
     /* Assign it */
-    kbd.customCmds[kbd.noOfCustomCmds-1].keycode = atoi(t_keycode);
+    kbd.customCmds[kbd.noOfCustomCmds].keycode = atoi(t_keycode);
     XFREE(t_keycode);
-    kbd.customCmds[kbd.noOfCustomCmds-1].command = (char*)xstrdup(t_command);
+    kbd.customCmds[kbd.noOfCustomCmds].command = xstrdup(t_command);
     XFREE(t_command);
 
     tc = xmlNodeListGetString( doc, cur, 1 );
     if ( tc[0] != '\0' )
     {
-        kbd.customCmds[kbd.noOfCustomCmds-1].description = (char*)xstrdup(tc);
+        kbd.customCmds[kbd.noOfCustomCmds].description = xstrdup(tc);
     }
     else
     {
-        kbd.customCmds[kbd.noOfCustomCmds-1].description = NULL;
+        /* No description given in definition file */
+        kbd.customCmds[kbd.noOfCustomCmds].description = NULL;
     }
+
     XFREE(tc);
+    kbd.noOfCustomCmds++;
 }
 
 static void
