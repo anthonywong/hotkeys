@@ -92,6 +92,7 @@ Bool            synch         = False;
 int	            verbose       = 0;
 int	            loglevel      = 0;
 Bool            background    = False;
+Bool            noSplash      = False;
 
 FILE *          errorFile     = NULL;
 
@@ -134,7 +135,8 @@ usage(int argc, char *argv[])
 #endif
     printf("    -L, --loglevel=LEVEL     Set the log level in syslog [0-7]\n");
     printf("    -b, --background         Run in background\n");
-    printf("    -F, --fix-vmware=TIME    Use this option if vmware is used concurrently\n");
+    printf("    -F, --fix-vmware=TIME    Use this if you use vmware at the same time\n");
+    printf("    -Z, --no-splash          No splash screen\n");
     printf("    -h, --help               Print this message\n");
 /*
     M("-cfg <file>          Specify a config file\n");
@@ -149,6 +151,7 @@ usage(int argc, char *argv[])
     printf("    -L LEVEL      Set the log level in syslog [0-7]\n");
     printf("    -b            Run in background\n");
     printf("    -F TIME       Use this option if vmware is used concurrently\n");
+    printf("    -Z            No splash screen\n");
     printf("    -h            Print this message\n");
 #endif /* HAVE_GETOPT_LONG */
 }
@@ -384,7 +387,7 @@ parseArgs(int argc, char *argv[])
     int     c, i;
     int     digit_optind = 0;
 
-    const char *flags = "hbt:d:lz:vL:F:"
+    const char *flags = "hbt:d:lz:vL:F:Z"
 #ifdef HAVE_LIBXOSD
         "o:"
 #endif
@@ -405,6 +408,7 @@ parseArgs(int argc, char *argv[])
         {"osd",             1, 0, 'o'},
 #endif
         {"fix-vmware",      2, 0, 'F'},
+        {"no-splash",       0, 0, 'Z'},
         {0, 0, 0, 0}
     };
 #endif /* HAVE_GETOPT_LONG */
@@ -467,6 +471,9 @@ parseArgs(int argc, char *argv[])
 #endif
           case 'F':
               fixVMware(optarg);
+              break;
+          case 'Z':
+              noSplash=True;
               break;
           case 'z':
               break;
@@ -1150,19 +1157,50 @@ testReadable(const char* filename)
 /***====================================================================***/
 static int dummy() { /* grin */ }
 
+#include <X11/Xlibint.h>
 static int
 dummyHandler(Display* d, XErrorEvent* ev) 
 {
+    /* Code below is mainly from the function XmuPrintDefaultErrorMessage */
+
+    _XExtension *ext = (_XExtension *)NULL;
+    char major_op[128];
+    char minor_op[128];
+    char mesg[128];
+
+    /* Get string of Major and Minor opcode */
+    /* XXX this is non-portable */
+    for (ext = d->ext_procs;
+         ext && (ext->codes.major_opcode != ev->request_code);
+         ext = ext->next)
+      ;
+    if (ext)
+        XmuSnprintf(major_op, sizeof(major_op), "%s", ext->name);
+    else
+        major_op[0] = '\0';
+
+    XmuSnprintf(mesg, sizeof(mesg),
+                "%s.%d", ext->name, ev->minor_code);
+    XGetErrorDatabaseText(dpy, "XRequest", mesg, "", minor_op, BUFSIZ);
+
+
     if ( d == dpy && ev->error_code == BadValue &&
+         strncmp( major_op, "XKEYBOARD", 9 ) == 0 &&
+         strncmp( minor_op, "XkbSetMap", 9 ) == 0
+#if 0
          ev->request_code == 149 /* XKEYBOARD */ &&
-         ev->minor_code == 9 /* XkbSetMap */ )
+         ev->minor_code == 9 /* XkbSetMap */ 
+#endif
+       )
     {
         dummyErrFlag = True;
-        SYSLOG( LOG_INFO, "X BadValue Error" );
+        SYSLOG( LOG_DEBUG, "X BadValue Error" );
     }
     else
     {
         XmuPrintDefaultErrorMessage(d, ev, stderr);
+        uInfo("Program exiting...");
+        bailout();
     }
     return 0;
 }
@@ -1427,6 +1465,9 @@ main(int argc, char *argv[])
     if ( !parseArgs(argc,argv) )
         bailout();
 
+    if ( !noSplash )
+        system("type -p splash > /dev/null && splash " SHAREDIR"/splash.xpm sleep 2 &");
+
     if (background)
     {
 
@@ -1442,9 +1483,12 @@ main(int argc, char *argv[])
     }
 
     initializeX(argv);
+#ifdef HAVE_LIBXOSD
     initXOSD();
+#endif
 
-    printf( "%s started successfully.\n", progname );
+    if ( noSplash )
+        printf( "%s started successfully.\n", progname );
 
     /* Process the events in a forever loop */
     while (1)
