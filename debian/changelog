@@ -1,3 +1,10 @@
+hotkeys (0.5.7.1) unstable; urgency=low
+
+  * configure.in: uses AM_PATH_XML2 that libxml2-dev provides, hopefully this
+                  will solve the build problems on MIPS and MIPSEL.
+
+ -- Anthony Wong <ypwong@debian.org>  Sun,  8 Dec 2002 22:09:23 +0800
+
 hotkeys (0.5.7) unstable; urgency=low
 
   * Change the default behaviour to run in the background. Use -b to run in

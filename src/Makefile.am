@@ -6,8 +6,8 @@ hotkeys_SOURCES = hotkeys.c kbddef.c conf.c fixVMware.c apmlib.c xmalloc.c \
 sysconf_DATA    = hotkeys.conf
 man_MANS        = hotkeys.1
 
-CFLAGS      = @CFLAGS@ @X_CFLAGS@ @LIBXOSD_CFLAGS@ @GTK_CFLAGS@ -I.. # -DDEBUG 
-LIBS        = @LIBS@ @X_LIBS@ @LIBXOSD_LIBS@ @GTK_LIBS@
+CFLAGS      = @CFLAGS@ @X_CFLAGS@ @XML_CFLAGS@ @LIBXOSD_CFLAGS@ @GTK_CFLAGS@ -I.. # -DDEBUG 
+LIBS        = @LIBS@ @X_LIBS@ @XML_LIBS@ @LIBXOSD_LIBS@ @GTK_LIBS@
 DEFS        = @DEFS@ -DSHAREDIR=\"@datadir@/@PACKAGE@\" \
               -DCONFDIR=\"@sysconfdir@\" -DCONFIG_NAME=\"@PACKAGE@.conf\"
 

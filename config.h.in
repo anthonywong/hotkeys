@@ -31,9 +31,6 @@
 /* Define to 1 if you have the `pthread' library (-lpthread). */
 #undef HAVE_LIBPTHREAD
 
-/* Define to 1 if you have the `xml2' library (-lxml2). */
-#undef HAVE_LIBXML2
-
 /* Define if you have the xosd library (-lxosd). */
 #undef HAVE_LIBXOSD
 
