@@ -33,6 +33,7 @@ typedef enum {
     playKey,
     ejectKey,
     stopKey,
+    pauseKey,
     nextTrackKey,
     volUpKey,
     volDownKey,
