@@ -92,13 +92,13 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
     tc = xmlNodeListGetString( doc, cur->xmlChildrenNode, 1 );
     if ( tc != NULL && tc[0] != '\0' )
     {
-        kbd.customCmds[kbd.noOfCustomCmds].description = xstrdup(tc);
+        kbd.customCmds[kbd.noOfCustomCmds].desc= xstrdup(tc);
         XFREE(tc);
     }
     else
     {
         /* No description given in definition file */
-        kbd.customCmds[kbd.noOfCustomCmds].description = NULL;
+        kbd.customCmds[kbd.noOfCustomCmds].desc= NULL;
     }
 
     kbd.noOfCustomCmds++;

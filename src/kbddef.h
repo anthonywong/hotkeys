@@ -71,7 +71,7 @@ typedef struct {
 typedef struct {
     int         keycode;
     char*       command;
-    char*       description;
+    char*       desc;
 } hotkeyCmd;
 
 typedef struct {
