@@ -224,7 +224,7 @@ showKbdList(int argc, char *argv[])
 }
 
 
-static Bool
+Bool
 setKbdType(const char* prog, const char* type)
 {
     char*       defname;
@@ -377,7 +377,6 @@ parseArgs(int argc, char *argv[])
 {
     int     c, i;
     int     digit_optind = 0;
-    Bool    kbdSet = False;
 
     const char *flags = "hbt:d:lz:vL:"
 #ifdef HAVE_LIBXOSD
@@ -435,8 +434,7 @@ parseArgs(int argc, char *argv[])
 #endif
 
           case 't':
-              setKbdType(argv[0], optarg);
-              kbdSet = True;
+              setConfig( "Kbd", optarg, 0 );
               break;
           case 'd':
               setCDROMDevice(optarg);
@@ -468,7 +466,11 @@ parseArgs(int argc, char *argv[])
         }
     }
 
-    if ( kbdSet == False )
+    if ( getConfig("Kbd")[0] )
+    {
+        setKbdType(argv[0], getConfig("Kbd"));
+    }
+    else
     {
         uInfo("You must set the keyboard type, use %s -t <type> to set it.\n", argv[0]);
         exit(1);
