@@ -5,11 +5,10 @@ Requirements:
 ------------
  
 * libxml, version 2.2.8 or later (http://xmlsoft.org/, ftp://xmlsoft.org)
-* libdb2, the Berkeley database library 2.7.7, it comes with many recent
-  Linux distributions, but please make sure it is 2.7.7, some older versions 
-  are known to have problems.
-* You need the XOSD library if you want to enjoy the cool on-screen
-  display, this is optional. But if you want it, please use 0.6.1 or
-  above. It can be downloaded at http://www.ignavus.net/software.html
+* libdb3, the Berkeley v3 database library.
+* You need the XOSD library (version greater than 1.0.0) if you want to
+  enjoy the cool on-screen display, this is optional.  It can be
+  downloaded at http://www.ignavus.net/software.html
+* If you have GTK+ 2.0, you will have the bonus of a splash screen *grin*
 
 For more info, please consult the manpage.
