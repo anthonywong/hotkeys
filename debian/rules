@@ -14,7 +14,8 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc
+	./configure --prefix=/usr --mandir=/usr/share/man --sysconfdir=/etc \
+	            --with-xosd --with-gtk
 	
 	touch configure-stamp
 
@@ -32,9 +33,10 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
+	rm -rf debian/$(PACKAGE)
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	-$(MAKE) distclean
 
 	dh_clean
 	/bin/rm -f Makefile
