@@ -1,9 +1,10 @@
 bin_PROGRAMS    = hotkeys
-hotkeys_SOURCES = hotkeys.c kbddef.c apmlib.c xmalloc.c
+hotkeys_SOURCES = hotkeys.c kbddef.c conf.c apmlib.c xmalloc.c
 
-CFLAGS      = @CFLAGS@ @XML_CFLAGS@ @X_CFLAGS@ -I..
+CFLAGS      = @CFLAGS@ @XML_CFLAGS@ @X_CFLAGS@ -I.. -DDEBUG 
 LIBS        = @LIBS@ @XML_LIBS@ @X_LIBS@
-DEFS        = @DEFS@ -DSHAREDIR=\"@datadir@/@PACKAGE@\"
+DEFS        = @DEFS@ -DSHAREDIR=\"@datadir@/@PACKAGE@\" \
+              -DCONFDIR=\"@sysconfdir@\" -DCONFIG_NAME=\"@PACKAGE@.conf\"
 
 ##  uncomment the following if hotkeys requires the math library
 ##hotkeys_LDADD=-lm
