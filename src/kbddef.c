@@ -112,6 +112,29 @@ parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
     kbd.noOfCustomCmds++;
 }
 
+/*
+ *  upOrDown - 1 for up, -1 for down
+ */
+static void
+getVolAdj(int upOrDown, xmlNodePtr cur)
+{
+    char* tc;
+
+    tc = xmlGetProp( cur, "adj" );
+    if ( tc != NULL )
+    {
+        int v = atoi(tc);
+        if ( v > 0 && v < 100 )
+        {
+            if ( upOrDown == 1 )
+                volUpAdj = v;
+            else if ( upOrDown == -1 )
+                volDownAdj = -v;
+        }
+    }
+}
+
+
 static void
 parseStd(xmlDocPtr doc, xmlNodePtr cur)
 {
@@ -134,6 +157,13 @@ parseStd(xmlDocPtr doc, xmlNodePtr cur)
                 kbd.keycodes[defStr[i].key] = atoi(tc);
                 keytypes[atoi(tc)] = ( defStr[i].key < TYPE_LAUNCH ? 1 : 0 );
                 XFREE(tc);
+
+                /* Get the volume adjustment if the tag is VolUp or VolDown */
+                if ( strncmp( defStr[i].name, "VolUp", 5 ) == 0 )
+                    getVolAdj( 1, cur );
+                else if ( strncmp( defStr[i].name, "VolDown", 7 ) == 0 )
+                    getVolAdj( -1, cur );
+
                 return;     /* leave as nothing to be done */
             }       
         }
