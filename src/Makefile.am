@@ -8,6 +8,9 @@ LIBS        = @LIBS@ @XML_LIBS@ @X_LIBS@
 DEFS        = @DEFS@ -DSHAREDIR=\"@datadir@/@PACKAGE@\" \
               -DCONFDIR=\"@sysconfdir@\" -DCONFIG_NAME=\"@PACKAGE@.conf\"
 
+pkgdata_DATA = splash.xpm
+$(pkgdata_DATA):
+
 ##  uncomment the following if hotkeys requires the math library
 ##hotkeys_LDADD=-lm
 
@@ -21,4 +24,3 @@ EXTRA_DIST  = $(man_MANS)
 ##  build and install the .info pages
 ##info_TEXINFOS = hotkeys.texinfo
 ##hotkeys_TEXINFOS = gpl.texinfo
-
