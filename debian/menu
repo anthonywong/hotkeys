@@ -1,4 +1,4 @@
 ?package(hotkeys):needs=X11 section=Apps/Tools\
   title="Hotkeys daemon"\
-  longtile="hotkeys daemon for your Internet/multimedia keyboard"\
+  longtitle="hotkeys daemon for your Internet/multimedia keyboard"\
   command="/usr/bin/hotkeys -b"
