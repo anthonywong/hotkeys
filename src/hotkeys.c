@@ -43,6 +43,7 @@ extern char *getenv();
 #endif /* HAVE_GETOPT_LONG */
 #include <signal.h>
 #include <syslog.h>
+#include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -365,6 +366,7 @@ setLoglevel(int level)
         case 7:     loglevel = LOG_DEBUG;       break;
         default:    loglevel = LOG_ERR;         break;
     }
+    setlogmask( LOG_UPTO(loglevel) );
 }
 
 #ifdef HAVE_LIBXOSD
@@ -560,8 +562,12 @@ bailout(void)
     exit(1);
 }
 
+
+/*
+ * adj is a percentage
+ */
 static int
-adjust_vol(int adj)
+adjustVol(int adj)
 {
     int         mixer_fd = -1, cdrom_fd = -1;
     int         master_vol, cd_vol;
@@ -571,7 +577,7 @@ adjust_vol(int adj)
     int ret = 0;
 
     /* open the mixer device */
-    if ( (mixer_fd = open( MIXER_DEV, O_RDWR )) == -1 )
+    if ( (mixer_fd = open( MIXER_DEV, O_RDWR|O_NONBLOCK )) == -1 )
     {
         uError("Unable to open `%s'", MIXER_DEV);
     }
@@ -646,8 +652,19 @@ adjust_vol(int adj)
             else
             {
                 /* Set the CDROM volume */
-                cdrom_vol.channel0 += adj; cdrom_vol.channel1 += adj;
-                cdrom_vol.channel2 += adj; cdrom_vol.channel3 += adj;
+                int     t;
+                float   myAdj;
+                myAdj = 0xFF / 100.0 * adj;
+                t = cdrom_vol.channel0 + myAdj;
+                cdrom_vol.channel0 = (t < 0 ? 0 : (t > 0xFF ? 0xFF : t));
+                t = cdrom_vol.channel1 + myAdj;
+                cdrom_vol.channel1 = (t < 0 ? 0 : (t > 0xFF ? 0xFF : t));
+#if 0
+                t = cdrom_vol.channel2 + myAdj;
+                cdrom_vol.channel2 = (t < 0 ? 0 : (t > 0xFF ? 0xFF : t));
+                t = cdrom_vol.channel3 + myAdj;
+                cdrom_vol.channel3 = (t < 0 ? 0 : (t > 0xFF ? 0xFF : t));
+#endif
                 if ( ioctl(cdrom_fd, CDROMVOLCTRL, &cdrom_vol) == -1 )
                 {
                     uError("Unable to set the volume of %s", cdromDevice);
@@ -713,7 +730,7 @@ doMute(void)
                     int left = last_mixer_vol & 0xFF,
                         right = (last_mixer_vol >> 8) & 0xFF;
                     xosd_display(osd, 0, XOSD_string, "Unmute");
-                    xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
+//                    xosd_display(osd, 1, XOSD_percentage, (((left+right)/2)*100/MAXLEVEL));
                 }
 #endif
             }
@@ -764,6 +781,7 @@ doMute(void)
 #ifdef HAVE_LIBXOSD
                     if (osd)
                     {
+                        xosd_set_timeout(osd, -1);
                         xosd_display(osd, 0, XOSD_string, "Mute");
                         xosd_display(osd, 1, XOSD_string, "");
                     }
@@ -817,20 +835,20 @@ doMute(void)
     return ret;
 }
 
-static int
+static void
 ejectDisc(void)
 {
     static Bool ejected = False;
 
     if ( cdromDevice == NULL )
-        return 0;
+        pthread_exit(0);
 
     if ( ejected )
     {
         if ( closeTray() == 0 )
         {
             ejected = False;
-            return 0;
+            pthread_exit(0);
         }
     }
     else
@@ -840,22 +858,22 @@ ejectDisc(void)
         if ( (fd = open(cdromDevice, O_RDONLY|O_NONBLOCK)) == -1)
         {
             uError("Unable to open `%s'", cdromDevice);
-            return -1;
+            pthread_exit(-1);
         }
-        if ( ioctl(fd, CDROMEJECT) == -1 )
-        {
-            uError("CD-ROM device %s eject failed", cdromDevice);
-            close(fd);
-            return -1;
-        }
-
 #ifdef HAVE_LIBXOSD
         xosd_display(osd, 0, XOSD_string, "Eject");
         xosd_display(osd, 1, XOSD_string, "");
 #endif
+        if ( ioctl(fd, CDROMEJECT) == -1 )
+        {
+            uError("CD-ROM device %s eject failed", cdromDevice);
+            close(fd);
+            pthread_exit(-1);
+        }
+
         ejected = True;
         close(fd);
-        return 0;
+        pthread_exit(0);
     }
 }
 
@@ -873,6 +891,11 @@ closeTray(void)
         return -1;
     }
 
+#ifdef HAVE_LIBXOSD
+    xosd_display(osd, 0, XOSD_string, "Close tray");
+    xosd_display(osd, 1, XOSD_string, "");
+#endif
+
     /* Close it in case it's already opened */
 #ifdef CDROMCLOSETRAY
     if ( ioctl(fd, CDROMCLOSETRAY) == -1 )
@@ -884,10 +907,6 @@ closeTray(void)
     }
 #endif /* CDROMCLOSETRAY */
 
-#ifdef HAVE_LIBXOSD
-    xosd_display(osd, 0, XOSD_string, "Close tray");
-    xosd_display(osd, 1, XOSD_string, "");
-#endif
     close(fd);
     return 0;
 }
@@ -902,7 +921,7 @@ playDisc(void)
 static int
 launchApp(int type)
 {
-    int pid = fork();
+    int pid = fork2();
     if ( pid == -1 )
     {
         uInfo("Cannot launch the %s\n", app_strings[type]);
@@ -935,7 +954,7 @@ launchApp(int type)
             uError("Cannot launch the %s", app_strings[type]);
             XFREE(cc);
             XFREE(arg_array);
-            exit(-1);
+            _exit(-1);
         }
     }
     else
@@ -1019,7 +1038,7 @@ lookupUserCmd(const int keycode)
         {
             int pid;
 
-            if ( (pid=fork()) == -1 )
+            if ( (pid=fork2()) == -1 )
             {
                 uInfo("Cannot launch \"%s\"\n", kbd.customCmds[i].desc);
             }
@@ -1051,7 +1070,7 @@ lookupUserCmd(const int keycode)
                     uError("Cannot launch \"%s\"", kbd.customCmds[i].desc);
                     XFREE(cc);
                     XFREE(arg_array);
-                    exit(-1);
+                    _exit(-1);
                 }
             }
             else
@@ -1282,6 +1301,50 @@ initializeX(char* argv[])
 #endif
 }
 
+
+/* fork2() -- like fork, but the new process is immediately orphaned
+ *            (won't leave a zombie when it exits)                 
+ * Returns 1 to the parent, not any meaningful pid.               
+ * The parent cannot wait() for the new process (it's unrelated).
+ */
+
+/* This version assumes that you *haven't* caught or ignored SIGCHLD. */
+/* If you have, then you should just be using fork() instead anyway.  */
+
+/* fork2() is from the Unix Programming FAQ */
+int
+fork2(void)
+{
+    pid_t pid;
+    int rc;
+    int status;
+
+    if (!(pid = fork()))
+    {
+        switch (fork())
+        {
+            case 0:  return 0;
+            case -1: _exit(errno);    /* assumes all errnos are <256 */
+            default: _exit(0);
+        }
+    }
+
+    if (pid < 0 || waitpid(pid,&status,0) < 0)
+        return -1;
+
+    if (WIFEXITED(status))
+        if (WEXITSTATUS(status) == 0)
+            return 1;
+        else
+            errno = WEXITSTATUS(status);
+    else
+        errno = EINTR;  /* well, sort of :-) */
+
+    return -1;
+}
+
+
+#if 0
 static void
 removeCorpse(int s)
 {
@@ -1294,7 +1357,6 @@ removeCorpse(int s)
 #endif
 }
 
-
 static void
 installSigHandler(void)
 {
@@ -1303,10 +1365,9 @@ installSigHandler(void)
     bzero(&s, sizeof(s));
     s.sa_handler = removeCorpse;
     s.sa_flags = SA_NOCLDSTOP;
-
     sigaction( SIGCHLD, &s, NULL);
 }
-
+#endif
 
 int
 main(int argc, char *argv[])
@@ -1326,15 +1387,20 @@ main(int argc, char *argv[])
 
     if (background)
     {
+
         if ( fork() !=0 )
         {
             SYSLOG( LOG_NOTICE, "Running in the background");
-            exit(0);
+            _exit(0);
+        }
+        else
+        {
+            chdir("/");
         }
     }
 
     initializeX(argv);
-    installSigHandler();
+/*    installSigHandler(); */
 
     /* Process the events in a forever loop */
     while (1)
@@ -1348,18 +1414,28 @@ main(int argc, char *argv[])
         {
             SYSLOG( LOG_INFO, "Keycode %d pressed\n", ev.message.keycode );
 
+#ifdef HAVE_LIBXOSD
+            if (osd)
+                xosd_set_timeout(osd, TIMEOUT);
+#endif
             /* Sound stuffs */
             if ( ev.message.keycode == (kbd.keycodes)[playKey] ) {
                 playDisc();
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[ejectKey] ) {
-                ejectDisc();
+                /* Use thread to improve the responsiveness */
+                pthread_t       tp;
+                pthread_attr_t  attr;
+
+                pthread_attr_init(&attr);
+                pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED);
+                pthread_create (&tp, &attr, ejectDisc, NULL);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[volUpKey] ) {
-                adjust_vol(2);
+                adjustVol(2);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[volDownKey] ) {
-                adjust_vol(-2);
+                adjustVol(-2);
             } else 
             if ( ev.message.keycode == (kbd.keycodes)[muteKey] ) {
                 doMute();
@@ -1400,4 +1476,3 @@ main(int argc, char *argv[])
     closelog();
     return 0;
 }
-
