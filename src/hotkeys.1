@@ -1,10 +1,10 @@
 .\" $TOG: xkbevd.man /main/6 1998/02/12 09:34:24 kaleb $
-.TH HOTKEYS 1 "9 January 2001" "v0.2"
+.TH HOTKEYS 1 "18 January 2001" "v0.3"
 .SH NAME
 hotkeys \- A hotkeys daemon for your Internet/multimedia keyboard in X
 .SH SYNOPSIS
-.B hotkeys
-[\fIoptions\fR]
+.B hotkeys \-t \fIkeyboard_type\fR
+[\fIother options...\fR]
 .SH DESCRIPTION
 .PP
 This program sits at the back and listens for the hotkeys on your
@@ -17,14 +17,14 @@ yet at the moment.
 .B \-h, \-\-help
 Prints a usage message.
 .TP 8
-.B \-b, \-\-background
-Tells \fIhotkeys\fP to fork itself (and run in the background).
-.TP 8
-.B \-t, \-\-type
+.B \-t, \-\-type (mandatory)
 Specify the keyboard type.
 .TP 8
 .B \-l, \-\-kbd\-list
 Show all supported keyboards, and the code needed for the \-t option.
+.TP 8
+.B \-b, \-\-background
+Tells \fIhotkeys\fP to fork itself (and run in the background).
 .TP 8
 .B \-d, \-\-cdrom\-dev
 Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
@@ -33,21 +33,22 @@ Specify the device of your CDROM drive, default to \fI/dev/cdrom\fR.
 .\" Print more information, including debugging messages.   Multiple 
 .\" specifications of \fI-v\fP cause more output, to a point.
 .SH "SUPPORTED KEYBOARDS"
-.TP 8
-.I Acer Airkey III Wireless keyboard
-The \fBvolume up\fR and \fBdown\fR works by changing the master volume of the
-mixer (\fI/dev/mixer\fR).
-
-The \fBmute\fR button sets the volume to 0 when pressed once, and restores the
-previous volume when pressed again.
-
-The \fBeject\fR button can eject and close the tray. The \fBplay\fR
-button can be used to close the tray too.
-.PP
-.I Microsoft Internet keyboard
-.PP
-.I Memorex MX300 keyboard
-
+.\".TP 8
+.nf
+.IP 1. 5
+.B Acer Airkey III Wireless keyboard
+.\"The \fBvolume up\fR and \fBdown\fR works by changing the master volume of the
+.\"mixer (\fI/dev/mixer\fR).
+.\"
+.\"The \fBmute\fR button sets the volume to 0 when pressed once, and restores the
+.\"previous volume when pressed again.
+.\"
+.\"The \fBeject\fR button can eject and close the tray. The \fBplay\fR
+.\"button can be used to close the tray too.
+.IP 2. 5
+.B Microsoft Internet keyboard
+.IP 3. 5
+.B Memorex MX300 keyboard
 .\" .PP
 .\" For details please consult the file \fIkeyboard.list\fR.
 .PP
@@ -55,11 +56,25 @@ As I have only the Acer wireless keyboard, you can help
 me to support other keyboards by sending me the list of keycodes of
 the hotkeys on your keyboard. You can do this by using \fBxev\fR.
 Contact me for the details.
+.SH "KEYBOARD DEFINITION FILES"
+Keycodes and the behavior of the hotkeys are stored in a \fBKeyboard
+definition files\fR. Each supported keyboard has such a file placed in
+either \fI/usr/local/share/hotkeys\fR or \fI/usr/share/hotkeys\fR,
+depending on the installation configuration. For instance, the data
+of the Acer Wireless keyboard is stored in the file \fIacerwl.def\fR.
+Note that the part of the filename without the extension is the name
+you give to the \fB\-t\fR option.
+.P
+Keyboard definition files are in XML format, which should be
+self-explanatory.
+.P
+You can create your own definition file and placed it in
+\fI$HOME/.hotkeys\fR. Just take an existing definition as an example.
 .SH "TODO"
 Please consult the TODO file.
 .SH "BUGS"
 The program will sometimes terminate with the error
-\fI"X Error of failed request:  BadValue (integer parameter out of range
+\fB"X Error of failed request:  BadValue (integer parameter out of range
 for operation)"\fR at startup. I'm wondering why...
 .PP
 APM support is highly experimental. I only tested on my desktop and
@@ -67,6 +82,9 @@ sometimes it can't go out from Suspend mode, no response from the
 keyboard, mouse, nor the suspend button on the case. Not tested on
 notebook (I don't have one). Note that you need root priviledge to use
 the APM functions.
+.PP
+This is the first time I use autoconf, there may probably be bugs in
+\fIconfigure.in\fR.
 .SH COPYRIGHT
 Copyright 2000, Anthony Y P Wong <ypwong@ypwong.org>
 .PP
