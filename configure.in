@@ -2,7 +2,8 @@ dnl Process this file with autoconf to produce a configure script.
 AC_INIT(src/hotkeys.c)
 AC_CONFIG_AUX_DIR(config)
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(hotkeys, 0.5.5)
+AM_INIT_AUTOMAKE(hotkeys, 0.5.6)
+AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -12,41 +13,47 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
 AC_ARG_WITH(xml-prefix,
-    [  --with-xml-prefix=PFX   Prefix where GNOME XML library is installed],
-    xml_config_prefix="$withval", xml_config_prefix="")
+            AC_HELP_STRING([--with-xml-prefix=PFX],
+                           [Prefix where GNOME XML library is installed]),
+            xml_config_prefix="$withval", xml_config_prefix="")
 
 AC_ARG_ENABLE(xmltest,
-    [  --disable-xmltest       Do not try to compile and run a test XML program],
-    , enable_xmltest=yes)
+              AC_HELP_STRING([--disable-xmltest],
+                             [Do not try to compile and run a test XML program]),
+              , enable_xmltest=yes)
 
 AC_ARG_WITH(db3-inc,
-    [  --with-db3-inc=DIR      Set the include directory of Berkeley DB3],
-    db3_incdir="$withval", db3_incdir="")
+            AC_HELP_STRING([--with-db3-inc=DIR],
+                           [Set the include directory of Berkeley DB3]),
+            db3_incdir="$withval", db3_incdir="")
  
 AC_ARG_WITH(db3-lib,
-    [  --with-db3-lib=DIR      Set the library directory of Berkeley DB3],
-    db3_libdir="$withval", db3_libdir="")
+            AC_HELP_STRING([--with-db3-lib=DIR],
+                           [Set the library directory of Berkeley DB3]),
+            db3_libdir="$withval", db3_libdir="")
 
 AC_ARG_ENABLE(db3test,
-    [  --disable-db3test       Do not try to test for libdb3, assume it's present],
-    , enable_db3test=yes)
+              AC_HELP_STRING([--disable-db3test],
+                             [Do not try to test for libdb3, assume it's present]),
+              , enable_db3test=yes)
 
-dnl not yet...
-dnl AC_ARG_WITH(gtk,
-dnl    [  --with-gtk              Use GTK Interface],
-dnl    use_gtk=yes, )
+AC_ARG_WITH(gtk,
+            AC_HELP_STRING([--with-gtk],
+                           [Use GTK interface (incl. splash screen, default is NO)]),
+            use_gtk=yes, )
 
-AC_ARG_ENABLE(xosd,
-    [  --disable-xosd          Don't use XOSD library],
-    ,enable_xosd=yes)
+AC_ARG_WITH(xosd,
+            AC_HELP_STRING([--with-xosd], [Use XOSD library (default is NO)]),
+            use_xosd=yes, )
 
-AC_ARG_WITH(xosd-inc,
-    [  --with-xosd-inc=DIR     Set the include directory of XOSD],
-    xosd_incdir="$withval", xosd_incdir="")
-
-AC_ARG_WITH(xosd-lib,
-    [  --with-xosd-lib=DIR     Set the library directory of XOSD],
-    xosd_libdir="$withval", xosd_libdir="")
+dnl --- Not use any more, as libxosd-dev provides its own m4
+dnl AC_ARG_WITH(xosd-inc,
+dnl     [  --with-xosd-inc=DIR     Set the include directory of XOSD],
+dnl     xosd_incdir="$withval", xosd_incdir="")
+dnl 
+dnl AC_ARG_WITH(xosd-lib,
+dnl     [  --with-xosd-lib=DIR     Set the library directory of XOSD],
+dnl     xosd_libdir="$withval", xosd_libdir="")
 
 dnl-----------------------------------------------------------------------
 dnl Checks for X
@@ -68,6 +75,11 @@ else
 #    AC_MSG_NOTICE([Skipping libxml2 test])
 echo
 fi
+
+dnl-----------------------------------------------------------------------
+dnl Checks for LIBPTHREAD
+dnl-----------------------------------------------------------------------
+AC_CHECK_LIB(pthread, pthread_create)
 
 dnl Checks for libraries.
 dnl Replace `main' with a function in -lX11:
@@ -94,9 +106,19 @@ echo
 fi
 
 dnl-----------------------------------------------------------------------
+dnl Checks for GTK+
+dnl-----------------------------------------------------------------------
+if test "x$use_gtk" = "xyes"; then
+    AM_PATH_GTK_2_0(2.0.0,
+                    AC_DEFINE(HAVE_GTK,1,[Define if you have the gtk+ libraries.]))
+fi
+
+dnl-----------------------------------------------------------------------
 dnl Checks for XOSD
 dnl-----------------------------------------------------------------------
-AM_CHECK_LIBXOSD
+if test "x$use_xosd" = "xyes"; then
+    AM_PATH_LIBXOSD(AC_DEFINE(HAVE_LIBXOSD,1,[Define if you have the xosd library (-lxosd).]))
+fi
 
 dnl Checks for header files.
 AC_HEADER_DIRENT
