@@ -1,7 +1,7 @@
 TODO
 ----
 
-- user configuration file
+My wishlist, in probably no specific priority order:
 
 - Support  more  keyboard types, please e-mail me on this if you have a
   keyboard that's not yet supported.
@@ -9,6 +9,8 @@ TODO
 - Support launching of applications  and  sleeping,  power down, etc.
 
 - The cool OSD (on-screen display), I love eye candy :P
+  [Update: There is a library called XOSD which can be used, thanks
+  Jeffrey Panczyk for telling me!]
 
 - A GUI for configuration, probably a GTK one, with Gnome integration.
   Later I may do for KDE too.
@@ -17,3 +19,18 @@ TODO
 
 - RPM spec file, any one could give me a helping hand on this?
 
+- Make the program as a centralized hotkey ``organizor'' or
+  ``dispatcher'' . What it means is best illustrated by an example.
+
+  Suppose a program, say xmms, want to use hotkeys' functionality
+  such that when the user presses the Play button, xmms will start
+  playing, etc. Hotkeys can first make a Unix domain socket, such that
+  xmms can "ask" hotkeys for "registration". Once the "registration"
+  is successful, hotkeys will tell xmms so and hotkeys will inform
+  xmms when the "registered" buttons are pressed.
+
+  There may be more than one program that want to "register" for the
+  same key, like the Eject key. In this case, resolution has to be
+  done. Either first-come-first-serve or last-come-first-serve are
+  acceptable behavior, so it's best left as a user configurable
+  option.
