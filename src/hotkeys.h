@@ -65,6 +65,8 @@ extern  int             volDownAdj;
 extern  xosd*           osd;
 #endif
 
+#define SPLASH_IMAGE    SHAREDIR"/splash.png"
+
 #ifdef DUMMY_MIXER
 #define SOUND_IOCTL(a,b,c)      dummy_ioctl(a,b,c)
 #else
