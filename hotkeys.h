@@ -22,6 +22,8 @@
 #ifndef __HOTKEYS_H
 #define	__HOTKEYS_H
 
+#include "kbddef.h"
+
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBfile.h>
@@ -30,20 +32,20 @@
 #define VERSION "0.2"
 
 /* Function prototypes */
+static void initialize(const char* argv[]);
 void usage(int argc, char* argv[]);
 void showKbdList(int argc, char *argv[]);
-void setKbdType(char* prog, char* optarg);
+static void setKbdType(const char* prog, const char* type);
 void setCDROMDevice(char* optarg);
 static Bool parseArgs(int argc, char* argv[]);
 static Display* GetDisplay(char* program, char* dpyName, int* opcodeRtrn, int* evBaseRtrn);
 void bailout(void);
-int adjust_vol(int adj);
-int doMute(void);
-int ejectDisc(void);
-int closeTray(void);
-int playDisc(void);
-int launchBrowser(void);
-int launchMailer(void);
+static int adjust_vol(int adj);
+static int doMute(void);
+static int ejectDisc(void);
+static int closeTray(void);
+static int playDisc(void);
+static int launchApp(int type);
 static void printXkbActionMessage(FILE* file,XkbEvent* xkbev);
 void uError(char* s,...);
 void uInfo(char* s,...);
@@ -55,6 +57,8 @@ extern	int		xkbOpcode;
 extern	int		xkbEventCode;
 
 extern	XkbDescPtr	xkb;
+
+extern  keyboard        kbd;
 
 #ifdef DUMMY_MIXER
 #define SOUND_IOCTL(a,b,c)      dummy_ioctl(a,b,c)
@@ -81,60 +85,8 @@ extern	XkbDescPtr	xkb;
 #define FILEMANAGER     "gmc"
 #define FILEMANAGER_ARGS "gmc"
 
-
-typedef enum {
-    app_browser,
-    app_mailer,
-    app_calculator,
-    app_xterm,
-    app_filemanager,
-    app1,
-    app2,
-    app3,
-    app4,
-    app5,
-    NUM_APPS
-} application;
-
-typedef enum {
-    trackBackBtn,
-    playBtn,
-    ejectBtn,
-    stopBtn,
-    trackNextBtn,
-    volUpBtn,
-    volDownBtn,
-    muteBtn,
-    browserBtn,
-    emailBtn,
-    helpBtn,
-    wakeupBtn,
-    powerDownBtn,
-    communitiesBtn,     /* ???, in MS kbd */
-    searchBtn,
-    ideasBtn,           /* ???, in MS kbd */
-    shoppingBtn,
-    printBtn,
-    goBtn,
-    recordBtn,
-    DOSBtn,
-    transferBtn,        /* ???, in MX3000 */
-    myDocumentsBtn,
-    myComputerBtn,
-    calculatorBtn,
-    iNewsBtn,
-    sleepBtn,
-    rewindBtn,
-    rotateBtn,          /* ???, in MX3000 */
-    NUM_BUTTONS
-} keycode;
-
-typedef struct _keyboard {
-    char*       shortName;
-    char*       longName;
-    int         noOfKeys;
-    keycode*    keycodes;
-} keyboard;
+//#define SHAREDIR        "/usr/share/hotkeys/"
+#define SHAREDIR        "/home/hajime/debian/hotkeys/hotkeys-0.2"
 
 /* 
  * Keycodes of Microsoft Internet keyboard.

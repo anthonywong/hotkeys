@@ -29,10 +29,14 @@ extern char *getenv();
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <errno.h>
 #ifdef GETOPTLONG
 #include <getopt.h>
 #endif /* GETOPTLONG */
+
+#include <sys/types.h>
+#include <sys/stat.h>
 
 /* Mixer related */
 #include <fcntl.h>
@@ -62,26 +66,6 @@ extern char *getenv();
 #define	M1(m,a)	fprintf(stderr,(m),(a))
 
 /***====================================================================***/
-
-const keycode ACER_AIRKEY_III_KEYCODES[] = {
-    152, 149, 177, 177, 147, 173, 166, 153, 164, 150, 175, 227, 222,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-const keycode MS_INTERNET_KEYCODES[] = {
-    144, 162, 152, 164, 153, 176, 174, 160, 163, 158, 165, 0, 0, 166,
-    161, 146, 178, 232, 159, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-const keycode MX3000_KEYCODES[] = {
-    144, 162, 158, 164, 153, 176, 174, 160, 178, 236, 0, 178, 222, 0,
-    0, 0, 0, 0, 0, 147, 148, 152, 159, 235, 161, 166, 223, 237, 146, 0};
-
-const keyboard keyboards[] = {
-    { "acer-wl",        "Acer Wireless Airkey",         12,
-      ACER_AIRKEY_III_KEYCODES },
-    { "ms-net",         "Microsoft Internet Keyboard",  17,
-      MS_INTERNET_KEYCODES },
-    { "mx3000",         "Memorex MX3000",               22,
-      MX3000_KEYCODES },
-    { NULL, NULL, 0, NULL }
-};
 
 /* Corresponding human readable strings to enum _application,
  * all strings should be user configurable (TODO) */
@@ -127,8 +111,9 @@ FILE *          errorFile =     NULL;
 
 char *          progname =      NULL;
 
-keyboard *      kbdType =       keyboards;      /* Type of kbd the user is using */
 char *          cdromDevice =   CDROM_DEV;
+
+keyboard        kbd;                    /* the keyboard the user is using */
 
 /***====================================================================***/
 
@@ -141,7 +126,7 @@ usage(int argc, char *argv[])
 #ifdef GETOPTLONG
     printf("\t-t, --type               Specify the keyboard type (refer to -l)\n");
     printf("\t-d, --cdrom-dev          Specify the CDROM/DVDROM device\n");
-    printf("\t-b, --background, --bg   Run in background\n");
+    printf("\t-b, --background         Run in background\n");
     printf("\t-l, --kbd-list           Show all supported keyboards\n");
     printf("\t-h, --help               Print this message\n");
 //    M("-cfg <file>          Specify a config file\n");
@@ -160,38 +145,62 @@ usage(int argc, char *argv[])
 void
 showKbdList(int argc, char *argv[])
 {
-    keyboard* kbd = keyboards;
+    DIR*            dir;
+    struct dirent*  ent;
+
+    if ( ( dir = opendir(SHAREDIR) ) == NULL )
+    {
+        uError("Unable to access %s\n", SHAREDIR);
+        bailout();
+    }
 
 #ifdef GETOPTLONG
     printf("Supported keyboards: (with corresponding options to --kbd-list or -l)\n");
 #else
     printf("Supported keyboards: (with corresponding options to -l)\n");
 #endif
-    do {
-        printf( "\t%s -- \"%s\"\n", kbd->longName, kbd->shortName );
-        kbd++;
-    } while ( kbd->noOfKeys != 0 );
+
+    while ( ent = readdir(dir) )
+    {
+        /* Show all files that ends with ".def" in SHAREDIR */
+        if ( strlen( ent->d_name ) > 4 &&
+             strstr( ent->d_name, ".def" ) != NULL &&
+             strlen(strstr( ent->d_name, ".def" )) == 4 )
+        {
+            ent->d_name[ strlen(ent->d_name)-4 ] = '\0';
+            setKbdType(argv[0], ent->d_name);
+            printf( "\t%s -- \"%s\"\n", kbd.longName, ent->d_name );
+        }
+    }
 }
 
-void
-setKbdType(char* prog, char* optarg)
+static void
+setKbdType(const char* prog, const char* type)
 {
-    /* Option is --type or -t */
-    do
-    {
-        if ( strcmp( optarg, kbdType->shortName ) == 0 )
-        {
-            return;
-        }
-        else
-        {
-            kbdType++;
-        }
-    } while ( kbdType->noOfKeys != 0 );
+    struct stat t;
+    char*       defname;
 
-    /* No matching keyboard type */
-    uInfo("Keyborad type `%s' is not supported.\nUse %s --kbd-list to list all supported keyboard\n", optarg, prog);
-    bailout();
+    /* Make up the complete filename */
+    defname = (char*) malloc( strlen(SHAREDIR)+strlen(type)+6 );
+    if ( defname == NULL )
+    {
+        uError("Insufficient memory");  bailout();
+    }
+    strcpy( defname, SHAREDIR );
+    strcat( defname, "/" );
+    strcat( defname, type );
+    strcat( defname, ".def" );
+
+    if ( stat( defname, &t ) == 0 )
+    {
+        readDefFile( defname );
+    }
+    else
+    {
+        /* No matching keyboard type */
+        uInfo("Keyboard type `%s' is not supported.\nUse %s --kbd-list to list all supported keyboard\n", type, prog);
+        bailout();
+    }
 }
 
 void
@@ -243,7 +252,6 @@ parseArgs(int argc, char *argv[])
     {
         {"help",            0, 0, 'h'},
         {"background",      0, 0, 'b'},
-        {"bg",              0, 0, 'b'},
         {"type",            1, 0, 't'},
         {"cdrom-dev",       1, 0, 'd'},
         {"kbd-list",        0, 0, 'l'},
@@ -369,7 +377,7 @@ bailout(void)
     exit(1);
 }
 
-int
+static int
 adjust_vol(int adj)
 {
     int mixer_fd, cdrom_fd;
@@ -457,7 +465,7 @@ LEAVE:
  *  Mute or un-mute the /dev/mixer master volume and CDROM drive's
  *  volume
  */
-int
+static int
 doMute(void)
 {
     static Bool muted = False;
@@ -564,7 +572,7 @@ LEAVE2:
     return ret;
 }
 
-int
+static int
 ejectDisc(void)
 {
     static Bool ejected = False;
@@ -599,7 +607,7 @@ ejectDisc(void)
     }
 }
 
-int
+static int
 closeTray(void)
 {
     int fd = open(cdromDevice, O_RDONLY|O_NONBLOCK);
@@ -625,14 +633,14 @@ closeTray(void)
     return 0;
 }
 
-int
+static int
 playDisc(void)
 {
     return closeTray();
 }
 
 
-int
+static int
 launchApp(int type)
 {
     int pid = fork();
@@ -736,6 +744,53 @@ sleepState(int mode)
 }
 
 
+static void
+lookupUserCmd(const int keycode)
+{
+    int     i;
+
+    for ( i = 0; i < kbd.noOfCustomCmds; i++ )
+    {
+        if ( kbd.customCmds[i].keycode == keycode )
+        {
+            int pid = fork();
+
+            if ( pid == -1 )
+            {
+                uInfo("Cannot launch \"%s\"\n", kbd.customCmds[i].description);
+            }
+            else if ( pid == 0 )
+            {
+                /* Construct the argument arrays */
+                char**  arg_array;
+                char*   c = kbd.customCmds[i].command;
+                char*   cc;
+                int     noOfArgs = 1;   /* including the NULL element */
+                int     j = 0;
+                do {
+                    c = strchr( c+1, ' ' );
+                    noOfArgs++;
+                } while ( c != NULL );
+                arg_array = (char**) malloc ( noOfArgs * sizeof(char*) );
+                /* dup needed since strtok modifies the string */
+                c = strdup( kbd.customCmds[i].command ); 
+                cc = c;         /* cc is for free() later */
+                arg_array[0] = strtok( c, " " );
+                while ( arg_array[j] != NULL )
+                {
+                    j++;
+                    arg_array[j] = strtok( NULL, " " );
+                }
+
+                if ( execvp(arg_array[0], arg_array) == -1 ) {
+                    uError("Cannot launch \"%s\"", kbd.customCmds[i].description);
+                }
+            }
+            break;  /* break the for loop */
+        }
+    }
+}
+
 /***====================================================================***/
 
 static void
@@ -795,47 +850,32 @@ uInternalError(char* s,...)
 
 /***====================================================================***/
 
-int
-main(int argc, char *argv[])
+static void
+initialize(const char* argv[])
 {
-    XkbEvent	        ev;
-
-    int                 types[1];
     KeySym              newKS;
     XkbMessageAction    xma;
     XkbMapChangesRec    mapChangeRec;
-    Bool		ok;
-    int                 i, k;
+    int                 types[1];
+    int                 i;
 
-    errorFile = stderr;
-
-    if (!parseArgs(argc,argv))
-	bailout();
-
-    if (background) {
-	if ( fork() !=0 ) {
-	    if (verbose) 
-		uInfo("Running in the background\n");
-	    exit(0);
-	}
-    }
     dpy = GetDisplay(argv[0], dpyName, &xkbOpcode, &xkbEventCode);
     if (!dpy)
-	bailout();
-    ok = True;
+        bailout();
 
     /* Select the ActionMessage event */
     if ( !XkbSelectEvents( dpy, XkbUseCoreKbd, XkbActionMessageMask,
-                           XkbActionMessageMask )) {
+                           XkbActionMessageMask ))
+    {
         uInfo("Couldn't select desired XKB events\n");
         bailout();
     }
 //    xkb= XkbGetKeyboard(dpy,XkbGBN_AllComponentsMask,XkbUseCoreKbd);
 //    xkb= XkbGetKeyboard(dpy,XkbAllComponentsMask,XkbUseCoreKbd);
     xkb = XkbGetMap(dpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
-    if (!xkb) {
-	uInfo("XkbGetMap failed\n");
-	bailout();
+    if (!xkb)
+    {
+        uInfo("XkbGetMap failed\n"); bailout();
     }
 
     /* Construct the Message Action struct */
@@ -849,10 +889,9 @@ printf("idx:%d has action:%d no.:%d noOfGrps:%d\n", xkb->server->key_acts[152], 
 #endif
 
     /* Add KeySym to the key codes, as they don't have any KeySyms before */
-//    for ( i = 0; i < kbdType->noOfKeys; k++ )
-    for ( i = 0; i < NUM_BUTTONS; i++ )
+    for ( i = 0; i < NUM_PREDEF_HOTKEYS; i++ )
     {
-        int code = (kbdType->keycodes)[i];
+        int code = (kbd.keycodes)[i];
         if ( code == 0 )
             continue;
 
@@ -986,6 +1025,40 @@ printf("num_acts:%d size_acts:%d\n", xkb->server->num_acts, xkb->server->size_ac
 XkbSelectEvents(dpy,XkbUseCoreKbd,XkbAllEventsMask,XkbAllEventsMask);
 */
 #endif
+}
+
+
+int
+main(int argc, char *argv[])
+{
+    XkbEvent	        ev;
+
+    int                 i, k;
+
+    errorFile = stderr;
+
+    /* initialize the kbd variable */
+    kbd.noOfCustomCmds = 0;
+    kbd.keycodes = (hotkey*) calloc( NUM_PREDEF_HOTKEYS, sizeof(hotkey) );
+    if ( kbd.keycodes == NULL )
+    {
+        uError("Insufficient memory");  bailout();
+    }
+
+    if (!parseArgs(argc,argv))
+        bailout();
+
+    if (background)
+    {
+        if ( fork() !=0 )
+        {
+            if (verbose) 
+                uInfo("Running in the background\n");
+            exit(0);
+        }
+    }
+
+    initialize(argv);
 
     /* Process the events in an forever loop */
     while (1) {
@@ -997,46 +1070,48 @@ XkbSelectEvents(dpy,XkbUseCoreKbd,XkbAllEventsMask,XkbAllEventsMask);
              ev.any.xkb_type == XkbActionMessage )
         {
             /* Sound stuffs */
-            if ( ev.message.keycode == (kbdType->keycodes)[playBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[playKey] ) {
                 playDisc();
             } else 
-            if ( ev.message.keycode == (kbdType->keycodes)[ejectBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[ejectKey] ) {
                 ejectDisc();
             } else 
-            if ( ev.message.keycode == (kbdType->keycodes)[volUpBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[volUpKey] ) {
                 adjust_vol(2);
             } else 
-            if ( ev.message.keycode == (kbdType->keycodes)[volDownBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[volDownKey] ) {
                 adjust_vol(-2);
             } else 
-            if ( ev.message.keycode == (kbdType->keycodes)[muteBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[muteKey] ) {
                 doMute();
             } else
             /* Apps stuffs */
-            if ( ev.message.keycode == (kbdType->keycodes)[browserBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[browserKey] ) {
                 launchApp(app_browser);
             } else
-            if ( ev.message.keycode == (kbdType->keycodes)[emailBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[emailKey] ) {
                 launchApp(app_mailer);
             } else
-            if ( ev.message.keycode == (kbdType->keycodes)[calculatorBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[calculatorKey] ) {
                 launchApp(app_calculator);
             } else
-            if ( ev.message.keycode == (kbdType->keycodes)[myComputerBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[myComputerKey] ) {
                 launchApp(app_filemanager);
             } else
             /* APM stuffs */
-            if ( ev.message.keycode == (kbdType->keycodes)[sleepBtn] ||
-                 ev.message.keycode == (kbdType->keycodes)[wakeupBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[sleepKey] ||
+                 ev.message.keycode == (kbd.keycodes)[wakeupKey] ) {
                 sleepState(STANDBY);
             } else
-            if ( ev.message.keycode == (kbdType->keycodes)[powerDownBtn] ) {
+            if ( ev.message.keycode == (kbd.keycodes)[powerDownKey] ) {
                 sleepState(SUSPEND);
-            }
+            } else
+                /* User-defined stuffs */
+                lookupUserCmd(ev.message.keycode);
         }
     }
 
     XCloseDisplay(dpy);
-    return (ok==True);
+    return 0;
 }
 
