@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
 <CONFIG model="Microsoft Internet Keyboard">
+ 
+  <Email        keycode="236"/>
+ 
+  <Search       keycode="229"/>
+  <WebBrowser   keycode="178"/>
+ 
+  <MyComputer   keycode="235"/>
+  <Calculator   keycode="161"/>
+  <Sleep        keycode="223"/>
 
-  <PrevTrack    keycode="144"/>
-  <Play         keycode="162"/>
-  <Eject        keycode="152"/>
-  <NextTrack    keycode="153"/>
-  <Stop         keycode="164"/>
+<!-- Uncomment this if you would like to control your Netscape browser
 
-  <VolUp        keycode="176"/>
-  <VolDown      keycode="174"/>
-  <Mute         keycode="160"/>
+  <userdef      keycode="234"
+                command="gnome-moz-remote --remote=back">Back</userdef>  
+  <userdef      keycode="233"
+                command="gnome-moz-remote --remote=forward">Forward</userdef>
+  <userdef      keycode="232"
+                command="gnome-moz-remote --remote=stop">Stop</userdef> 
+  <userdef      keycode="230"
+                command="gnome-moz-remote --remote=openBookmarks">Favorites</userdef>
 
-  <WebBrowser   keycode="163"/>
-  <Email        keycode="158"/>
-  <Shopping     keycode="178"/>
-  <Search       keycode="161"/>
-  <Go           keycode="159"/>
-  <Communities  keycode="166"/>
-  <Ideas        keycode="146"/>
-
-  <Print        keycode="232"/>
-
-  <userdef keycode="165" command="xterm -rv">Xterm</userdef>
-
+-->
+ 
 </CONFIG>
