@@ -1,54 +1,64 @@
 <?xml version="1.0"?>
-<CONFIG model="Sample keyboard">
 
-  <VolUp        keycode="173" adj="2"/>
-  <VolDown      keycode="166" adj="2"/>
-  <Mute         keycode="153"/>
+<definition>
 
-<!--
-Possible tags are (not all are implemented) :
+  <config model="Sample keyboard">
+  
+    <VolUp        keycode="173" adj="2"/>
+    <VolDown      keycode="166" adj="2"/>
+    <Mute         keycode="153"/>
+  
+  <!--
+  Possible tags are (not all are implemented) :
+  
+      PrevTrack
+      Play
+      Eject
+      Stop
+      Pause
+      NextTrack
+      VolUp
+      VolDown
+      Mute
+      WebBrowser
+      Email
+      Help
+      WakeUp
+      PowerDown
+      Communities
+      Search
+      Idea
+      Shopping
+      Print
+      Go
+      Record
+      Shell
+      Transfer
+      MyDocuments
+      MyComputer
+      Calculator
+      iNews
+      Sleep
+      Suspend
+      Rewind
+      Rotate
+  -->
+  
+  
+    <!-- User define functions -->
+  
+    <userdef keycode="152" command="xterm -rv">Xterms</userdef>
+    <userdef keycode="149" command="mozilla -mail">Mozilla Mail</userdef>
+  
+    <userdef keycode="152" command="xmms -r">XMMS REW</userdef>
+    <userdef keycode="149" command="xmms -p">XMMS PLAY</userdef>
+    <userdef keycode="147" command="xmms -f">XMMS FWD</userdef>
+  
+  </config>
 
-    PrevTrack
-    Play
-    Eject
-    Stop
-    Pause
-    NextTrack
-    VolUp
-    VolDown
-    Mute
-    WebBrowser
-    Email
-    Help
-    WakeUp
-    PowerDown
-    Communities
-    Search
-    Idea
-    Shopping
-    Print
-    Go
-    Record
-    Shell
-    Transfer
-    MyDocuments
-    MyComputer
-    Calculator
-    iNews
-    Sleep
-    Suspend
-    Rewind
-    Rotate
--->
+  <contributor>
+    <name>John Doe</name>
+    <email>john@doe.com</email>
+  </contributor>
 
-
-  <!-- User define functions -->
-
-  <userdef keycode="152" command="xterm -rv">Xterms</userdef>
-  <userdef keycode="149" command="mozilla -mail">Mozilla Mail</userdef>
-
-  <userdef keycode="152" command="xmms -r">XMMS REW</userdef>
-  <userdef keycode="149" command="xmms -p">XMMS PLAY</userdef>
-  <userdef keycode="147" command="xmms -f">XMMS FWD</userdef>
-
-</CONFIG>
+<definition>
