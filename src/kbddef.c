@@ -60,7 +60,7 @@ const defEntry defStr[] = {
     { "Print",                  printKey,           0 },
     { "Go",                     goKey,              0 },     /* ??? */
     { "Record",                 recordKey,          XF86XK_AudioRecord },
-    { "DOS",                    DOSKey,             0 },
+    { "Shell",                  shellKey,           0 },
     { "Transfer",               transferKey,        0 },     /* ???, in MX3000 */
     { "MyDocuments",            myDocumentsKey,     0 },
     { "MyComputer",             myComputerKey,      XF86XK_MyComputer },

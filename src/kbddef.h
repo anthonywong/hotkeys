@@ -49,7 +49,7 @@ typedef enum {
     printKey,
     goKey,
     recordKey,
-    DOSKey,
+    shellKey,           /* correspond to DOS key */
     transferKey,        /* ???, in MX3000 */
     myDocumentsKey,
     myComputerKey,
@@ -57,7 +57,7 @@ typedef enum {
     newsReaderKey,
     iNewsKey,
     rewindKey,
-    rotateKey,          /* ???, in MX3000 */
+    rotateKey,          /* Rotate windows???, in MX3000 */
     TYPE_LAUNCH,        /*** Before this point, all these keys will launch
                              applications. After this point, the functions
                              are built into the program. ***/
