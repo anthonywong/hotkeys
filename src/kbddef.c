@@ -21,21 +21,17 @@
 
 /***====================================================================***/
 
+/* Make sure the order of the entries are the same as the hotkey enum,
+   to make life easier... */
 const defEntry defStr[] = {
     { "PrevTrack",              prevTrackKey },
     { "Play",                   playKey },
-    { "Eject",                  ejectKey },
     { "Stop",                   stopKey },
     { "Pause",                  pauseKey },
     { "NextTrack",              nextTrackKey },
-    { "VolUp",                  volUpKey },
-    { "VolDown",                volDownKey },
-    { "Mute",                   muteKey },
     { "WebBrowser",             browserKey },
     { "Email",                  emailKey },
     { "Help",                   helpKey },
-    { "WakeUp",                 wakeupKey },
-    { "PowerDown",              powerDownKey },
     { "Communities",            communitiesKey },     /* ???, in MS kbd */
     { "Search",                 searchKey },
     { "Idea",                   ideasKey },           /* ???, in MS kbd */
@@ -48,15 +44,26 @@ const defEntry defStr[] = {
     { "MyDocuments",            myDocumentsKey },
     { "MyComputer",             myComputerKey },
     { "Calculator",             calculatorKey },
+    { "NewsReader",             newsReaderKey },
     { "iNews",                  iNewsKey },
-    { "Sleep",                  sleepKey },
-    { "Suspend",                suspendKey },
     { "Rewind",                 rewindKey },
     { "Rotate",                 rotateKey },          /* ???, in MX3000 */
-    { "NewsReader",             newsReaderKey },
+    { "DUMMY_TYPE_LAUNCH",      TYPE_LAUNCH },
+    { "Eject",                  ejectKey },
+    { "VolUp",                  volUpKey },
+    { "VolDown",                volDownKey },
+    { "Mute",                   muteKey },
+    { "WakeUp",                 wakeupKey },
+    { "PowerDown",              powerDownKey },
+    { "Sleep",                  sleepKey },
+    { "Suspend",                suspendKey },
     { NULL,                     NUM_PREDEF_HOTKEYS }
 };
 
+int keytypes[255];  /* to note whether a keycode is used to launch an
+                       application or not, indexed by keycode */
+
+/***====================================================================***/
 
 static void
 parseUserDef(xmlDocPtr doc, xmlNodePtr cur)
@@ -125,6 +132,7 @@ parseStd(xmlDocPtr doc, xmlNodePtr cur)
             else
             {
                 kbd.keycodes[defStr[i].key] = atoi(tc);
+                keytypes[atoi(tc)] = ( defStr[i].key < TYPE_LAUNCH ? 1 : 0 );
                 XFREE(tc);
                 return;     /* leave as nothing to be done */
             }       
@@ -192,129 +200,7 @@ readDefFile(const char* filename)
 
     xmlFreeDoc(doc);
     return True;
-
-/*
-    FILE*   fp;
-    int     noOfKeys = 0;
-    char*   filebuf;
-    int     filesize;
-    int a;
-
-    if ( (fp = fopen( filename, "r" )) == NULL )
-    {
-        return False;
-    }
-
-    if ( fseek( fp, 0, SEEK_END ) != 0 )
-    {
-        perror("haha");
-    }
-    filesize = ftell(fp);
-    if ( (filebuf = (char*) malloc(filesize)) == NULL )
-    {
-        uError("Insufficient memory");
-        exit(1);
-    }
-    rewind(fp);
-
-    fread( filebuf, filesize, 1, fp );
-    if (ferror(fp) != 0 )
-    {
-printf(" %d %d\n", filesize, a);
-        uError("Error while reading file");
-        exit(1);
-    }
-
-    if ( parseDefFile(filebuf) != 0 )
-        parseError(filename);
-*/
 }
-
-
-#if 0
-static Bool
-parseDefFile(const char* filebuf)
-{
-    regmatch_t  matches[10];
-    regex_t     preg;
-    int         nameLen;
-    int         ret;
-    char        readInFunc[32]; /* our function name won't be > 31 chars */
-
-    /* Parse the Long name */
-    ret = regcomp( &preg, "^[[:blank:]]*#[[:blank:]]*Name:[[:blank:]]*([^\n]+)[[:blank:]]*$", REG_EXTENDED|REG_NEWLINE );
-    if ( errno != 0 )
-    {
-        printf("error: %d %s\n", errno, strerror(errno));
-    }
-    ret = regexec( &preg, filebuf, 2, matches, 0 );
-
-    if ( ret == REG_NOMATCH || matches[0].rm_so == -1 )
-        return -1;
-
-printf("%d %d \n", matches[0].rm_so,matches[0].rm_eo);
-    nameLen = matches[1].rm_eo - matches[1].rm_so;
-    kbd.longName = (char*) malloc(nameLen + 1);
-printf("a %d %d\n", matches[1].rm_so, nameLen);
-    strncpy( kbd.longName, filebuf + matches[1].rm_so, nameLen );
-    kbd.longName[nameLen] = '\0';   /* coz no NULL by strncpy */
-
-    printf("---%s\n", kbd.longName);
-    regfree(&preg);
-
-    /* Allocate memory for the hotkey array */
-    kbd.keycodes = (hotkey*) malloc( NUM_HOTKEYS * sizeof(hotkey) );
-    if ( kbd.keycodes == NULL )
-    {
-        uError("Insufficient memory");  bailout();
-    }
-
-    /* Parse keycodes */
-    ret = regcomp( &preg, "^[[:blank:]]*([0-9]+)[[:blank:]]+([^\n]+)[[:blank:]]*$", REG_EXTENDED|REG_NEWLINE );
-    if ( errno != 0 )
-    {
-        printf("error: %d %s\n", errno, strerror(errno));
-    }
-
-    kbd.noOfKeys = 0;
-/*
-    while ( regexec( &preg, filebuf, 3, matches, 0 ) == 0 )
-    {
-        if ( matches[0].rm_so == -1 )
-            return -1;
-
-        kbd.noOfKeys++;
-        readInFunc
-        for ( i = 0; i < NUM_HOTKEYS; i++ )
-        {
-            if ( strcmp(
-defStr
-        kbd.keycodes[kbd.keycodes-1].
-printf("%d %d \n", matches[0].rm_so,matches[0].rm_eo);
-printf("a %d %d\n", matches[1].rm_so, nameLen);
-        strncpy( kbd.longName, filebuf + matches[1].rm_so, nameLen );
-        printf("***%s\n", kbd.longName);
-
-        filebuf += matches[0].rm_eo;
-    }
-*/
-
-    /*
-            char*       shortName;
-        char*       longName;
-            int         noOfKeys;
-                keycode*    keycodes;
-
-
-
-    ret = regcomp( &preg, "^[ ]*#[ ]*Name:[ ]*([^\n]+)[ ]*$", REG_EXTENDED|REG_NEWLINE );
-    ret = regexec( &preg, " #    Name:    M    $ Int  \n# Name: ABC", 5, matches, 0 );
-    */
-
-    regfree(&preg);
-}
-
-#endif
 
 static void
 parseError(const char* filename)
