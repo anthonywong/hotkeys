@@ -24,13 +24,14 @@
 
 #include "kbddef.h"
 
+#include <stdio.h>  /* somehow XKBfile.h needs it, but it doesn't include it */
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBfile.h>
 #include <X11/extensions/XKBbells.h>
 
 /* Function prototypes */
-static void initializeX(char* argv[]);
+void initializeX(char* prg);
 void usage(int argc, char* argv[]);
 void showKbdList(int argc, char *argv[]);
 static Bool setKbdType(const char* prog, const char* type);
