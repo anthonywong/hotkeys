@@ -17,6 +17,8 @@ My wishlist, in probably no specific priority order:
 
 - Support sleeping, suspend and power down (or logging out from WM).
 
+- Run xscreensaver daemon on start-up (configurable)
+
 - A GUI for configuration, probably a GTK one, with Gnome integration.
   Later I may do for KDE too.
 
